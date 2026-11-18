@@ -72,8 +72,7 @@ class PublicShareTest extends TestCase
         $response = $this->get('/api/shares/'.$transfer->share_token.'/files/'.$fileId)
             ->assertOk()
             ->assertHeader('Content-Type', 'application/octet-stream')
-            ->assertHeader('X-Content-Type-Options', 'nosniff')
-            ;
+            ->assertHeader('X-Content-Type-Options', 'nosniff');
 
         $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));
         $this->assertStringContainsString('attachment', $response->headers->get('Content-Disposition'));
