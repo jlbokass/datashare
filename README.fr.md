@@ -8,6 +8,8 @@
 
 **Conception validée ; squelettes Laravel 13 et Angular 22 créés dans TECH-03.** Le développeur a indiqué que les contrôles Docker initiaux, les tests et le build frontend étaient verts. TECH-04 fournit le raccordement des services et le hot reload ; **le développeur confirme la recette locale verte**, migrations PostgreSQL et tests compris.
 
+US03 inscription et US04 connexion JWT ont été validées en recette locale et fusionnées dans `develop`. **US01 téléversement est en cours sur une branche dédiée** ; tests, limites des gros fichiers et parcours navigateur restent à vérifier. [Guide de recette US01](docs/us01-upload.fr.md).
+
 Ce dépôt est public afin que l'évaluateur OpenClassrooms puisse consulter le code, les documents, les issues, les PR et les commits.
 
 ## Périmètre MVP
@@ -30,8 +32,8 @@ Les **US07 à US10** sont suivies séparément comme fonctionnalités facultativ
 - **Backend :** API REST PHP / Laravel ; authentification JWT exigée par le sujet.
 - **Frontend :** TypeScript / Angular.
 - **Base de données :** PostgreSQL.
-- **Stockage :** système de fichiers local privé proposé pour le MVP.
-- **Développement :** Docker Compose avec PHP/Composer, Node/npm, PostgreSQL et raccordement Nginx/Angular avec hot reload proposé dans TECH-04 (recette locale en attente).
+- **Stockage :** système de fichiers local privé ; disque des transferts et purge quotidienne US01 implémentés sur la branche de travail, recette locale en attente.
+- **Développement :** Docker Compose avec PHP/Composer, Node/npm, PostgreSQL, Nginx et hot reload Angular (TECH-04 déclaré vert en recette locale).
 
 Voir la [justification technique](docs/technology-choices.fr.md), l'[architecture](docs/architecture.fr.md), le [MCD UML](docs/data-model.fr.md), le [contrat OpenAPI](docs/api/openapi.yaml), le [guide TECH-04](docs/development.fr.md), la [synthèse du handoff UI](docs/design-handoff.fr.md) et le [guide Docker TECH-02](docs/docker-setup.fr.md).
 
