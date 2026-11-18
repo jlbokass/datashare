@@ -1,6 +1,13 @@
+---
+layout: default
+title: "Architecture de l'application"
+permalink: /fr/architecture/
+lang: fr
+---
+
 # DataShare — Architecture de l'application
 
-**État :** brouillon v0.1 — validation de DESIGN-01 nécessaire. Ce document décrit l'**architecture proposée**, pas un déploiement déjà réalisé.
+**État :** conception validée dans DESIGN-01. Ce document décrit l'**architecture proposée**, pas un déploiement déjà réalisé.
 
 **Source :** mission OpenClassrooms, étape 1 (*Concevez l'architecture technique*), et *DataShare — Spécifications fonctionnelles*, MVP **US01 à US06**.
 
