@@ -111,6 +111,11 @@ export class Home {
     return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(bytes / 1_000_000) + ' Mo';
   }
 
+  onSubmit(event: SubmitEvent): void {
+    event.preventDefault();
+    this.upload();
+  }
+
   upload(): void {
     if (!this.auth.signedIn() || this.files().length === 0 || this.busy()) {
       return;
