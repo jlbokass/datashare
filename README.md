@@ -8,6 +8,8 @@
 
 **Design approved; Laravel 13 and Angular 22 scaffolds generated in TECH-03.** The developer reported the initial Docker, test and frontend build checks successful. TECH-04 now provides a local development gateway and Angular hot reload; **the developer reports successful local integration checks**, including PostgreSQL migrations and regression tests.
 
+US03 registration and US04 JWT login have been locally validated by the developer and merged into `develop`. **US01 upload is being implemented on a feature branch**; its tests, large-file limits and browser flow await local verification. [US01 acceptance recipe](docs/us01-upload.md).
+
 This repository is public so the OpenClassrooms evaluator can inspect the code, documentation, issues, Pull Requests and commit history.
 
 ## MVP scope
@@ -30,8 +32,8 @@ Advanced **US07–US10** are tracked as optional. The automatic removal of expir
 - **Backend:** PHP / Laravel REST API; JWT authentication required by the specification.
 - **Frontend:** TypeScript / Angular.
 - **Database:** PostgreSQL.
-- **File storage:** private local filesystem proposed for the MVP.
-- **Development environment:** Docker Compose with PHP/Composer, Node/npm, PostgreSQL and proposed Nginx + Angular hot reload wiring (TECH-04, pending local validation).
+- **File storage:** private local filesystem; US01 transfer disk and daily expiry purge implemented on a feature branch, pending local verification.
+- **Development environment:** Docker Compose with PHP/Composer, Node/npm, PostgreSQL, Nginx and Angular hot reload (TECH-04 locally validated by the developer).
 
 See [the technical rationale](docs/technology-choices.md), [architecture](docs/architecture.md), [UML conceptual model](docs/data-model.md), [OpenAPI contract](docs/api/openapi.yaml), [TECH-04 local setup](docs/development.md), [UI handoff review](docs/design-handoff.md), and [TECH-02 Docker setup](docs/docker-setup.md).
 
