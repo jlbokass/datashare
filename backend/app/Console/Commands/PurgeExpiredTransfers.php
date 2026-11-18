@@ -36,6 +36,7 @@ class PurgeExpiredTransfers extends Command
 
                     if (! $success) {
                         $failed++;
+
                         continue;
                     }
 
