@@ -26,7 +26,7 @@
         <button class="secondary-action" type="button" (click)="reset()">Nouveau transfert</button>
       </div>
     } @else {
-      <form (ngSubmit)="upload()">
+      <form (submit)="onSubmit($event)">
         <div class="file-dropzone" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
           <input
             id="selected-files"
