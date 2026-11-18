@@ -9,7 +9,7 @@ lang: en
 
 [**Français**](us03-registration.fr.md) · [Documentation home](index.md)
 
-**Status: Docker builds, PostgreSQL migrations, Laravel/Angular tests and Angular build reported green by the developer. Browser registration and responsive checks are pending.**
+**Status: developer reports green Docker builds, PostgreSQL migrations, Laravel/Angular tests and Angular build. Registration, duplicate emails, short passwords and French feedback were verified in the browser. Full Figma-level responsiveness remains a later UI acceptance task.**
 
 This issue implements the mandatory [US03 — Création de compte](https://github.com/jlbokass/datashare/issues/6) from the supplied OpenClassrooms specifications, using the approved [OpenAPI contract](api/README.md) and the [UI handoff](design-handoff.md).
 
