@@ -38,7 +38,7 @@ The [AI development journal](ai-journal.md) records delegated tasks, developer d
 
 ## Account features (under development)
 
-[US03 — Registration and local acceptance](us03-registration.md): email-only registration, password hashing, PostgreSQL migration and Angular form. **No login/JWT in this branch; local verification pending.**
+[US03 — Registration](us03-registration.md) is completed and merged in `develop`. [US04 — JWT login and protected profile](us04-jwt-login.md) is prepared on a feature branch; Composer dependency, browser acceptance and security checks remain pending.
 
 ## MVP requirements
 

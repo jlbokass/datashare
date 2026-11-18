@@ -9,10 +9,12 @@ import { AuthService } from '../../auth/auth.service';
       <h1>Mon espace</h1>
       @if (loading()) {
         <p role="status">Vérification de la session...</p>
-      } @else if (auth.user(); as user) {
+      } @else {
+        @if (auth.user(); as user) {
         <p>Connecté avec l'adresse <strong>{{ user.email }}</strong>.</p>
         <p>La liste de tes fichiers sera disponible avec US05.</p>
         <button type="button" (click)="logout()">Déconnexion</button>
+        }
       }
     </section>
   `,
