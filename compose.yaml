@@ -1,0 +1,38 @@
+# DataShare P3 — minimal Docker-first development dependencies.
+# App-specific PHP-FPM, Angular dev server and Nginx wiring arrive after scaffolding.
+name: datashare-p3
+
+services:
+  db:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in the root .env}
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in the root .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  php:
+    profiles: ["tools"]
+    build:
+      context: ./docker/php
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+
+  node:
+    profiles: ["tools"]
+    image: node:24-bookworm-slim
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+
+volumes:
+  postgres_data:
