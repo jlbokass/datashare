@@ -1,78 +1,79 @@
-# DataShare — Modèle conceptuel de données (MCD)
+# DataShare — Modèle conceptuel de données (UML)
 
-**Statut :** brouillon v0.1 pour [DESIGN-02](https://github.com/jlbokass/datashare/issues/2). **Aucune table ni aucun code applicatif ne sont implémentés dans cette issue.**
+**Statut :** brouillon v0.2 — validation requise dans [DESIGN-02](https://github.com/jlbokass/datashare/issues/2). C'est une **conception métier**, pas une base de données déployée ni un modèle Laravel implémenté.
 
-**Source des exigences :** OpenClassrooms, *DataShare – Spécifications fonctionnelles* (pages 2 à 5), **US01 à US06** obligatoires. La mission demande un MCD ; le modèle de documentation technique accepte les représentations Merise ou UML.
+**Source :** OpenClassrooms, *DataShare – Spécifications fonctionnelles*, US01 à US06 obligatoires (pages 2 à 5). Le modèle de documentation technique fourni accepte explicitement une représentation **UML ou Merise** pour documenter le modèle de données.
 
-- [English version](data-model.md)
-- [MCD draw.io éditable](diagrams/data-model.drawio)
-- [Aperçu SVG](diagrams/data-model.svg)
+- [English](data-model.md)
+- [Diagramme UML éditable — draw.io](diagrams/data-model.drawio) (**deux pages :** MVP et extensions facultatives)
+- [SVG du MCD MVP](diagrams/data-model.svg)
 
-## 1. Schéma conceptuel
+## 1. Diagramme de classes UML — MVP obligatoire
 
-![MCD DataShare — utilisateur, transfert et fichier](diagrams/data-model.svg)
+![Diagramme de classes UML — DataShare MVP](diagrams/data-model.svg)
 
-Le diagramme représente des **entités et associations de type Merise**. Il ne constitue **pas** un schéma physique PostgreSQL : aucune clé étrangère, aucun type SQL, aucune migration et aucune classe Laravel ne sont modélisés.
+Un diagramme de classes UML peut servir de **modèle conceptuel** s'il décrit les entités métier, attributs et multiplicités plutôt que les tables SQL et méthodes techniques. Les identifiants sont annotés `{id}` : cela désigne leur rôle d'identifiant conceptuel, **pas encore une clé primaire SQL**.
 
-## 2. Entités proposées
+### Entités et attributs proposés
 
-| Entité | Attributs conceptuels | Justification |
+| Entité | Attributs conceptuels | Exigence / choix de conception |
 | --- | --- | --- |
-| **UTILISATEUR** | Identifiant utilisateur, email unique, mot de passe haché, date d'inscription | US03 création de compte, US04 connexion et propriété des fichiers |
-| **TRANSFERT** | Identifiant transfert, jeton de partage unique et non prédictible, date de création, date d'expiration | Partage de plusieurs fichiers au moyen d'un lien et d'une durée commune |
-| **FICHIER** | Identifiant fichier, nom original, type MIME, taille en octets, date d'envoi | US01 téléversement ; US02 métadonnées ; US05 historique ; US06 suppression individuelle |
+| **UTILISATEUR** | `idUtilisateur: UUID {id}`; `email: String {unique}`; `motDePasseHash: String`; `dateCreation: DateTime` | Données de création de compte et connexion (US03, US04). Mot de passe haché et salé. |
+| **UTILISATEUR — facultatif** | `nom: String [0..1]`; `prenom: String [0..1]` | Enrichissement possible du profil, **non demandé** dans US03. Aucun critère du MVP n'en dépend. |
+| **TRANSFERT** | `idTransfert: UUID {id}`; `tokenPartage: String {unique}`; `dateCreation: DateTime`; `dateExpiration: DateTime` | Un token et une expiration pour un ensemble de fichiers : choix proposé, cohérent avec US01/US02. |
+| **TRANSFERT — facultatif** | `titre: String [0..1]`; `message: Text [0..1]` | Utiles pour une interface enrichie, mais **pas obligatoires** dans les US officielles. |
+| **TRANSFERT — calculé** | `/statut: EtatLien {derived}` | Déduit de la date d'expiration ; pas de statut nécessairement stocké en base. Un enregistrement purgé n'existe plus. |
+| **FICHIER** | `idFichier: UUID {id}`; `nomOriginal: String`; `tailleOctets: Long`; `typeMime: String`; `dateEnvoi: DateTime` | Métadonnées nécessaires aux US01, US02, US05 et US06. |
 
-La *clé technique de stockage* est volontairement **absente du MCD**. Elle sera définie au moment de convertir ce modèle en tables PostgreSQL et en stockage privé.
+### Associations et multiplicités UML
 
-Nous ne créons pas d'entité **LIEN_DE_PARTAGE** supplémentaire : le token et l'expiration sont des attributs de TRANSFERT dans cette proposition. Les destinataires des liens ne sont pas obligés de posséder un compte.
+| Association | Multiplicité à la première extrémité | Multiplicité à la seconde extrémité | Interprétation |
+| --- | --- | --- | --- |
+| **UTILISATEUR — crée — TRANSFERT** | **1** près d'UTILISATEUR | **0..*** près de TRANSFERT | Chaque transfert a un utilisateur propriétaire ; un utilisateur peut n'avoir aucun transfert ou en créer plusieurs. |
+| **TRANSFERT — contient — FICHIER** | **1** près de TRANSFERT | **1..*** près de FICHIER | Chaque fichier appartient à un transfert ; chaque transfert contient au moins un fichier. |
 
-## 3. Associations et cardinalités
+**Point UML important :** la multiplicité se place au voisinage de la **classe qu'elle dénombre**. `UTILISATEUR "1" — "0..*" TRANSFERT` n'impose donc pas un transfert minimum à chaque utilisateur.
 
-| Association | Entité A | Cardinalité A | Entité B | Cardinalité B |
-| --- | --- | --- | --- | --- |
-| **CRÉER** | UTILISATEUR | **0,N** | TRANSFERT | **1,1** |
-| **CONTENIR** | TRANSFERT | **1,N** | FICHIER | **1,1** |
+Le **losange noir** côté TRANSFERT exprime une composition : supprimer un transfert supprime ses fichiers, mais supprimer un fichier individuel n'entraîne pas la suppression de ses voisins.
 
-**Interprétation :**
-- Un utilisateur peut n'avoir créé **aucun transfert**, ou en avoir créé plusieurs ; chaque transfert du MVP appartient **à un seul utilisateur**.
-- Un transfert contient **au moins un fichier** et éventuellement plusieurs ; chaque fichier appartient **à un seul transfert**.
-- Le propriétaire d'un fichier est déterminé **par l'intermédiaire du transfert**. Les autorisations devront vérifier ce lien ; l'absence d'association directe FICHIER → UTILISATEUR ne donne aucun droit de gestion au public.
+## 2. Règles métier et limites du MVP
 
-Le regroupement dans une entité TRANSFERT est **un choix à valider**, non une structure imposée par OC. L'objectif du sujet évoque un ou plusieurs fichiers, tandis que les US01/US02 décrivent les opérations sur un fichier. Un token commun est compatible avec ces besoins si les actions individuelles sont conservées.
-
-## 4. Règles de gestion tirées des US officielles
-
-| Règle | Conséquence sur le modèle |
+| Règle | Conséquence |
 | --- | --- |
-| **R1 — Inscription** | L'email est unique ; le mot de passe est conservé sous la forme d'un hash salé et non réversible (US03). |
-| **R2 — Partage** | Chaque TRANSFERT possède un token unique non prédictible ; le destinataire n'a pas besoin de compte pour télécharger (US01, US02). |
-| **R3 — Expiration** | TRANSFERT possède une date d'expiration : **7 jours par défaut**, réglable à l'envoi avec un maximum de **7 jours** (US01). Les fichiers du transfert partagent cette échéance. |
-| **R4 — Métadonnées** | L'écran public présente nom, type, taille et date d'expiration (US02). L'historique présente nom, taille, date d'envoi, expiration et état du lien valide/expiré (US05). |
-| **R5 — Propriété** | Chaque utilisateur consulte et gère uniquement ses propres fichiers, en passant par la propriété du TRANSFERT (US05, US06). |
-| **R6 — Suppression individuelle** | La suppression d'un FICHIER retire **ses propres octets et ses métadonnées**, sans supprimer les autres fichiers du même TRANSFERT. Confirmation côté Angular, autorisation et suppression côté Laravel (US06). |
-| **R7 — Dernier fichier** | **Choix proposé :** lorsque le dernier fichier disparaît, supprimer également le TRANSFERT devenu vide et invalider son lien. La cardinalité **1,N** reste ainsi respectée. |
-| **R8 — Expiration effective** | Un fichier expiré ne doit pas être téléchargé ; ses octets et métadonnées doivent être supprimés automatiquement (US01). Par défaut, l'historique affiche uniquement les fichiers non expirés selon US06. |
-| **R9 — État calculé** | L'état valide/expiré peut être déduit de la date d'expiration ; un attribut d'état stocké n'est pas nécessaire dans le MCD. |
+| **US01 — téléversement** | L'utilisateur doit être connecté pour déposer un fichier ; l'objectif fonctionnel permet de transférer un ou plusieurs fichiers. Les octets sont stockés en privé, hors PostgreSQL. |
+| **US01 — partage** | Un token unique non prédictible désigne le TRANSFERT proposé ; c'est un **choix de modélisation**, pas une structure imposée. |
+| **US01 — expiration** | Durée par défaut : sept jours ; durée configurable, sept jours maximum. Les octets et métadonnées sont automatiquement supprimés à expiration. |
+| **US02 — téléchargement** | Le destinataire disposant d'un lien valide consulte nom, type, taille et expiration avant téléchargement. Les liens inconnus/expirés donnent une erreur explicite. |
+| **US03/04 — comptes** | Email unique, mot de passe haché et authentification JWT. |
+| **US05 — historique** | Un utilisateur authentifié ne voit que ses fichiers, avec nom, taille, date d'envoi, expiration et état du lien. |
+| **US06 — suppression** | Le propriétaire peut supprimer **un fichier individuel**. Ses octets et métadonnées disparaissent, les autres fichiers du transfert restent accessibles. Confirmation côté frontend. |
+| **Invariant proposé** | Si le dernier fichier est supprimé, supprimer aussi le TRANSFERT devenu vide et invalider son token, pour respecter la cardinalité `1..*`. |
+| **Statut calculé** | `/statut` dépend de `dateExpiration`; il n'est pas nécessaire de stocker une colonne. La purge éliminant les enregistrements expirés, l'affichage d'un historique expiré devra être concilié avec US05/US06. |
 
-**Précision :** la purge *quotidienne par tâche planifiée* est détaillée dans US10 (optionnelle), mais **US01 impose déjà la suppression automatique à expiration**. La méthode d'ordonnancement relève de l'architecture et de l'implémentation, pas du MCD.
+**Un lien pour plusieurs fichiers :** le regroupement permet un token et une expiration communs, tout en conservant la suppression individuelle. La décision doit être validée, car OC n'impose pas cette structure de données particulière.
 
-## 5. Hors périmètre MVP
+## 3. Champs complémentaires : MCD et implémentation
 
-Ce MCD n'intègre pas :
-- US07, téléversement anonyme (qui modifierait la cardinalité du propriétaire).
-- US08, tags et associations de tags.
-- US09, protection par mot de passe (le champ figurant dans Figma ne rend pas cette US obligatoire).
-- Les fonctionnalités complémentaires d'US10, au-delà de l'expiration déjà exigée dans US01.
+- `cleStockage` sera nécessaire pour accéder au contenu depuis le stockage privé retenu, mais relève davantage du **modèle logique/physique** que du MCD minimal.
+- `checksumSha256` peut servir à contrôler l'intégrité ; ce n'est **pas une exigence explicite** des US obligatoires.
+- Placer `motDePasseHash` sur TRANSFERT protège tout un groupe de fichiers, alors qu'**US09 prévoit la protection d'un fichier**. Si US09 est développée, il faudra décider explicitement entre mot de passe par FICHIER et protection du transfert entier.
+- `statut` devient une **propriété métier dérivée** (notation UML `/statut`), pas forcément une colonne persistée.
 
-Nous n'ajoutons pas non plus la persistance des JWT, les journaux détaillés de téléchargement, les rôles administrateurs ou la récupération de mot de passe.
+## 4. Extension facultative — traçabilité des téléchargements
 
-## 6. Points à valider avant approbation
+La **deuxième page** du [fichier draw.io](diagrams/data-model.drawio) représente le concept proposé **TÉLÉCHARGEMENT**, **hors MVP obligatoire**.
 
-- [ ] Valider le **token unique par transfert**, même lorsqu'il contient plusieurs fichiers ; sinon, adapter le modèle pour un lien par fichier.
-- [ ] Vérifier qu'un **fichier est supprimable indépendamment**, sans affecter les autres fichiers partagés.
-- [ ] Valider la suppression du transfert lorsqu'il ne contient plus de fichier.
-- [ ] Confirmer une date d'expiration commune à tous les fichiers du transfert.
-- [ ] Vérifier la cohérence du diagramme avec les documents FR/EN.
-- [ ] Recouper le MCD avec DESIGN-01 (architecture) et DESIGN-03 (OpenAPI) avant acceptation définitive.
+Si chaque téléchargement concerne un fichier, un événement est rattaché à **un FICHIER**, et un fichier peut avoir **0..*** événements. C'est plus précis que de rattacher tous les événements au seul TRANSFERT lorsque plusieurs fichiers partagent un lien. Les attributs envisagés sont un identifiant, une date, une empreinte IP facultative et un user-agent facultatif.
 
-**Après validation :** nous déduirons le schéma logique/physique PostgreSQL et les modèles Laravel lors de l'initialisation technique. Cela restera distinct du MCD livré ici.
+Aucune US obligatoire ne réclame un historique persistant des téléchargements. Les empreintes IP et user-agents posent aussi des questions de minimisation, de conservation et de suppression des données personnelles. **Nous n'ajoutons donc pas de suivi ni de table d'événements au MVP sans justification.**
+
+## 5. Points à confirmer avant validation
+
+- [ ] Un lien peut-il contenir plusieurs fichiers avec une seule date d'expiration ?
+- [ ] US06 supprime-t-elle bien un fichier sans affecter les autres ?
+- [ ] Le transfert vide est-il supprimé après le dernier fichier ?
+- [ ] Souhaitons-nous inclure les champs facultatifs nom/prénom et titre/message dans l'interface MVP ?
+- [ ] La protection par mot de passe US09 et la traçabilité persistante restent hors MVP.
+- [ ] Le modèle doit rester cohérent avec DESIGN-01 et DESIGN-03 et la documentation EN/FR doit rester synchronisée.
+
+**Étape suivante :** après validation, en déduire le schéma PostgreSQL et les modèles Laravel. Clés primaires/étrangères, clés de stockage, index et migrations appartiennent au modèle technique ultérieur.
