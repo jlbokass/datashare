@@ -178,6 +178,24 @@ class TransferUploadTest extends TestCase
         $this->assertEqualsWithDelta(5, now()->diffInMinutes($transfer->expires_at), 0.05);
     }
 
+    public function test_demo_expiry_cannot_be_enabled_on_a_production_environment(): void
+    {
+        config()->set('transfers.demo_five_minutes', true);
+        app()->instance('env', 'production');
+
+        $this->getJson('/api/demo/capabilities')
+            ->assertOk()
+            ->assertJsonPath('five_minute_expiry', false);
+
+        $this->authenticate()->post('/api/transfers', [
+            'files' => [UploadedFile::fake()->create('demo.pdf', 2, 'application/pdf')],
+            'expires_in_minutes' => 5,
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors(['expires_in_minutes']);
+
+        $this->assertDatabaseCount('transfers', 0);
+    }
+
     public function test_demo_expiry_cannot_be_combined_with_days_or_modified(): void
     {
         config()->set('transfers.demo_five_minutes', true);
