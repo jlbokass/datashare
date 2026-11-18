@@ -34,7 +34,11 @@ class CreateTransferController extends Controller
             'files.array' => 'Les fichiers doivent être envoyés sous forme de liste.',
             'files.max' => "Tu peux envoyer jusqu'à {$maxFiles} fichiers par transfert.",
             'files.*.file' => 'Un fichier transmis est invalide.',
-            'files.*' => 'Ce type de fichier n’est pas autorisé.',
+            'files.min' => 'Ajoute au moins un fichier.',
+            'files.*.required' => 'Un fichier est manquant.',
+            'files.*.mimes' => 'Le contenu de ce fichier n’est pas autorisé.',
+            'files.*.extensions' => 'Cette extension n’est pas autorisée.',
+            'expires_in_days.integer' => 'Choisis un nombre de jours valide.',
             'expires_in_days.between' => 'L’expiration doit être comprise entre 1 et 7 jours.',
         ]);
 
@@ -44,7 +48,7 @@ class CreateTransferController extends Controller
 
         foreach ($data['files'] as $file) {
             $size = $file->getSize();
-            if ($size === false || $size > $maxFileBytes) {
+            if (! is_int($size) || $size > $maxFileBytes) {
                 return response()->json([
                     'message' => 'La taille de chaque fichier est limitée à 1 Go.',
                     'code' => 'payload_too_large',
