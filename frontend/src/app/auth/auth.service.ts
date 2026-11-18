@@ -58,6 +58,16 @@ export class AuthService {
     );
   }
 
+  authorizationHeaders(): HttpHeaders {
+    const accessToken = this.token();
+
+    if (!accessToken) {
+      throw new Error('Authentification requise.');
+    }
+
+    return new HttpHeaders({ Authorization: `Bearer ${accessToken}` });
+  }
+
   logout(): void {
     // Local logout only: JWT remains valid until expiry (no revocation in US04).
     this.token.set(null);
