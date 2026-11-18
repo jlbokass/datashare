@@ -110,7 +110,7 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateTransferRequest'
             encoding:
-              files:
+              'files[]':
                 style: form
                 explode: true
       responses:
@@ -424,9 +424,9 @@ components:
     CreateTransferRequest:
       type: object
       additionalProperties: false
-      required: [files]
+      required: ['files[]']
       properties:
-        files:
+        'files[]':
           type: array
           minItems: 1
           description: |
