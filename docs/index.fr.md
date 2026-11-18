@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "DataShare — Documentation française"
-permalink: /fr/
+permalink: /fr.html
 lang: fr
 ---
 
