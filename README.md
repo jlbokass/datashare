@@ -6,7 +6,7 @@
 
 ## Project status
 
-**Design complete; application implementation has not started in this new repository.** The architecture, conceptual UML model, OpenAPI contract and technical choices have been reviewed. Laravel, Angular and Docker are **planned**, not yet installed or running.
+**Design complete; application implementation has not started in this new repository.** The architecture, conceptual UML model, OpenAPI contract and technical choices have been reviewed. A minimal **Docker-first dependency configuration** is proposed in TECH-02; local execution has not yet been verified. Laravel and Angular have not been generated.
 
 This repository is public so the OpenClassrooms evaluator can inspect the code, documentation, issues, Pull Requests and commit history.
 
@@ -31,9 +31,9 @@ Advanced **US07–US10** are tracked as optional. The automatic removal of expir
 - **Frontend:** TypeScript / Angular.
 - **Database:** PostgreSQL.
 - **File storage:** private local filesystem proposed for the MVP.
-- **Development environment:** Docker Compose with Nginx/PHP-FPM, planned after framework initialization.
+- **Development environment:** Docker Compose configured first with PHP/Composer, Node/npm and PostgreSQL; Nginx/application wiring follows framework initialization.
 
-See [the technical rationale](docs/technology-choices.md), [architecture](docs/architecture.md), [UML conceptual model](docs/data-model.md) and [OpenAPI contract](docs/api/openapi.yaml).
+See [the technical rationale](docs/technology-choices.md), [architecture](docs/architecture.md), [UML conceptual model](docs/data-model.md), [OpenAPI contract](docs/api/openapi.yaml), and [Docker-first setup instructions](docs/docker-setup.md).
 
 ## Documentation and project workflow
 
