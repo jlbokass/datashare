@@ -65,7 +65,7 @@ class TransferUploadTest extends TestCase
         Storage::disk('transfers')->assertExists($transfer->files[0]->storage_path);
         $this->assertStringNotContainsString('report.pdf', $transfer->files[0]->storage_path);
         $this->assertDatabaseCount('transfer_files', 1);
-        $this->assertSame(7, (int) now()->diffInDays($transfer->expires_at));
+        $this->assertEqualsWithDelta(7, now()->diffInDays($transfer->expires_at), 0.01);
     }
 
     public function test_multiple_files_share_one_token_and_custom_expiry(): void
@@ -82,7 +82,7 @@ class TransferUploadTest extends TestCase
         $transfer = Transfer::query()->firstOrFail();
         $this->assertDatabaseCount('transfers', 1);
         $this->assertDatabaseCount('transfer_files', 2);
-        $this->assertSame(2, (int) now()->diffInDays($transfer->expires_at));
+        $this->assertEqualsWithDelta(2, now()->diffInDays($transfer->expires_at), 0.01);
     }
 
     public function test_missing_files_bad_expiry_and_executables_are_rejected(): void

@@ -52,6 +52,25 @@ services:
       db:
         condition: service_healthy
 
+  # Processes the daily expiration purge without host cron or public ports.
+  scheduler:
+    build:
+      context: ./docker/php
+    working_dir: /workspace/backend
+    volumes:
+      - ./backend:/workspace/backend
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_DATABASE: ${POSTGRES_DB:?Set POSTGRES_DB in the root .env}
+      DB_USERNAME: ${POSTGRES_USER:?Set POSTGRES_USER in the root .env}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env}
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      db:
+        condition: service_healthy
+
   frontend:
     image: node:24-bookworm-slim
     working_dir: /workspace/frontend

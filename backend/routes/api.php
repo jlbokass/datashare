@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\MeController;
+use App\Http\Controllers\Api\CreateTransferController;
 use App\Http\Middleware\AuthenticateJwt;
 use Illuminate\Support\Facades\Route;
 
@@ -18,3 +19,6 @@ Route::post('/auth/register', RegisterController::class)->middleware('throttle:1
 // US04: login returns JWT, /me requires a valid bearer token.
 Route::post('/auth/login', LoginController::class)->middleware('throttle:5,1');
 Route::get('/auth/me', MeController::class)->middleware(AuthenticateJwt::class);
+
+// US01: authenticated private upload. Public downloads are implemented in US02.
+Route::post('/transfers', CreateTransferController::class)->middleware(AuthenticateJwt::class);
