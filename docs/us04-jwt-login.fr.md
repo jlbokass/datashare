@@ -9,7 +9,7 @@ lang: fr
 
 [**English**](us04-jwt-login.md) · [Documentation française](index.fr.md)
 
-**Statut : implémentation proposée sur branche de travail. Installation de la dépendance, tests et recette locale encore en attente.**
+**Statut : Docker, migrations, tests backend/frontend, build, connexion/déconnexion et HTTP 401 sans JWT annoncés verts par le développeur. Le commit/push de la bibliothèque JWT et de son lockfile reste obligatoire avant fusion.**
 
 Références : [US04 OC](https://github.com/jlbokass/datashare/issues/7), [contrat OpenAPI DESIGN-03](api/README.fr.md), [handoff Figma](design-handoff.fr.md).
 
