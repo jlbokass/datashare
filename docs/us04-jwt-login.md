@@ -9,7 +9,7 @@ lang: en
 
 [**Français**](us04-jwt-login.fr.md) · [Documentation home](index.md)
 
-**Status: implementation proposed on a work branch. Dependency installation, tests and local browser acceptance are pending.**
+**Status: local Docker, migrations, backend/frontend tests, build, login/logout and no-token HTTP 401 reported green by developer. Commit/push of Composer JWT dependency and lockfile remains mandatory before merge.**
 
 Sources: [OC US04](https://github.com/jlbokass/datashare/issues/7), [DESIGN-03 OpenAPI](api/README.md), and [Figma UI handoff](design-handoff.md).
 
