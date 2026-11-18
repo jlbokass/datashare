@@ -9,7 +9,7 @@ lang: en
 
 [**Français**](us04-jwt-login.fr.md) · [Documentation home](index.md)
 
-**Status: local Docker, migrations, backend/frontend tests, build, login/logout and no-token HTTP 401 reported green by developer. Commit/push of Composer JWT dependency and lockfile remains mandatory before merge.**
+**Status: local Docker, migrations, backend/frontend tests, build, login/logout and no-token HTTP 401 reported green by developer. Composer dependency and lockfile are now committed and verified on the branch (`firebase/php-jwt` v7.2.2); PR review and merge remain.**
 
 Sources: [OC US04](https://github.com/jlbokass/datashare/issues/7), [DESIGN-03 OpenAPI](api/README.md), and [Figma UI handoff](design-handoff.md).
 
