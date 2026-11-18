@@ -35,11 +35,11 @@ Advanced **US07–US10** are tracked as optional. The automatic removal of expir
 - **File storage:** private local filesystem, metadata in PostgreSQL; US01 file upload and scheduled expiry cleanup locally checked by the developer.
 - **Development environment:** Docker Compose with PHP/Composer, Node/npm, PostgreSQL, Nginx and Angular hot reload (TECH-04 locally validated by the developer).
 
-See [the technical rationale](docs/technology-choices.md), [architecture](docs/architecture.md), [UML conceptual model](docs/data-model.md), [OpenAPI contract](docs/api/openapi.yaml), [TECH-04 local setup](docs/development.md), [UI handoff review](docs/design-handoff.md), and [TECH-02 Docker setup](docs/docker-setup.md).
+See [the evolving OC technical documentation](docs/technical-documentation.md), [the technical rationale](docs/technology-choices.md), [architecture](docs/architecture.md), [UML conceptual model](docs/data-model.md), [OpenAPI contract](docs/api/openapi.yaml), [TECH-04 local setup](docs/development.md), [UI handoff review](docs/design-handoff.md), and [TECH-02 Docker setup](docs/docker-setup.md).
 
 ## Documentation and project workflow
 
-The documentation is maintained in **English and French** in the same repository. [Start here](docs/index.md), or open the [French documentation hub](docs/index.fr.md). Our [AI development journal](docs/ai-journal.md) records AI contributions and developer supervision, with a [French version](docs/ai-journal.fr.md).
+The documentation is maintained in **English and French** in the same repository. The OC deliverables [TESTING](TESTING.md), [SECURITY](SECURITY.md), [PERF](PERF.md) and [MAINTENANCE](MAINTENANCE.md) have bilingual plans; security scans, coverage, E2E and performance results remain **pending**, not claimed as completed. [Start here](docs/index.md), or open the [French documentation hub](docs/index.fr.md). Our [AI development journal](docs/ai-journal.md) records AI contributions and developer supervision, with a [French version](docs/ai-journal.fr.md).
 
 Git workflow: work branches → Pull Requests → `develop` → reviewed release Pull Request → protected `main`. See the [issues](https://github.com/jlbokass/datashare/issues) for the official user stories and remaining work.
 
