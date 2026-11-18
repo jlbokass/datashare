@@ -1,0 +1,86 @@
+<section class="upload-card" aria-labelledby="upload-heading">
+  <h1 id="upload-heading">Tu veux partager un fichier ?</h1>
+
+  @if (!auth.signedIn()) {
+    <p class="intro">Connecte-toi pour téléverser tes fichiers et créer un lien de partage temporaire.</p>
+    <a class="primary-link" routerLink="/login">Se connecter</a>
+    <p class="register-prompt">Pas encore de compte ? <a routerLink="/register">Créer un compte</a></p>
+  } @else {
+    @if (errorMessage()) {
+      <p class="error-message" role="alert">{{ errorMessage() }}</p>
+    }
+
+    @if (shareUrl(); as link) {
+      <div class="upload-result" role="status">
+        <h2>Ton lien est prêt !</h2>
+        <p>
+          Ton transfert contient {{ transfer()?.files?.length }} fichier(s).
+          Il expirera le {{ transfer()?.expires_at ? (newDateLabel(transfer()?.expires_at ?? '')) : '' }}.
+        </p>
+        <label for="share-link">Lien unique de partage</label>
+        <input id="share-link" type="text" [value]="link" readonly />
+        <button class="primary-action" type="button" (click)="copyLink()">
+          {{ copied() ? 'Lien copié !' : 'Copier le lien' }}
+        </button>
+        <p class="note">Le lien est généré. Le téléchargement public sera activé en US02.</p>
+        <button class="secondary-action" type="button" (click)="reset()">Nouveau transfert</button>
+      </div>
+    } @else {
+      <form (submit)="onSubmit($event)">
+        <div class="file-dropzone" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+          <input
+            id="selected-files"
+            type="file"
+            multiple
+            accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.mp3,.mp4,.zip"
+            (change)="onFilesSelected($event)"
+            [disabled]="busy()"
+          />
+          <label class="file-picker" for="selected-files">
+            {{ files().length ? 'Changer les fichiers' : 'Ajouter des fichiers' }}
+          </label>
+          <p class="hint">Glisse tes fichiers ici ou sélectionne-les.</p>
+          <p class="limit">Maximum 5 fichiers, 1 Go par fichier et 2 Go au total.</p>
+          <p class="hint">Pour partager un dossier, compresse-le d'abord en ZIP. Les archives ne sont pas décompressées ni analysées par antivirus.</p>
+        </div>
+
+        @if (files().length > 0) {
+          <ul class="selected-files" aria-label="Fichiers sélectionnés">
+            @for (file of files(); track $index) {
+              <li>
+                <div class="file-info">
+                  <span class="file-name">{{ file.name }}</span>
+                  <small>{{ formatSize(file.size) }}</small>
+                </div>
+                <button type="button" class="remove" (click)="removeFile($index)" [disabled]="busy()"
+                  [attr.aria-label]="'Retirer ' + file.name">Retirer</button>
+              </li>
+            }
+          </ul>
+        }
+
+        <div class="field">
+          <label for="expiry-days">Expiration</label>
+          <select id="expiry-days" [value]="demoSelected() ? 'demo5' : expiresInDays()" (change)="changeExpiry($event)" [disabled]="busy()">
+            @if (demoEnabled()) {
+              <option value="demo5">Démo locale — 5 minutes</option>
+            }
+            @for (day of [1, 2, 3, 4, 5, 6, 7]; track day) {
+              <option [value]="day">{{ day === 1 ? 'Une journée' : day + ' jours' }}</option>
+            }
+          </select>
+        </div>
+
+        <button type="submit" class="primary-action" [disabled]="busy() || !files().length">
+          {{ busy() ? 'Téléversement en cours...' : 'Téléverser' }}
+        </button>
+
+        @if (busy()) {
+          <p class="progress" role="status">
+            {{ progress() === null ? 'Envoi des fichiers...' : 'Envoi : ' + progress() + ' %' }}
+          </p>
+        }
+      </form>
+    }
+  }
+</section>

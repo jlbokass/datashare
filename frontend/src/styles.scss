@@ -1,0 +1,23 @@
+/* DataShare design handoff v1 — source values, not a claim of final UI fidelity. */
+:root {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #1e1e1e;
+  font-synthesis: none;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}

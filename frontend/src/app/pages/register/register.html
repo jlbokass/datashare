@@ -1,0 +1,80 @@
+<section class="register-card" aria-labelledby="register-title">
+  <h1 id="register-title">Créer un compte</h1>
+
+  @if (created()) {
+    <p class="success-message" role="status">
+      Ton compte a bien été créé. Tu peux maintenant te connecter.
+    </p>
+    <a routerLink="/login">Se connecter</a>
+  } @else {
+    @if (errorMessage()) {
+      <p class="form-message" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="field">
+        <label for="registration-email">Email</label>
+        <input
+          id="registration-email"
+          type="email"
+          autocomplete="email"
+          formControlName="email"
+          maxlength="255"
+          placeholder="Saisissez votre email..."
+          [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched ? 'true' : null"
+          aria-describedby="email-error"
+        />
+        @if (form.controls.email.invalid && form.controls.email.touched) {
+          <small id="email-error" class="field-error">Saisis une adresse email valide.</small>
+        }
+        @if (fieldErrors()['email']?.length) {
+          <small id="email-error-server" class="field-error">{{ fieldErrors()['email'][0] }}</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="registration-password">Mot de passe</label>
+        <input
+          id="registration-password"
+          type="password"
+          autocomplete="new-password"
+          formControlName="password"
+          minlength="8"
+          placeholder="Saisissez votre mot de passe..."
+          [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched ? 'true' : null"
+          aria-describedby="password-error"
+        />
+        @if (form.controls.password.invalid && form.controls.password.touched) {
+          <small id="password-error" class="field-error">8 caractères minimum.</small>
+        }
+        @if (fieldErrors()['password']?.length) {
+          <small class="field-error">{{ fieldErrors()['password'][0] }}</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="registration-confirm">Vérification du mot de passe</label>
+        <input
+          id="registration-confirm"
+          type="password"
+          autocomplete="new-password"
+          formControlName="passwordConfirmation"
+          placeholder="Saisissez-le à nouveau..."
+          [attr.aria-invalid]="form.hasError('passwordMismatch') && form.controls.passwordConfirmation.touched ? 'true' : null"
+          aria-describedby="confirmation-error"
+        />
+        @if (form.hasError('passwordMismatch') && form.controls.passwordConfirmation.touched) {
+          <small id="confirmation-error" class="field-error">Les mots de passe ne correspondent pas.</small>
+        }
+        @if (form.controls.passwordConfirmation.hasError('required') && form.controls.passwordConfirmation.touched) {
+          <small class="field-error">Confirme ton mot de passe.</small>
+        }
+      </div>
+
+      <p class="existing-account">Déjà inscrit ? <a routerLink="/login">Se connecter</a></p>
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Création en cours...' : 'Créer mon compte' }}
+      </button>
+    </form>
+  }
+</section>

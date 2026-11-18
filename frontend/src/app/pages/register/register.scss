@@ -1,0 +1,93 @@
+:host {
+  display: block;
+  width: min(100%, 28rem);
+  margin: auto;
+}
+
+.register-card {
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgb(30 30 30 / 12%);
+  padding: clamp(1.5rem, 4vw, 2rem);
+}
+
+h1 {
+  font: 700 1.75rem/2.5rem 'DM Sans', sans-serif;
+  text-align: center;
+  margin: 0 0 1.5rem;
+}
+
+.field {
+  margin-bottom: 1.1rem;
+}
+
+label {
+  display: block;
+  font: 400 .875rem/1rem 'DM Sans', sans-serif;
+  margin-bottom: .6rem;
+}
+
+input {
+  display: block;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: .7rem .8rem;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  font: 400 1rem 'DM Sans', sans-serif;
+  color: #1e1e1e;
+  background: #fff;
+
+  &:focus-visible {
+    outline: 2px solid #e27f29;
+    outline-offset: 1px;
+  }
+
+  &[aria-invalid='true'] {
+    border-color: #ae3030;
+  }
+}
+
+.field-error {
+  display: block;
+  margin-top: .35rem;
+  color: #a82727;
+  line-height: 1.4;
+}
+
+.existing-account {
+  text-align: right;
+  font-size: .875rem;
+  color: #595959;
+  margin: 1.4rem 0 .8rem;
+}
+
+button {
+  width: 100%;
+  padding: .8rem 1rem;
+  font: 600 1rem/1.5rem 'DM Sans', sans-serif;
+  background: #ffeadb;
+  border: 1px solid #ffa569;
+  border-radius: 8px;
+  color: #2c2c2c;
+  cursor: pointer;
+
+  &:hover:not(:disabled) { background: #ffd9c2; }
+  &:disabled { opacity: .65; cursor: wait; }
+  &:focus-visible { outline: 2px solid #2c2c2c; outline-offset: 3px; }
+}
+
+.form-message {
+  background: #ffefed;
+  border-radius: 8px;
+  padding: .8rem;
+  color: #a82727;
+}
+
+.success-message {
+  background: #e6f6e9;
+  border-radius: 8px;
+  padding: .8rem;
+  line-height: 1.5;
+}

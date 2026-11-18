@@ -1,0 +1,20 @@
+<div class="site-shell">
+  <header class="site-header">
+    <a class="brand" routerLink="/" (click)="resetHome()" aria-label="DataShare, accueil">DataShare</a>
+    <nav aria-label="Navigation principale">
+      @if (auth.signedIn()) {
+        <a class="header-link" routerLink="/account">Mon espace</a>
+        <button class="header-link header-logout" type="button" (click)="logout()">Déconnexion</button>
+      } @else {
+        <a class="header-link" routerLink="/login">Se connecter</a>
+        <a class="header-link header-secondary" routerLink="/register">Créer un compte</a>
+      }
+    </nav>
+  </header>
+
+  <main class="site-main">
+    <router-outlet />
+  </main>
+
+  <footer class="site-footer">Copyright DataShare© {{ year }}</footer>
+</div>
