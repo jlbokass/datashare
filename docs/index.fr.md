@@ -32,6 +32,10 @@ Les quatre documents existent en français et en anglais. Les fonctionnalités o
 
 Le [journal d'utilisation de l'IA](ai-journal.fr.md) documente les tâches confiées, décisions du développeur, corrections et preuves, avec une [version anglaise](ai-journal.md). Les premières entrées sont explicitement rétrospectives.
 
+## Intégration continue
+
+[CI-01 — GitHub Actions, workflows et critères](ci.fr.md) documente les checks backend/frontend. **La première CI applicative n'est pas encore déclarée verte** ; GitHub Pages gère déjà la livraison des documents depuis `main/docs`.
+
 ## Environnement de développement
 
 [Dépendances Docker-first](docker-setup.fr.md) (TECH-02) · [Intégration Laravel/Angular et hot reload](development.fr.md) (TECH-04, validée en local par le développeur).

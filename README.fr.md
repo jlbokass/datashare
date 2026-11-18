@@ -49,7 +49,7 @@ Le propriétaire du dépôt indique avoir activé GitHub Pages pour la documenta
 
 La [recette d'intégration locale](docs/development.fr.md) documente TECH-04 (déclarée verte par le développeur). Ne pas reprendre automatiquement les consignes de l'ancien dépôt `datashare-legacy`.
 
-La CI, la couverture de code et les scans de sécurité ne sont pas encore opérationnels. Les **badges de qualité seront ajoutés lorsque les vérifications correspondantes auront effectivement été exécutées**, sans afficher prématurément un statut vert.
+**La CI GitHub Actions est introduite dans [CI-01](https://github.com/jlbokass/datashare/issues/41)** avec deux workflows : [backend](.github/workflows/backend-ci.yml) et [frontend](.github/workflows/frontend-ci.yml). Les premiers runs GitHub Actions CI-01 sont verts (25 tests backend, 21 tests frontend) ; la revue/fusion de la PR reste à faire. [Documentation CI](docs/ci.fr.md). Couverture, E2E, scans et benchmarks ne sont pas encore achevés ; **aucun badge vert sans preuve d'exécution**.
 
 ## Référence pédagogique
 

@@ -34,7 +34,7 @@ Les recettes détaillées sont dans [US03](docs/us03-registration.fr.md), [US04]
 
 - [ ] **2 à 3 scénarios E2E critiques** avec Cypress, Playwright ou équivalent : inscription/connexion, upload/téléchargement, historique/suppression/expiration après US02/05/06.
 - [ ] Rapport et capture de couverture ; **objectif indicatif de 70 % ou plus** : non mesuré.
-- [ ] CI avec tests, format et build, avec résultats GitHub Actions.
+- [ ] Workflows GitHub Actions CI-01 rédigés (PHPUnit/Pint, tests/build Angular). **Premiers runs vérifiés verts :** [backend](https://github.com/jlbokass/datashare/actions/runs/44319554856) (25 tests, 159 assertions, Pint) et [frontend](https://github.com/jlbokass/datashare/actions/runs/44319554868) (21 tests, build production) dans la PR CI-01. La revue/fusion reste à faire ; voir [guide CI](docs/ci.fr.md).
 - [ ] Tests réels de taille/limites, 413, purge planifiée, extensions interdites et fichiers corrompus.
 - [ ] Accessibilité, vérification Figma desktop/mobile et retours externes si disponibles.
 
