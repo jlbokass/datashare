@@ -6,7 +6,7 @@
 
 ## Project status
 
-**Design approved; Laravel 13 and Angular 22 scaffolds generated in TECH-03.** The developer reported the initial Docker, test and frontend build checks successful. TECH-04 now proposes a complete local development gateway and hot reload; its integration checks are **not yet verified**.
+**Design approved; Laravel 13 and Angular 22 scaffolds generated in TECH-03.** The developer reported the initial Docker, test and frontend build checks successful. TECH-04 now provides a local development gateway and Angular hot reload; **the developer reports successful local integration checks**, including PostgreSQL migrations and regression tests.
 
 This repository is public so the OpenClassrooms evaluator can inspect the code, documentation, issues, Pull Requests and commit history.
 
