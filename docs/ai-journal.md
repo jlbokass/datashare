@@ -51,6 +51,8 @@ _All entries below relate to **18 November 2026**; their grouping is reconstruct
 
 | **TECH-04** · [#32](https://github.com/jlbokass/datashare/issues/32) · [Draft PR #33](https://github.com/jlbokass/datashare/pull/33) | Prepared the Docker Compose app/frontend/web integration, Nginx gateway, non-business Laravel health route, hot-reload configuration, bilingual setup instructions and review of the 23-page UI handoff. The original PDF was committed by the developer. | The developer reported **Docker, Angular and health checks OK** locally. Exact commands and outputs were not shared, and **PostgreSQL migrations, browser hot reload and Laravel/Angular regression tests were subsequently reported green by the developer**. No claim of finished integration or UI compliance is made. |
 
+| **US03** · [#6](https://github.com/jlbokass/datashare/issues/6) · feature branch `feat/us03-registration` | Delegated API registration controller, non-destructive user migration, JSON validation errors, PostgreSQL/SQLite test setup, Angular registration form based on the handoff, and backend/frontend tests. | Developer requested US03 before US04 and retained the approved no-JWT-on-registration API contract. **Local builds, tests, migrations, UI rendering and review have not yet been reported for this branch.** |
+
 ## 5. Entry template for the MVP phase
 
 Add **one concise entry per significant issue/PR**; do not archive every prompt. If an activity is not documented, write **“not verified”**, rather than inventing evidence.
