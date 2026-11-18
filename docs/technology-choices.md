@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Technology choices and rationale"
-permalink: /technology-choices/
+permalink: /technology-choices.html
 lang: en
 ---
 
