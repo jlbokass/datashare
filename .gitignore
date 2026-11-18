@@ -1,0 +1,64 @@
+# DataShare — repository-wide .gitignore
+# Source, diagrams, documentation, migrations and lockfiles MUST be versioned.
+
+# Local environment variables and secrets
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.*.example
+!**/.env.dist
+!**/.env.*.dist
+
+# Local dependencies (do not ignore composer.lock / package-lock.json)
+**/vendor/
+**/node_modules/
+
+# Angular / JS generated files
+**/.angular/
+**/dist/
+**/coverage/
+**/.nyc_output/
+**/test-results/
+**/playwright-report/
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/pnpm-debug.log*
+
+# PHP / Laravel generated files
+**/.phpunit.cache/
+**/.phpunit.result.cache
+/backend/bootstrap/cache/*.php
+/backend/storage/*.key
+/backend/storage/app/private/*
+!/backend/storage/app/private/.gitignore
+/backend/storage/app/public/*
+!/backend/storage/app/public/.gitignore
+/backend/storage/framework/cache/data/*
+!/backend/storage/framework/cache/data/.gitignore
+/backend/storage/framework/sessions/*
+!/backend/storage/framework/sessions/.gitignore
+/backend/storage/framework/testing/*
+!/backend/storage/framework/testing/.gitignore
+/backend/storage/framework/views/*
+!/backend/storage/framework/views/.gitignore
+/backend/storage/logs/*
+!/backend/storage/logs/.gitignore
+/backend/public/storage
+/backend/database/*.sqlite
+/backend/database/*.sqlite3
+
+# Docker local data (if bind mounts are introduced)
+/docker/volumes/
+/docker/data/
+/docker/tmp/
+
+# OS / editor artifacts
+.DS_Store
+.AppleDouble
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
