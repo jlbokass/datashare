@@ -15,7 +15,7 @@
         <h2>Ton lien est prêt !</h2>
         <p>
           Ton transfert contient {{ transfer()?.files?.length }} fichier(s).
-          Il expirera le {{ transfer()?.expires_at?.slice(0, 10) }}.
+          Il expirera le {{ transfer()?.expires_at ? (newDateLabel(transfer()!.expires_at)) : '' }}.
         </p>
         <label for="share-link">Lien unique de partage</label>
         <input id="share-link" type="text" [value]="link" readonly />
@@ -41,6 +41,7 @@
           </label>
           <p class="hint">Glisse tes fichiers ici ou sélectionne-les.</p>
           <p class="limit">Maximum 5 fichiers, 1 Go par fichier et 2 Go au total.</p>
+          <p class="hint">Pour partager un dossier, compresse-le d'abord en ZIP. Les archives ne sont pas décompressées ni analysées par antivirus.</p>
         </div>
 
         @if (files().length > 0) {
@@ -60,7 +61,10 @@
 
         <div class="field">
           <label for="expiry-days">Expiration</label>
-          <select id="expiry-days" [value]="expiresInDays()" (change)="changeExpiry($event)" [disabled]="busy()">
+          <select id="expiry-days" [value]="demoSelected() ? 'demo5' : expiresInDays()" (change)="changeExpiry($event)" [disabled]="busy()">
+            @if (demoEnabled()) {
+              <option value="demo5">Démo locale — 5 minutes</option>
+            }
             @for (day of [1, 2, 3, 4, 5, 6, 7]; track day) {
               <option [value]="day">{{ day === 1 ? 'Une journée' : day + ' jours' }}</option>
             }
