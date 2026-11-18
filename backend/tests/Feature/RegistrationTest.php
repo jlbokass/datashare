@@ -67,7 +67,8 @@ class RegistrationTest extends TestCase
             'email' => 'USER@EXAMPLE.COM',
             'password' => 'AnotherPass123!',
         ])->assertUnprocessable()
-            ->assertJsonValidationErrors(['email']);
+            ->assertJsonValidationErrors(['email'])
+            ->assertJsonPath('errors.email.0', 'Cette adresse email est déjà utilisée.');
 
         $this->assertDatabaseCount('users', 1);
     }
