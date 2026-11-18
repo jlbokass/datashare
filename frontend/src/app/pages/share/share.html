@@ -27,14 +27,11 @@
       }
     </ul>
 
-    @if (details.files.some && false) {}
-    @for (file of details.files; track file.id) {
-      @if (isZip(file)) {
-        <p class="zip-note">
-          Attention : cette archive ZIP n'est pas analysée par antivirus sur le serveur.
-          Ouvre uniquement les archives provenant de personnes de confiance.
-        </p>
-      }
+    @if (hasZip(details.files)) {
+      <p class="zip-note">
+        Attention : les archives ZIP ne sont pas analysées par antivirus sur le serveur.
+        Ouvre uniquement les archives provenant de personnes de confiance.
+      </p>
     }
   }
 

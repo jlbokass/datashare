@@ -81,7 +81,7 @@ export class Share {
       .format(new Date(iso));
   }
 
-  isZip(file: PublicFile): boolean {
-    return file.original_name.toLowerCase().endsWith('.zip');
+  hasZip(files: PublicFile[]): boolean {
+    return files.some((file) => file.original_name.toLowerCase().endsWith('.zip'));
   }
 }
