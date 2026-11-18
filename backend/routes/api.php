@@ -20,5 +20,11 @@ Route::post('/auth/register', RegisterController::class)->middleware('throttle:1
 Route::post('/auth/login', LoginController::class)->middleware('throttle:5,1');
 Route::get('/auth/me', MeController::class)->middleware(AuthenticateJwt::class);
 
+// Public, non-sensitive capability flags: Angular only offers demo expiry when enabled.
+Route::get('/demo/capabilities', fn () => response()->json([
+    'five_minute_expiry' => app()->environment('local')
+        && (bool) config('transfers.demo_five_minutes', false),
+]));
+
 // US01: authenticated private upload. Public downloads are implemented in US02.
 Route::post('/transfers', CreateTransferController::class)->middleware(AuthenticateJwt::class);
