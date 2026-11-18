@@ -9,7 +9,9 @@ lang: en
 
 [**Français**](ci.fr.md) · [Technical documentation](index.md)
 
-**Status: proposed in a Draft PR, awaiting the first GitHub Actions execution. No green CI results are claimed yet.**
+**Status: first CI runs confirmed green on the CI-01 feature PR. Review and merge to `develop` remain pending.**
+
+At commit `2899a52`, the [Backend CI run](https://github.com/jlbokass/datashare/actions/runs/44319554856) passed **25 PHPUnit tests (159 assertions)** and Pint; the [Frontend CI run](https://github.com/jlbokass/datashare/actions/runs/44319554868) passed **21 Angular tests (5 test files)** and production build. These are real GitHub Actions runs, not local-only reports.
 
 ## Planned workflows
 

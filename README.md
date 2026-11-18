@@ -49,7 +49,7 @@ The repository owner reports GitHub Pages has been enabled for static documentat
 
 The [local integration recipe](docs/development.md) records the TECH-04 environment (developer-reported green). No steps from historical `datashare-legacy` apply automatically.
 
-**GitHub Actions application CI is being introduced in [CI-01](https://github.com/jlbokass/datashare/issues/41)** via separate [backend](.github/workflows/backend-ci.yml) and [frontend](.github/workflows/frontend-ci.yml) workflows; first actual CI runs are pending. [CI plan](docs/ci.md). Code coverage, E2E, security scans and benchmarks are not yet complete. **Quality badges will be added only after successful checks**, never in advance.
+**GitHub Actions application CI is being introduced in [CI-01](https://github.com/jlbokass/datashare/issues/41)** via separate [backend](.github/workflows/backend-ci.yml) and [frontend](.github/workflows/frontend-ci.yml) workflows; first CI-01 GitHub Actions runs are green (25 backend tests and 21 frontend tests), with PR review/merge pending. [CI plan](docs/ci.md). Code coverage, E2E, security scans and benchmarks are not yet complete. **Quality badges will be added only after successful checks**, never in advance.
 
 ## Reference
 

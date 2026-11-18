@@ -9,7 +9,9 @@ lang: fr
 
 [**English**](ci.md) · [Documentation technique](index.fr.md)
 
-**État : proposé dans une PR Draft, première exécution GitHub Actions à contrôler. Aucun statut CI vert n'est encore revendiqué.**
+**État : premiers workflows réellement verts sur la branche CI-01 ; revue/fusion dans `develop` encore en attente.**
+
+Au commit `2899a52`, le [run Backend CI](https://github.com/jlbokass/datashare/actions/runs/44319554856) a validé **25 tests PHPUnit (159 assertions)** et Pint ; le [run Frontend CI](https://github.com/jlbokass/datashare/actions/runs/44319554868) a validé **21 tests Angular (5 fichiers)** et le build de production. Ce sont des exécutions GitHub Actions vérifiées.
 
 ## Workflows
 
