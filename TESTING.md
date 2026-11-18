@@ -13,7 +13,7 @@
 | US01 upload | JWT required; 1–5 files, 1 GB each, 2 GB aggregate operational cap; private storage; one share token; 1–7 day expiry | Developer reported Docker, PostgreSQL migration, PHPUnit, Angular tests/build, PDF and multifile upload, one-day expiry green |
 | US01 local demonstration | Opt-in 5-minute expiry only in local mode, home reset and minute scheduler | Developer reported corrected home navigation, new tests and five-minute demo green; minute-level physical deletion has not been independently documented |
 | US02 | Public download and expiry handling | See [US02 evidence](docs/us02-public-sharing.md) |
-| US05 | Owner history, JWT, multiple files and expiry | [Local backend PASS; Angular execution and Docker acceptance blocked](docs/us05-personal-history.md) |
+| US05 | Owner history, JWT, multiple files and expiry | [Developer-reported local T01–T04 and multifile PASS; GitHub CI backend 39 tests/255 assertions + Pint and frontend 34 tests + build PASS; earlier Codex sandbox restrictions retained separately](docs/us05-personal-history.md) |
 | US06 | Individual deletion | **Not implemented or verified** |
 | UI-01 | Compare actual home/upload and confirmation frames with Figma at 393px, 1440px and intermediate widths | **Open visual nonconformity**: [issue #37](https://github.com/jlbokass/datashare/issues/37) |
 
