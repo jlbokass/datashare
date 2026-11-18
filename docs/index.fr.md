@@ -38,7 +38,7 @@ Le [journal d'utilisation de l'IA](ai-journal.fr.md) documente les tâches confi
 
 ## Comptes utilisateurs (en développement)
 
-[US03 — Inscription et recette locale](us03-registration.fr.md) : inscription par email, hash du mot de passe, migration PostgreSQL et formulaire Angular. **Aucune connexion JWT dans cette branche ; recette locale en attente.**
+[US03 — Création de compte](us03-registration.fr.md) est validée et fusionnée dans `develop`. [US04 — Connexion JWT et profil protégé](us04-jwt-login.fr.md) est préparée sur une branche dédiée ; dépendance Composer, recette navigateur et contrôles de sécurité restent à faire.
 
 ## Exigences du MVP
 

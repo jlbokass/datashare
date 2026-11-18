@@ -18,12 +18,12 @@ describe('App', () => {
     expect(fixture.nativeElement.querySelector('.brand')?.textContent).toContain('DataShare');
   });
 
-  it('offers an accessible registration link', () => {
+  it('offers a login link before authentication', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
     const link = fixture.nativeElement.querySelector('a.header-link');
     expect(link).toBeTruthy();
-    expect(link.getAttribute('href')).toBe('/register');
+    expect(link.getAttribute('href')).toBe('/login');
   });
 });
