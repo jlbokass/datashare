@@ -11,7 +11,7 @@ lang: en
 
 Secure file-sharing MVP — OpenClassrooms P3.
 
-**Current state:** conceptual design approved; Laravel/Angular application development has **not yet started** in the clean-slate repository. This documentation is a design reference, not proof of a deployed application.
+**Current state:** conceptual design approved; a minimal Docker-first dependency configuration is under review (TECH-02). Laravel/Angular application development has **not yet started**. This documentation is not proof of a deployed application.
 
 ## Design deliverables
 
@@ -27,6 +27,10 @@ All four deliverables have French counterparts accessible within their respectiv
 ## AI use and supervision
 
 The [AI development journal](ai-journal.md) records delegated tasks, developer decisions, corrections and evidence, with a [French equivalent](ai-journal.fr.md). Its first entries are explicitly retrospective.
+
+## Development environment
+
+[Docker-first setup and local verification](docker-setup.md) — PHP/Composer, Node/npm and PostgreSQL are configured before Laravel and Angular scaffolding. The environment has **not yet been verified on the developer's Mac**.
 
 ## MVP requirements
 
