@@ -11,7 +11,7 @@ lang: fr
 
 Prototype de plateforme de partage sécurisé de fichiers — P3 OpenClassrooms.
 
-**État actuel :** conception validée ; la configuration minimale Docker-first est en revue (TECH-02). Le développement de Laravel/Angular **n'a pas commencé**. Cette documentation ne prouve pas un déploiement applicatif.
+**État actuel :** conception validée et squelettes Laravel/Angular créés. Les premiers contrôles Docker ont été annoncés verts par le développeur ; l'intégration TECH-04 et le hot reload **attendent une recette locale** et ne prouvent pas de déploiement applicatif.
 
 ## Livrables de conception
 
@@ -30,7 +30,11 @@ Le [journal d'utilisation de l'IA](ai-journal.fr.md) documente les tâches confi
 
 ## Environnement de développement
 
-[Guide Docker-first et recette locale](docker-setup.fr.md) — PHP/Composer, Node/npm et PostgreSQL sont préparés avant l'initialisation de Laravel et Angular. **La recette sur le Mac du développeur reste à effectuer.**
+[Dépendances Docker-first](docker-setup.fr.md) (TECH-02) · [Intégration Laravel/Angular et hot reload](development.fr.md) (TECH-04, recette locale en attente).
+
+## Référence de conception UI
+
+[Synthèse du handoff et arbitrages de périmètre](design-handoff.fr.md) — tokens, formats desktop/mobile et écart sur le mot de passe US09. Le PDF complet doit encore être commité par le développeur avant fusion.
 
 ## Exigences du MVP
 
@@ -44,9 +48,9 @@ US07 à US10 restent facultatives ; **US01 impose déjà l'expiration et la supp
 
 Le projet suit le workflow branches de travail → `develop` → `main` protégée. GitHub Pages publie **uniquement les documents** depuis `main/docs` ; Laravel nécessitera un environnement d'exécution distinct.
 
-### Implémentation et qualité — à compléter ultérieurement
+### Preuves de qualité — à compléter après intégration
 
-Les instructions d'installation, tests frontend/backend, CI, couverture, audits de sécurité et mesures de performance seront ajoutés **une fois disponibles**. Aucun badge vert ni résultat de test n'est revendiqué pendant cette phase de conception.
+Le développeur a indiqué que les tests initiaux TECH-03 et le build Angular étaient verts. Les preuves de CI, couverture, audits et performance seront ajoutées **lorsqu'elles auront été exécutées**. La recette d'intégration TECH-04 reste à faire.
 
 ---
 
