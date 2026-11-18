@@ -1,6 +1,6 @@
 <div class="site-shell">
   <header class="site-header">
-    <a class="brand" routerLink="/" aria-label="DataShare, accueil">DataShare</a>
+    <a class="brand" routerLink="/" (click)="resetHome()" aria-label="DataShare, accueil">DataShare</a>
     <nav aria-label="Navigation principale">
       @if (auth.signedIn()) {
         <a class="header-link" routerLink="/account">Mon espace</a>
