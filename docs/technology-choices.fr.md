@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Justification des choix technologiques"
-permalink: /fr/technology-choices/
+permalink: /technology-choices.fr.html
 lang: fr
 ---
 
