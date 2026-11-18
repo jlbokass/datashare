@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Contrat d'interface API REST"
-permalink: /fr/api/
+permalink: /api/README.fr.html
 lang: fr
 ---
 
