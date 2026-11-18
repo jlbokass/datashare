@@ -11,7 +11,7 @@ lang: en
 
 Secure file-sharing MVP — OpenClassrooms P3.
 
-**Current state:** design approved and Laravel/Angular scaffolds present. Docker dependency checks were reported successful by the developer; TECH-04 service integration and hot reload are **awaiting local verification**, not proof of a deployed application.
+**Current state:** design approved and Laravel/Angular scaffolds present. Docker dependency checks were reported successful by the developer; TECH-04 service integration and hot reload **were reported locally verified by the developer**, not proof of a deployed application.
 
 ## Design deliverables
 
