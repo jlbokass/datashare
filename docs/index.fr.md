@@ -11,7 +11,7 @@ lang: fr
 
 Prototype de plateforme de partage sécurisé de fichiers — P3 OpenClassrooms.
 
-**État actuel :** conception validée ; le développement de la nouvelle application Laravel/Angular **n'a pas commencé**. La documentation présente les décisions de conception et ne constitue pas la preuve d'un déploiement.
+**État actuel :** conception validée ; la configuration minimale Docker-first est en revue (TECH-02). Le développement de Laravel/Angular **n'a pas commencé**. Cette documentation ne prouve pas un déploiement applicatif.
 
 ## Livrables de conception
 
@@ -27,6 +27,10 @@ Les quatre documents existent en français et en anglais. Les fonctionnalités o
 ## Utilisation de l'IA et supervision
 
 Le [journal d'utilisation de l'IA](ai-journal.fr.md) documente les tâches confiées, décisions du développeur, corrections et preuves, avec une [version anglaise](ai-journal.md). Les premières entrées sont explicitement rétrospectives.
+
+## Environnement de développement
+
+[Guide Docker-first et recette locale](docker-setup.fr.md) — PHP/Composer, Node/npm et PostgreSQL sont préparés avant l'initialisation de Laravel et Angular. **La recette sur le Mac du développeur reste à effectuer.**
 
 ## Exigences du MVP
 

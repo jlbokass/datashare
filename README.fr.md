@@ -6,7 +6,7 @@
 
 ## État du projet
 
-**Conception validée ; l'implémentation applicative n'a pas encore commencé dans ce nouveau dépôt.** L'architecture, le modèle conceptuel UML, le contrat OpenAPI et les choix technologiques ont été examinés. Laravel, Angular et Docker sont **prévus**, pas encore installés ni exécutés.
+**Conception validée ; l'implémentation applicative n'a pas encore commencé dans ce nouveau dépôt.** L'architecture, le modèle conceptuel UML, le contrat OpenAPI et les choix technologiques ont été examinés. Le socle minimal **Docker-first** est proposé dans TECH-02, mais son exécution locale reste à vérifier. Laravel et Angular ne sont pas encore générés.
 
 Ce dépôt est public afin que l'évaluateur OpenClassrooms puisse consulter le code, les documents, les issues, les PR et les commits.
 
@@ -31,9 +31,9 @@ Les **US07 à US10** sont suivies séparément comme fonctionnalités facultativ
 - **Frontend :** TypeScript / Angular.
 - **Base de données :** PostgreSQL.
 - **Stockage :** système de fichiers local privé proposé pour le MVP.
-- **Développement :** Docker Compose et Nginx/PHP-FPM prévus après l'initialisation des frameworks.
+- **Développement :** Docker Compose préparé d'abord avec PHP/Composer, Node/npm et PostgreSQL ; Nginx et le routage suivront la génération des frameworks.
 
-Voir la [justification technique](docs/technology-choices.fr.md), l'[architecture](docs/architecture.fr.md), le [MCD UML](docs/data-model.fr.md) et le [contrat OpenAPI](docs/api/openapi.yaml).
+Voir la [justification technique](docs/technology-choices.fr.md), l'[architecture](docs/architecture.fr.md), le [MCD UML](docs/data-model.fr.md), le [contrat OpenAPI](docs/api/openapi.yaml) et le [guide Docker-first](docs/docker-setup.fr.md).
 
 ## Documentation et workflow Git
 

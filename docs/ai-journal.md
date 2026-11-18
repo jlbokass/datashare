@@ -42,6 +42,8 @@ _All entries below relate to **18 November 2026**; their grouping is reconstruct
 
 **Limitations/corrections:** independently developed branches initially omitted earlier design files until integrated; the data model needed several corrections around per-file deletion, optional tracking and privacy; generated checks for Markdown/OpenAPI were **structural**, not proof of a successful application build, runtime security or formal OpenAPI validation. Technical and privacy decisions remain the developer's responsibility.
 
+| **TECH-02** · [#28](https://github.com/jlbokass/datashare/issues/28) · [PR #29](https://github.com/jlbokass/datashare/pull/29) | Prepared a Docker-first Compose setup with PostgreSQL, PHP/Composer and Node tooling, and bilingual verification instructions. | The developer chose the Docker-first sequence, ran the prescribed Docker commands locally, and reported all checks green. **Exact terminal output was not captured in this journal**, so version details and persistence tests are not independently asserted. Hot reload and Dozzle were explicitly deferred. |
+
 ## 4. Entry template for the MVP phase
 
 Add **one concise entry per significant issue/PR**; do not archive every prompt. If an activity is not documented, write **“not verified”**, rather than inventing evidence.
