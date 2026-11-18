@@ -64,7 +64,7 @@ docker compose run --rm node sh -lc 'cd frontend && npm run build && npm test --
 
 ## Handoff UI
 
-Voir la [synthèse du handoff](design-handoff.fr.md). Le PDF vectoriel complet doit être placé dans **`docs/design/DataShare_UI_Design_Handoff_v1.pdf`** (commit du binaire par le propriétaire **en attente**). Le Figma source reste prioritaire en cas d'évolution. Les variantes avec mot de passe correspondent à **US09 facultative** : ne pas laisser croire qu'elle est disponible sans implémentation.
+Voir la [synthèse du handoff](design-handoff.fr.md). Le [PDF vectoriel complet](design/DataShare_UI_Design_Handoff_v1.pdf) est commité sur la branche TECH-04. Le Figma source reste prioritaire en cas d'évolution. Les variantes avec mot de passe correspondent à **US09 facultative** : ne pas laisser croire qu'elle est disponible sans implémentation.
 
 ## Preuves à fournir avant fusion
 
