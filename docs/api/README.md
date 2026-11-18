@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "REST API interface contract"
-permalink: /api/
+permalink: /api/README.html
 lang: en
 ---
 
