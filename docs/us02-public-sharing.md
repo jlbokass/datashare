@@ -9,7 +9,7 @@ lang: en
 
 [**Français**](us02-public-sharing.fr.md) · [Documentation home](index.md)
 
-**Status on 18 November 2026:** Backend CI (33 Laravel tests, 217 assertions and Pint) and frontend CI (tests and build) **passed** on [PR #43](https://github.com/jlbokass/datashare/pull/43). Developer-reported local browser tests **T01 anonymous PDF, T02 multiple files, T03 invalid link and T04 inert ZIP: PASS**. **T05 expiry: not accepted yet**; the tested transfer had the standard seven-day expiry, not the optional local five-minute demo. US02 is not yet merged into `develop`.
+**Status on 18 November 2026:** Backend CI (33 Laravel tests, 217 assertions and Pint) and frontend CI (tests and build) **passed** on [PR #43](https://github.com/jlbokass/datashare/pull/43). Developer reports **all five browser scenarios passed: T01 anonymous PDF, T02 multiple files, T03 invalid link, T04 harmless ZIP and T05 expiry** after synchronizing the local branch. Exact HTTP observations for T05 were not provided as browser logs; automated tests cover 410 and 404. US02 is not yet merged into `develop`.
 
 Sources: [official US02 #5](https://github.com/jlbokass/datashare/issues/5), [DESIGN-03 OpenAPI](api/openapi.yaml), [UI handoff](design-handoff.md), [SECURITY.md](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md).
 
@@ -47,7 +47,7 @@ docker compose up -d
 - [x] Laravel tests green in GitHub Actions (33 tests / 217 assertions / Pint) for anonymous access, bytes/headers, 404, 410, wrong file, missing private bytes and inert ZIP.
 - [x] Angular tests and build green in GitHub Actions for valid/malformed/expired share links and download URL generation.
 - [x] Developer reported T01 PDF, T02 multifile, T03 invalid link and T04 harmless ZIP green in browser.
-- [ ] T05 browser expiry: enable and explicitly choose local five-minute mode, confirm blocked download at expiry and subsequent purge. Automated HTTP 410/404 tests already pass.
+- [x] T05 browser expiry **accepted based on developer report after local synchronization**. Automated HTTP 410/404 tests pass; detailed browser evidence was not provided.
 - [ ] ZIP security limitations reviewed and recorded.
 - [x] CI-01 [backend/frontend checks — CI-01 PR #42](https://github.com/jlbokass/datashare/pull/42) green on [US02 PR #43](https://github.com/jlbokass/datashare/pull/43); docs and AI journal updated with limits.
 - [ ] PR approved for `develop`.
