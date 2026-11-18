@@ -100,6 +100,10 @@ class TransferUploadTest extends TestCase
             'files' => [UploadedFile::fake()->create('malware.exe', 2, 'application/x-msdownload')],
         ])->assertUnprocessable()->assertJsonPath('code', 'validation_error');
 
+        $this->authenticate()->post('/api/transfers', [
+            'files' => [UploadedFile::fake()->create('disguised.php', 2, 'application/pdf')],
+        ])->assertUnprocessable()->assertJsonPath('code', 'validation_error');
+
         $this->assertDatabaseCount('transfers', 0);
     }
 

@@ -25,7 +25,8 @@ class CreateTransferController extends Controller
                 'required',
                 'file',
                 // Validate actual file contents rather than trusting a supplied extension.
-                File::types(config('transfers.allowed_extensions')),
+                File::types(config('transfers.allowed_extensions'))
+                    ->extensions(config('transfers.allowed_extensions')),
             ],
             'expires_in_days' => ['sometimes', 'integer', 'between:1,7'],
         ], [
