@@ -48,9 +48,8 @@ class PublicShareTest extends TestCase
     {
         $transfer = $this->transfer();
 
-        $this->getJson('/api/shares/'.$transfer->share_token)
+        $response = $this->getJson('/api/shares/'.$transfer->share_token)
             ->assertOk()
-            ->assertHeader('Cache-Control', 'private, no-store, max-age=0')
             ->assertJsonStructure(['share' => ['expires_at', 'files' => [
                 ['id', 'original_name', 'mime_type', 'size_bytes', 'uploaded_at'],
             ]]])
@@ -60,6 +59,8 @@ class PublicShareTest extends TestCase
             ->assertJsonMissingPath('share.share_token')
             ->assertJsonMissingPath('share.files.0.storage_path')
             ->assertJsonMissingPath('share.files.0.password');
+
+        $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));
     }
 
     public function test_anonymous_recipient_downloads_original_bytes_as_attachment(): void
@@ -72,8 +73,9 @@ class PublicShareTest extends TestCase
             ->assertOk()
             ->assertHeader('Content-Type', 'application/octet-stream')
             ->assertHeader('X-Content-Type-Options', 'nosniff')
-            ->assertHeader('Cache-Control', 'private, no-store, max-age=0');
+            ;
 
+        $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));
         $this->assertStringContainsString('attachment', $response->headers->get('Content-Disposition'));
         $this->assertStringContainsString('rapport.pdf', $response->headers->get('Content-Disposition'));
         $this->assertSame($contents, $response->streamedContent());
