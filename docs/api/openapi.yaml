@@ -1,0 +1,548 @@
+openapi: 3.1.0
+info:
+  title: DataShare REST API
+  version: 0.1.0
+  description: |
+    DESIGN-03 — Proposed frontend/backend contract for the mandatory OpenClassrooms
+    MVP (US01–US06). This specification describes the planned Laravel API; no
+    implementation is claimed. Optional US07–US10 are not exposed as MVP endpoints.
+servers:
+  - url: /api
+    description: API path prefix on the same origin as the Angular application
+tags:
+  - name: Authentication
+    description: Account registration and JWT authentication (US03, US04)
+  - name: Transfers
+    description: Authenticated upload, personal history and individual file deletion (US01, US05, US06)
+  - name: Public sharing
+    description: Unauthenticated metadata lookup and file download using a share token (US02)
+security: []
+paths:
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register a user
+      description: |
+        Public registration (US03). Email must be unique and valid; password
+        must contain at least eight characters. No administrator role and no
+        confirmation email are required for this MVP.
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Account created; the user must subsequently log in for a JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEnvelope'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Authenticate and obtain a JWT
+      description: Login by registered email and password (US04).
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /auth/me:
+    get:
+      tags: [Authentication]
+      summary: Get the authenticated user's profile
+      description: |
+        Supporting API operation to restore the signed-in Angular session;
+        not a separate OpenClassrooms user story.
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Authenticated profile without the password hash
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEnvelope'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+
+  /transfers:
+    post:
+      tags: [Transfers]
+      summary: Upload one or more files and create a share link
+      description: |
+        US01. JWT required. One transfer holds one or more files under one
+        unpredictable share token and one expiration date (DESIGN-02 decision).
+        A file is limited to 1 GB as specified by OC. For this contract,
+        1 GB means 1,000,000,000 bytes (decimal); an aggregate request limit
+        must be decided and documented separately with proxy/PHP configuration.
+        Expiration defaults to seven days, and may be set to one through seven
+        days. Files are stored privately. File types are validated on the server
+        according to a security policy to be finalized in SECURITY.md.
+      operationId: createTransfer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateTransferRequest'
+            encoding:
+              'files[]':
+                style: form
+                explode: true
+      responses:
+        '201':
+          description: Transfer created, files stored and unique share link generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferEnvelope'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '413':
+          $ref: '#/components/responses/PayloadTooLargeError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    get:
+      tags: [Transfers]
+      summary: List the current user's uploaded files
+      description: |
+        US05 and US06. Only owner records are returned. By default,
+        expired items are excluded, per US06. Setting include_expired=true
+        may show expired records not yet physically purged, with status=expired.
+        Automatically purged files can no longer appear in history. Sorting,
+        filtering and pagination beyond this switch are not mandated.
+      operationId: listMyTransfers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: include_expired
+          in: query
+          description: |
+            Optional display switch for expired records not yet removed.
+            Default false keeps only non-expired files in the history.
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Transfers and files belonging to the current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferList'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+
+  /transfers/{transferId}/files/{fileId}:
+    delete:
+      tags: [Transfers]
+      summary: Delete one owned file (not the whole transfer)
+      description: |
+        US06. The Angular UI must explicitly confirm deletion before calling
+        this endpoint. The Laravel API verifies ownership through the transfer.
+        The file contents and metadata are irreversibly removed. Other files
+        in the transfer remain available. If this is the last file, the empty
+        transfer and its share token are deleted (DESIGN-02 decision).
+        Unknown or non-owned resources return 404 to avoid existence leaks.
+      operationId: deleteMyFile
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TransferId'
+        - $ref: '#/components/parameters/FileId'
+      responses:
+        '204':
+          description: File and its metadata deleted; no response body
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /shares/{token}:
+    get:
+      tags: [Public sharing]
+      summary: Read public share metadata
+      description: |
+        US02. No JWT is required. A valid, unpredictable token is necessary.
+        Expose only file metadata needed to decide whether to download:
+        filename, type, size and expiry date. Never disclose the owner,
+        credentials, storage path or private object key.
+      operationId: getPublicShare
+      parameters:
+        - $ref: '#/components/parameters/ShareToken'
+      responses:
+        '200':
+          description: Public metadata for a valid, non-expired share
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicShareEnvelope'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '410':
+          $ref: '#/components/responses/ExpiredShareError'
+
+  /shares/{token}/files/{fileId}:
+    get:
+      tags: [Public sharing]
+      summary: Download an individual file from a valid public share
+      description: |
+        US02. No JWT required. Validate token, expiry, and that the file
+        belongs to the specified transfer before streaming bytes through
+        the API. The storage itself must never be publicly accessible.
+        An expired but not-yet-purged share responds 410; a purged/unknown
+        share or mismatched file responds 404. This route is intentionally
+        per-file, consistent with individual deletion in US06.
+      operationId: downloadSharedFile
+      parameters:
+        - $ref: '#/components/parameters/ShareToken'
+        - $ref: '#/components/parameters/FileId'
+      responses:
+        '200':
+          description: File bytes streamed as an attachment
+          headers:
+            Content-Disposition:
+              description: Use attachment and a safe original filename
+              schema:
+                type: string
+            X-Content-Type-Options:
+              description: Prevent MIME sniffing
+              schema:
+                type: string
+                enum: [nosniff]
+            Cache-Control:
+              description: Do not cache private transfer content in shared caches
+              schema:
+                type: string
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '410':
+          $ref: '#/components/responses/ExpiredShareError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT issued by POST /auth/login and sent as Authorization: Bearer <token>.
+        Public share operations do not require authentication.
+  parameters:
+    TransferId:
+      name: transferId
+      in: path
+      required: true
+      description: Internal transfer identifier
+      schema:
+        type: string
+        format: uuid
+    FileId:
+      name: fileId
+      in: path
+      required: true
+      description: Internal file identifier; must belong to the selected transfer
+      schema:
+        type: string
+        format: uuid
+    ShareToken:
+      name: token
+      in: path
+      required: true
+      description: Unpredictable share token; different from the login JWT
+      schema:
+        type: string
+        minLength: 32
+  schemas:
+    User:
+      type: object
+      additionalProperties: false
+      required: [id, email, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        created_at:
+          type: string
+          format: date-time
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        password:
+          type: string
+          format: password
+          minLength: 8
+          writeOnly: true
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          writeOnly: true
+    UserEnvelope:
+      type: object
+      additionalProperties: false
+      required: [user]
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+    LoginResponse:
+      type: object
+      additionalProperties: false
+      required: [access_token, token_type, user]
+      properties:
+        access_token:
+          type: string
+          description: Signed JSON Web Token (never a share token)
+        token_type:
+          type: string
+          const: Bearer
+        user:
+          $ref: '#/components/schemas/User'
+    FileMetadata:
+      type: object
+      additionalProperties: false
+      required: [id, original_name, size_bytes, mime_type, uploaded_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        original_name:
+          type: string
+        size_bytes:
+          type: integer
+          format: int64
+          minimum: 0
+        mime_type:
+          type: string
+        uploaded_at:
+          type: string
+          format: date-time
+    Transfer:
+      type: object
+      additionalProperties: false
+      required: [id, share_url, created_at, expires_at, status, files]
+      properties:
+        id:
+          type: string
+          format: uuid
+        share_url:
+          type: string
+          description: Relative Angular URL in the form /share/{token}
+          example: /share/replace-with-unpredictable-token
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [valid, expired]
+          description: Derived from the expiration instant; not necessarily persisted
+        title:
+          type: string
+          description: Optional display title (DESIGN-02; not mandated by OC)
+        message:
+          type: string
+          description: Optional display message (DESIGN-02; not mandated by OC)
+        files:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/FileMetadata'
+    PublicShare:
+      type: object
+      additionalProperties: false
+      required: [expires_at, files]
+      properties:
+        expires_at:
+          type: string
+          format: date-time
+        title:
+          type: string
+          description: Optional public display title
+        message:
+          type: string
+          description: Optional public display message
+        files:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/FileMetadata'
+    CreateTransferRequest:
+      type: object
+      additionalProperties: false
+      required: ['files[]']
+      properties:
+        'files[]':
+          type: array
+          minItems: 1
+          description: |
+            One or more attached files. Each file must be at most
+            1,000,000,000 bytes (design interpretation of 1 GB).
+            The aggregate request limit remains a review decision.
+          items:
+            type: string
+            format: binary
+        expires_in_days:
+          type: integer
+          minimum: 1
+          maximum: 7
+          default: 7
+          description: Optional integer number of days until automatic expiry
+        title:
+          type: string
+          description: Optional display title; not mandatory in the official user stories
+        message:
+          type: string
+          description: Optional display message; not mandatory in the official user stories
+    TransferEnvelope:
+      type: object
+      additionalProperties: false
+      required: [transfer]
+      properties:
+        transfer:
+          $ref: '#/components/schemas/Transfer'
+    TransferList:
+      type: object
+      additionalProperties: false
+      required: [transfers]
+      properties:
+        transfers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transfer'
+    PublicShareEnvelope:
+      type: object
+      additionalProperties: false
+      required: [share]
+      properties:
+        share:
+          $ref: '#/components/schemas/PublicShare'
+    ApiError:
+      type: object
+      additionalProperties: false
+      required: [message, code]
+      properties:
+        message:
+          type: string
+          description: Human-readable message suitable for display to the user
+        code:
+          type: string
+          description: Stable machine-readable error identifier
+        errors:
+          type: object
+          description: Optional field-level validation details
+          additionalProperties:
+            type: array
+            items:
+              type: string
+  responses:
+    AuthenticationError:
+      description: Missing/invalid JWT, or wrong login credentials
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            message: Authentication failed.
+            code: unauthenticated
+    ValidationError:
+      description: Validation error (including unsupported file type or invalid expiry)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            message: The provided data is invalid.
+            code: validation_error
+            errors:
+              expires_in_days: [The expiry must be between 1 and 7 days.]
+    PayloadTooLargeError:
+      description: Uploaded file exceeds the allowed maximum
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            message: File is too large.
+            code: payload_too_large
+    NotFoundError:
+      description: Resource not found, or not visible to the current user
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            message: Resource not found.
+            code: not_found
+    ExpiredShareError:
+      description: Share expired but has not yet been purged
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            message: This share link has expired.
+            code: share_expired
+    ServerError:
+      description: Server/storage failure; no sensitive implementation details exposed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            message: Unable to complete the operation.
+            code: server_error
