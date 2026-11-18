@@ -13,6 +13,10 @@ Prototype de plateforme de partage sécurisé de fichiers — P3 OpenClassrooms.
 
 **État actuel :** conception validée et squelettes Laravel/Angular créés. Les premiers contrôles Docker ont été annoncés verts par le développeur ; l'intégration TECH-04 et le hot reload **ont été annoncés verts en recette locale par le développeur** et ne prouvent pas de déploiement applicatif.
 
+## Documentation technique centralisée OC
+
+[Documentation technique — huit sections du modèle OC](technical-documentation.fr.md) (ébauche évolutive). Fichiers de qualité à la racine : [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.fr.md), [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.fr.md), [PERF](https://github.com/jlbokass/datashare/blob/develop/PERF.fr.md), [MAINTENANCE](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.fr.md). **Les plans existent ; E2E, couverture, scans et mesures restent à produire.**
+
 ## Livrables de conception
 
 | Livrable | Documentation | Fichiers complémentaires |
@@ -30,7 +34,7 @@ Le [journal d'utilisation de l'IA](ai-journal.fr.md) documente les tâches confi
 
 ## Environnement de développement
 
-[Dépendances Docker-first](docker-setup.fr.md) (TECH-02) · [Intégration Laravel/Angular et hot reload](development.fr.md) (TECH-04, recette locale en attente).
+[Dépendances Docker-first](docker-setup.fr.md) (TECH-02) · [Intégration Laravel/Angular et hot reload](development.fr.md) (TECH-04, validée en local par le développeur).
 
 ## Référence de conception UI
 
@@ -38,7 +42,7 @@ Le [journal d'utilisation de l'IA](ai-journal.fr.md) documente les tâches confi
 
 ## Comptes utilisateurs (en développement)
 
-[US03 — Inscription](us03-registration.fr.md) et [US04 — Connexion JWT](us04-jwt-login.fr.md) sont implémentées et ont été validées en recette locale par le développeur. [US01 — Téléversement authentifié et purge](us01-upload.fr.md) est en branche Draft ; aucune recette US01 n'est encore déclarée.
+[US03 — Inscription](us03-registration.fr.md), [US04 — Connexion JWT](us04-jwt-login.fr.md) et [US01 — Téléversement authentifié](us01-upload.fr.md) ont été implémentées et déclarées **vertes en local** par le développeur. US02/US05/US06 restent à faire ; les [écarts visuels UI-01](https://github.com/jlbokass/datashare/issues/37) sont suivis séparément.
 
 ## Transferts de fichiers — US01 en revue
 
@@ -58,7 +62,7 @@ Le projet suit le workflow branches de travail → `develop` → `main` protég�
 
 ### Preuves de qualité — à compléter après intégration
 
-Le développeur a indiqué que les tests initiaux TECH-03 et le build Angular étaient verts. Les preuves de CI, couverture, audits et performance seront ajoutées **lorsqu'elles auront été exécutées**. La recette d'intégration TECH-04 reste à faire.
+Le développeur a déclaré verts les contrôles locaux TECH-02–04 et US01–04. Les preuves de CI, E2E, couverture, scans et performances seront ajoutées **uniquement après leur exécution**.
 
 ---
 

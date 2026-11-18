@@ -11,7 +11,7 @@ lang: fr
 
 **Source :** *DataShare UI Design Handoff*, version 1 du **17 novembre 2026**, **23 pages**, réalisé à partir des exports Figma. [Maquettes Figma originales](https://www.figma.com/design/i4HHiGsL7Kc3kVBo41m7F6).
 
-**PDF vectoriel complet :** [DataShare UI Design Handoff v1](design/DataShare_UI_Design_Handoff_v1.pdf), commité sur la branche TECH-04. Si Figma évolue, comparer avec la source à jour plutôt que de considérer ce PDF daté comme immuable.
+**PDF vectoriel complet :** [DataShare UI Design Handoff v1](design/DataShare_UI_Design_Handoff_v1.pdf), versionné dans le dépôt. Si Figma évolue, comparer avec la source à jour plutôt que de considérer ce PDF daté comme immuable.
 
 ## Rôle et périmètre
 

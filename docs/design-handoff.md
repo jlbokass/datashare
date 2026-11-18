@@ -11,7 +11,7 @@ lang: en
 
 **Source:** *DataShare UI Design Handoff*, version 1, **17 November 2026**, **23 pages**, based on the Figma exports. [Original Figma design](https://www.figma.com/design/i4HHiGsL7Kc3kVBo41m7F6).
 
-**Full vector PDF:** [DataShare UI Design Handoff v1](design/DataShare_UI_Design_Handoff_v1.pdf), committed on the TECH-04 branch. If Figma changes, compare against the updated source rather than silently treating this dated PDF as current.
+**Full vector PDF:** [DataShare UI Design Handoff v1](design/DataShare_UI_Design_Handoff_v1.pdf), versioned in the repository. If Figma changes, compare against the updated source rather than silently treating this dated PDF as current.
 
 ## Role and scope
 

@@ -35,11 +35,11 @@ Les **US07 à US10** sont suivies séparément comme fonctionnalités facultativ
 - **Stockage :** système de fichiers local privé, métadonnées PostgreSQL ; téléversement et purge US01 contrôlés en local par le développeur.
 - **Développement :** Docker Compose avec PHP/Composer, Node/npm, PostgreSQL, Nginx et hot reload Angular (TECH-04 déclaré vert en recette locale).
 
-Voir la [justification technique](docs/technology-choices.fr.md), l'[architecture](docs/architecture.fr.md), le [MCD UML](docs/data-model.fr.md), le [contrat OpenAPI](docs/api/openapi.yaml), le [guide TECH-04](docs/development.fr.md), la [synthèse du handoff UI](docs/design-handoff.fr.md) et le [guide Docker TECH-02](docs/docker-setup.fr.md).
+Voir la [documentation technique OC évolutive](docs/technical-documentation.fr.md), la [justification technique](docs/technology-choices.fr.md), l'[architecture](docs/architecture.fr.md), le [MCD UML](docs/data-model.fr.md), le [contrat OpenAPI](docs/api/openapi.yaml), le [guide TECH-04](docs/development.fr.md), la [synthèse du handoff UI](docs/design-handoff.fr.md) et le [guide Docker TECH-02](docs/docker-setup.fr.md).
 
 ## Documentation et workflow Git
 
-La documentation est produite en **français et en anglais** dans le même dépôt. [Accéder à l'accueil français](docs/index.fr.md) ou à la [documentation anglaise](docs/index.md). Le [journal d'utilisation de l'IA](docs/ai-journal.fr.md) retrace les contributions IA et la supervision du développeur ([English](docs/ai-journal.md)).
+La documentation est produite en **français et en anglais** dans le même dépôt. Les livrables OC [TESTING](TESTING.fr.md), [SECURITY](SECURITY.fr.md), [PERF](PERF.fr.md) et [MAINTENANCE](MAINTENANCE.fr.md) disposent d'un plan bilingue ; scans, couverture, E2E et mesures de performance sont **à réaliser**. [Accéder à l'accueil français](docs/index.fr.md) ou à la [documentation anglaise](docs/index.md). Le [journal d'utilisation de l'IA](docs/ai-journal.fr.md) retrace les contributions IA et la supervision du développeur ([English](docs/ai-journal.md)).
 
 Workflow : branches de travail → PR → `develop` → PR de livraison revue → `main` protégée. Les [issues](https://github.com/jlbokass/datashare/issues) conservent les User Stories officielles et les tâches restant à réaliser.
 

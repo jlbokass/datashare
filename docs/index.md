@@ -13,6 +13,10 @@ Secure file-sharing MVP — OpenClassrooms P3.
 
 **Current state:** design approved and Laravel/Angular scaffolds present. Docker dependency checks were reported successful by the developer; TECH-04 service integration and hot reload **were reported locally verified by the developer**, not proof of a deployed application.
 
+## Consolidated OpenClassrooms technical dossier
+
+[Technical documentation — eight OC sections](technical-documentation.md) (evolving draft). Root quality reports: [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md), [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md), [PERF](https://github.com/jlbokass/datashare/blob/develop/PERF.md), [MAINTENANCE](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md). **Plans exist; actual E2E, coverage, scans and measurements remain outstanding.**
+
 ## Design deliverables
 
 | Deliverable | Documentation | Supporting assets |
@@ -30,7 +34,7 @@ The [AI development journal](ai-journal.md) records delegated tasks, developer d
 
 ## Development environment
 
-[Docker-first dependency setup](docker-setup.md) (TECH-02) · [Laravel / Angular integration and hot reload recipe](development.md) (TECH-04, awaiting local verification).
+[Docker-first dependency setup](docker-setup.md) (TECH-02) · [Laravel / Angular integration and hot reload](development.md) (TECH-04, locally verified by developer).
 
 ## UI design reference
 
@@ -38,7 +42,7 @@ The [AI development journal](ai-journal.md) records delegated tasks, developer d
 
 ## Account features (under development)
 
-[US03 — Registration](us03-registration.md) and [US04 — JWT login and protected profile](us04-jwt-login.md) have been implemented and locally validated by the developer. [US01 — Authenticated upload and expiry purge](us01-upload.md) is in a Draft feature branch; no US01 tests or browser recipe have yet been reported.
+[US03 — Registration](us03-registration.md), [US04 — JWT login](us04-jwt-login.md) and [US01 — Authenticated upload with expiry](us01-upload.md) were implemented and reported **locally green** by the developer. US02/US05/US06 remain incomplete; the [UI-01 visual mismatch](https://github.com/jlbokass/datashare/issues/37) is tracked separately.
 
 ## File transfers — US01 in review
 
@@ -58,7 +62,7 @@ The project uses work branches → `develop` → protected `main`. GitHub Pages 
 
 ### Quality evidence — to be completed after integration
 
-The developer reported TECH-03 starter tests and Angular build successful. Future CI, coverage, security scans and performance evidence will be linked **after those checks actually run**. TECH-04 integration has not yet passed local recipe.
+The developer reported TECH-02–04 and US01–04 local checks green. CI, E2E, coverage, security scans and performance evidence will be linked **only after those checks actually run**.
 
 ---
 
