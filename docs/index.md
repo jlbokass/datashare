@@ -38,7 +38,11 @@ The [AI development journal](ai-journal.md) records delegated tasks, developer d
 
 ## Account features (under development)
 
-[US03 — Registration](us03-registration.md) is completed and merged in `develop`. [US04 — JWT login and protected profile](us04-jwt-login.md) is prepared on a feature branch; Composer dependency, browser acceptance and security checks remain pending.
+[US03 — Registration](us03-registration.md) and [US04 — JWT login and protected profile](us04-jwt-login.md) have been implemented and locally validated by the developer. [US01 — Authenticated upload and expiry purge](us01-upload.md) is in a Draft feature branch; no US01 tests or browser recipe have yet been reported.
+
+## File transfers — US01 in review
+
+[US01 upload guide and acceptance criteria](us01-upload.md) covers multipart authenticated upload, private storage, 1–7 day expiration and scheduled cleanup. The public download experience belongs to US02, not to this unverified Draft.
 
 ## MVP requirements
 
