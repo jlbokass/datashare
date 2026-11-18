@@ -42,9 +42,14 @@ _Toutes les entrées ci-dessous concernent le **18 novembre 2026** et sont regro
 
 **Limites/corrections :** des branches de conception créées séparément ne contenaient pas les livrables précédents avant leur intégration ; le MCD a nécessité plusieurs ajustements sur la suppression individuelle, le suivi facultatif et la confidentialité ; les contrôles Markdown/OpenAPI étaient **structurels** et ne démontraient ni un build applicatif, ni la sécurité à l'exécution, ni une validation OpenAPI formelle. Les décisions techniques et de confidentialité restent sous la responsabilité du développeur.
 
-| **TECH-02** · [#28](https://github.com/jlbokass/datashare/issues/28) · [PR #29](https://github.com/jlbokass/datashare/pull/29) | Préparation d'un environnement Docker-first : PostgreSQL, outils PHP/Composer et Node ; documentation et commandes de recette bilingues. | Le développeur a retenu l'approche Docker-first, exécuté les commandes localement et signalé que tous les contrôles étaient verts. **Les sorties détaillées du terminal ne sont pas reproduites ici** : versions exactes et persistance ne sont pas attestées indépendamment. Hot reload et Dozzle sont reportés. |
+## 4. Phase de développement — Docker et initialisation des applications
 
-## 4. Modèle d'entrée pour les futures US
+| Issue / preuves | Contribution de l'IA (travaux délégués) | Actions et vérifications du développeur |
+| --- | --- | --- |
+| **TECH-02** · [#28](https://github.com/jlbokass/datashare/issues/28) · [PR #29](https://github.com/jlbokass/datashare/pull/29) | Préparation d'un environnement Docker-first : PostgreSQL, outils PHP/Composer et Node ; documentation et commandes de recette bilingues. | Le développeur a retenu l'approche Docker-first, exécuté les commandes localement et signalé que tous les contrôles étaient verts. **Les sorties détaillées du terminal ne sont pas reproduites ici** : versions exactes et persistance ne sont pas attestées indépendamment. Hot reload et Dozzle sont reportés. |
+| **TECH-03** · [#30](https://github.com/jlbokass/datashare/issues/30) · [commit d'initialisation](https://github.com/jlbokass/datashare/compare/develop...feat/tech-03-scaffold-apps) | Fourniture des commandes officielles Composer et Angular CLI dans Docker, revue des dossiers poussés, des versions déclarées, des exclusions Git et des fichiers générés ; préparation de la PR et du journal. **Aucun code métier n'a été généré par l'IA dans cette tâche.** | Le développeur a créé Laravel 13 dans `backend/` et Angular 22 dans `frontend/`, vérifié les versions, signalé les tests Laravel et le build Angular réussis, puis commité et poussé le socle. Les sorties détaillées n'ont pas été conservées ; les tests unitaires Angular ne sont **pas encore confirmés**. PostgreSQL et hot reload restent pour l'intégration suivante. |
+
+## 5. Modèle d'entrée pour les futures US
 
 Ajouter **une entrée courte par issue/PR significative** ; inutile de conserver chaque prompt. Lorsque la preuve manque, indiquer **« non vérifié »** plutôt que d'inventer un résultat.
 
