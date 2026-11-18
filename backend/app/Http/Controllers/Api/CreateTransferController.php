@@ -28,7 +28,8 @@ class CreateTransferController extends Controller
                 File::types(config('transfers.allowed_extensions'))
                     ->extensions(config('transfers.allowed_extensions')),
             ],
-            'expires_in_days' => ['sometimes', 'integer', 'between:1,7'],
+            'expires_in_days' => ['sometimes', 'integer', 'between:1,7', 'prohibited_with:expires_in_minutes'],
+            'expires_in_minutes' => ['sometimes', 'integer', 'in:5', 'prohibited_with:expires_in_days'],
         ], [
             'files.required' => 'Ajoute au moins un fichier.',
             'files.array' => 'Les fichiers doivent être envoyés sous forme de liste.',
@@ -40,7 +41,22 @@ class CreateTransferController extends Controller
             'files.*.extensions' => 'Cette extension n’est pas autorisée.',
             'expires_in_days.integer' => 'Choisis un nombre de jours valide.',
             'expires_in_days.between' => 'L’expiration doit être comprise entre 1 et 7 jours.',
+            'expires_in_days.prohibited_with' => 'Choisis une seule durée d’expiration.',
+            'expires_in_minutes.in' => 'Seule la durée de démonstration de 5 minutes est autorisée.',
+            'expires_in_minutes.prohibited_with' => 'Choisis une seule durée d’expiration.',
         ]);
+
+        $demoRequested = array_key_exists('expires_in_minutes', $data);
+        $demoAllowed = app()->environment(['local', 'testing'])
+            && (bool) config('transfers.demo_five_minutes', false);
+
+        if ($demoRequested && ! $demoAllowed) {
+            return response()->json([
+                'message' => 'L’expiration de démonstration est désactivée.',
+                'code' => 'validation_error',
+                'errors' => ['expires_in_minutes' => ['Option réservée à la démonstration locale.']],
+            ], 422);
+        }
 
         $maxFileBytes = (int) config('transfers.max_file_bytes');
         $maxTotalBytes = (int) config('transfers.max_total_bytes');
@@ -71,7 +87,9 @@ class CreateTransferController extends Controller
                 $transfer = Transfer::create([
                     'user_id' => $request->user()->getKey(),
                     'share_token' => bin2hex(random_bytes(32)),
-                    'expires_at' => now()->addDays((int) ($data['expires_in_days'] ?? 7)),
+                    'expires_at' => array_key_exists('expires_in_minutes', $data)
+                        ? now()->addMinutes(5)
+                        : now()->addDays((int) ($data['expires_in_days'] ?? 7)),
                 ]);
 
                 foreach ($data['files'] as $file) {
