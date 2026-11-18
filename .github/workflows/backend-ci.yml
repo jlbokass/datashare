@@ -51,4 +51,9 @@ jobs:
         run: php artisan test
 
       - name: Verify Laravel formatting (Pint)
-        run: ./vendor/bin/pint --test
+        run: |
+          if ! ./vendor/bin/pint --test; then
+            ./vendor/bin/pint
+            git diff -- .
+            exit 1
+          fi
