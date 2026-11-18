@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\RegisterController;
+use App\Http\Controllers\Api\DownloadPublicShareFileController;
+use App\Http\Controllers\Api\ShowPublicShareController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\CreateTransferController;
@@ -28,3 +30,7 @@ Route::get('/demo/capabilities', fn () => response()->json([
 
 // US01: authenticated private upload. Public downloads are implemented in US02.
 Route::post('/transfers', CreateTransferController::class)->middleware(AuthenticateJwt::class);
+
+// US02: public sharing requires only the unpredictable share token, not JWT.
+Route::get('/shares/{token}', ShowPublicShareController::class)->middleware('throttle:60,1');
+Route::get('/shares/{token}/files/{fileId}', DownloadPublicShareFileController::class)->middleware('throttle:60,1');
