@@ -6,7 +6,7 @@
 
 ## État du projet
 
-**Conception validée ; squelettes Laravel 13 et Angular 22 créés dans TECH-03.** Le développeur a indiqué que les contrôles Docker initiaux, les tests et le build frontend étaient verts. TECH-04 propose maintenant l'intégration des services et le hot reload ; **sa recette reste à effectuer**.
+**Conception validée ; squelettes Laravel 13 et Angular 22 créés dans TECH-03.** Le développeur a indiqué que les contrôles Docker initiaux, les tests et le build frontend étaient verts. TECH-04 fournit le raccordement des services et le hot reload ; **le développeur confirme la recette locale verte**, migrations PostgreSQL et tests compris.
 
 Ce dépôt est public afin que l'évaluateur OpenClassrooms puisse consulter le code, les documents, les issues, les PR et les commits.
 
