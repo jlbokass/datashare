@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\CreateTransferController;
 use App\Http\Controllers\Api\DownloadPublicShareFileController;
+use App\Http\Controllers\Api\ListTransfersController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\RegisterController;
@@ -29,6 +30,9 @@ Route::get('/demo/capabilities', fn () => response()->json([
 
 // US01: authenticated private upload.
 Route::post('/transfers', CreateTransferController::class)->middleware(AuthenticateJwt::class);
+
+// US05: history belongs exclusively to the verified JWT owner.
+Route::get('/transfers', ListTransfersController::class)->middleware(AuthenticateJwt::class);
 
 // US02: public share metadata and file download, authorized by share token (no JWT).
 Route::get('/shares/{token}', ShowPublicShareController::class)->middleware('throttle:60,1');

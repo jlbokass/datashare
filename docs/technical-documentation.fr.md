@@ -58,7 +58,7 @@ La justification retrace les **choix initiaux**, tandis que les versions ci-dess
 | `GET /api/auth/me` | **US04**, protégée JWT |
 | `POST /api/transfers` | **US01**, upload multipart authentifié, 201 et lien |
 | `GET /api/shares/{token}`, `GET /api/shares/{token}/files/{fileId}` | **US02 en attente** ; lien actuel vers une page temporaire |
-| `GET /api/transfers` | **US05 en attente** |
+| `GET /api/transfers` | [US05 implémentée sur sa branche ; recette Docker/navigateur à effectuer](us05-personal-history.fr.md) |
 | `DELETE /api/transfers/{transferId}/files/{fileId}` | **US06 en attente** |
 
 `GET /api/health` est uniquement une route de diagnostic technique, pas une US OC. Le contrat décrit des statuts 401/404/410/413/422 ; ne pas annoncer les routes non codées comme disponibles.
@@ -108,4 +108,4 @@ Le développeur décide du périmètre, supervise le travail, relit et valide le
 
 ## Travail restant pour la remise finale
 
-Terminer US02/US05/US06, automatiser 2–3 scénarios E2E, fournir le rapport de couverture (objectif indicatif 70 %), exécuter un scan de sécurité et un test de performance sur un endpoint critique avec chiffres réels, arbitrer ZIP/US02, corriger les écarts Figma UI-01, documenter production/HTTPS et finaliser la maintenance. Ce document est **l'index technique évolutif**, pas un substitut aux preuves absentes.
+Terminer la recette US02, la recette Docker/navigateur US05 et l'implémentation US06, automatiser 2–3 scénarios E2E, fournir le rapport de couverture (objectif indicatif 70 %), exécuter un scan de sécurité et un test de performance sur un endpoint critique avec chiffres réels, arbitrer ZIP/US02, corriger les écarts Figma UI-01, documenter production/HTTPS et finaliser la maintenance. Ce document est **l'index technique évolutif**, pas un substitut aux preuves absentes.
