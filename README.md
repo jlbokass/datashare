@@ -37,7 +37,7 @@ See [the technical rationale](docs/technology-choices.md), [architecture](docs/a
 
 ## Documentation and project workflow
 
-The documentation is maintained in **English and French** in the same repository. [Start here](docs/index.md), or open the [French documentation hub](docs/index.fr.md).
+The documentation is maintained in **English and French** in the same repository. [Start here](docs/index.md), or open the [French documentation hub](docs/index.fr.md). Our [AI development journal](docs/ai-journal.md) records AI contributions and developer supervision, with a [French version](docs/ai-journal.fr.md).
 
 Git workflow: work branches → Pull Requests → `develop` → reviewed release Pull Request → protected `main`. See the [issues](https://github.com/jlbokass/datashare/issues) for the official user stories and remaining work.
 
