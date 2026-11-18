@@ -36,6 +36,10 @@ The [AI development journal](ai-journal.md) records delegated tasks, developer d
 
 [UI design handoff review and scope decisions](design-handoff.md) — visual tokens, desktop/mobile reference widths and explicit US09 password discrepancy. The [source PDF](design/DataShare_UI_Design_Handoff_v1.pdf) is committed on the TECH-04 branch.
 
+## Account features (under development)
+
+[US03 — Registration and local acceptance](us03-registration.md): email-only registration, password hashing, PostgreSQL migration and Angular form. **No login/JWT in this branch; local verification pending.**
+
 ## MVP requirements
 
 US01 authenticated upload · US02 link-based download · US03 registration · US04 JWT login · US05 personal history · US06 individual file deletion.

@@ -36,6 +36,10 @@ Le [journal d'utilisation de l'IA](ai-journal.fr.md) documente les tâches confi
 
 [Synthèse du handoff et arbitrages de périmètre](design-handoff.fr.md) — tokens, formats desktop/mobile et écart sur le mot de passe US09. Le [PDF source](design/DataShare_UI_Design_Handoff_v1.pdf) est commité sur la branche TECH-04.
 
+## Comptes utilisateurs (en développement)
+
+[US03 — Inscription et recette locale](us03-registration.fr.md) : inscription par email, hash du mot de passe, migration PostgreSQL et formulaire Angular. **Aucune connexion JWT dans cette branche ; recette locale en attente.**
+
 ## Exigences du MVP
 
 US01 téléversement connecté · US02 téléchargement par lien · US03 inscription · US04 connexion JWT · US05 historique personnel · US06 suppression individuelle d'un fichier.
