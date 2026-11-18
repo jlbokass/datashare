@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Conceptual UML data model"
-permalink: /data-model/
+permalink: /data-model.html
 lang: en
 ---
 
