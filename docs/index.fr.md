@@ -34,7 +34,7 @@ Le [journal d'utilisation de l'IA](ai-journal.fr.md) documente les tâches confi
 
 ## Référence de conception UI
 
-[Synthèse du handoff et arbitrages de périmètre](design-handoff.fr.md) — tokens, formats desktop/mobile et écart sur le mot de passe US09. Le PDF complet doit encore être commité par le développeur avant fusion.
+[Synthèse du handoff et arbitrages de périmètre](design-handoff.fr.md) — tokens, formats desktop/mobile et écart sur le mot de passe US09. Le [PDF source](design/DataShare_UI_Design_Handoff_v1.pdf) est commité sur la branche TECH-04.
 
 ## Exigences du MVP
 
