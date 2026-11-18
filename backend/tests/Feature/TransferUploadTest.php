@@ -117,6 +117,52 @@ class TransferUploadTest extends TestCase
         $this->assertDatabaseCount('transfers', 0);
     }
 
+    public function test_transfer_batch_is_limited_to_five_files(): void
+    {
+        $files = array_fill(0, 6, null);
+        $files = array_map(
+            fn (int $index) => UploadedFile::fake()->create("file-{$index}.pdf", 2, 'application/pdf'),
+            array_keys($files),
+        );
+
+        $this->authenticate()->post('/api/transfers', ['files' => $files])
+            ->assertUnprocessable()
+            ->assertJsonPath('code', 'validation_error');
+
+        $this->assertDatabaseCount('transfers', 0);
+    }
+
+    public function test_aggregate_transfer_size_is_limited_to_two_decimal_gigabytes(): void
+    {
+        $files = [
+            UploadedFile::fake()->create('one.pdf', 2, 'application/pdf')->size(900_000),
+            UploadedFile::fake()->create('two.pdf', 2, 'application/pdf')->size(900_000),
+            UploadedFile::fake()->create('three.pdf', 2, 'application/pdf')->size(900_000),
+        ];
+
+        $this->authenticate()->post('/api/transfers', ['files' => $files])
+            ->assertStatus(413)
+            ->assertJsonPath('code', 'payload_too_large');
+
+        $this->assertDatabaseCount('transfers', 0);
+    }
+
+    public function test_purge_preserves_active_transfers_and_private_files(): void
+    {
+        $this->authenticate()->post('/api/transfers', [
+            'files' => [UploadedFile::fake()->create('active.pdf', 2, 'application/pdf')],
+        ])->assertCreated();
+
+        $transfer = Transfer::query()->with('files')->firstOrFail();
+        $path = $transfer->files[0]->storage_path;
+
+        $this->artisan('transfers:purge-expired')->assertExitCode(0);
+
+        $this->assertDatabaseHas('transfers', ['id' => $transfer->id]);
+        $this->assertDatabaseCount('transfer_files', 1);
+        Storage::disk('transfers')->assertExists($path);
+    }
+
     public function test_expired_transfer_file_bytes_and_metadata_are_purged(): void
     {
         $this->authenticate()->post('/api/transfers', [
