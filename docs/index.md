@@ -32,6 +32,10 @@ All four deliverables have French counterparts accessible within their respectiv
 
 The [AI development journal](ai-journal.md) records delegated tasks, developer decisions, corrections and evidence, with a [French equivalent](ai-journal.fr.md). Its first entries are explicitly retrospective.
 
+## Continuous integration
+
+[CI-01 — GitHub Actions workflow and acceptance](ci.md) documents separate backend/frontend checks. **Application CI is not yet green-validated**; GitHub Pages already handles documentation deployment from `main/docs`.
+
 ## Development environment
 
 [Docker-first dependency setup](docker-setup.md) (TECH-02) · [Laravel / Angular integration and hot reload](development.md) (TECH-04, locally verified by developer).

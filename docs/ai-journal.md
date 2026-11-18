@@ -59,6 +59,8 @@ _All entries below relate to **18 November 2026**; their grouping is reconstruct
 
 | **DOC-03** · [#38](https://github.com/jlbokass/datashare/issues/38) · branch `docs/doc-03-oc-technical-documentation` | AI drafted a bilingual eight-section OC technical dossier and the four required OC quality-file pairs (TESTING, SECURITY, PERF, MAINTENANCE), linking existing design, implementation, handoff and GitHub issues. | The developer requested a documentation foundation during US01 closure rather than waiting until the MVP is finished. This content explicitly separates user-reported green local tests from **missing** coverage, security audits, benchmarks, production setup and E2E evidence. **Developer's editorial review and PR approval are still pending.** |
 
+| **CI-01** · [#41](https://github.com/jlbokass/datashare/issues/41) · branch `ci/github-actions-quality-gates` | AI introduced independent GitHub Actions workflows for PHP 8.4 Laravel tests/Pint and Node 24 Angular tests/build, plus bilingual CI acceptance documentation. | The developer explicitly revisited the postponed CI/CD question before US02. Project strategy: establish and review automated PR checks now; GitHub Pages CD already deploys static docs; no production app CD until hosting/security is approved. **First CI executions have not yet been reviewed; no green claim.** |
+
 ## 5. Entry template for the MVP phase
 
 Add **one concise entry per significant issue/PR**; do not archive every prompt. If an activity is not documented, write **“not verified”**, rather than inventing evidence.

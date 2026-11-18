@@ -36,7 +36,7 @@ Manual acceptance scripts are versioned in [US03](docs/us03-registration.md), [U
 
 - [ ] End-to-end automation (Cypress, Playwright or equivalent), at least **2–3 critical scenarios**: registration/login, upload/public download, history/deletion/expiry. Those scenarios require US02/US05/US06.
 - [ ] Coverage report and screenshot: **indicative goal 70% or higher**; percentage **not measured** yet.
-- [ ] CI executing backend/frontend lint/tests/build and linking workflow results.
+- [ ] GitHub Actions backend (PHPUnit/Pint) and frontend (Angular tests/build) workflows are authored under CI-01. **First CI runs and their URLs still need to be verified**; see [CI guide](docs/ci.md).
 - [ ] Real-size upload behavior, multipart 413 handling, scheduler purge and corrupted/unsafe file cases.
 - [ ] Accessibility, desktop/mobile visual review and external user feedback when available.
 
