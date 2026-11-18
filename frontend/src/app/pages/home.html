@@ -15,7 +15,7 @@
         <h2>Ton lien est prêt !</h2>
         <p>
           Ton transfert contient {{ transfer()?.files?.length }} fichier(s).
-          Il expirera le {{ transfer()?.expires_at ? (newDateLabel(transfer()!.expires_at)) : '' }}.
+          Il expirera le {{ transfer()?.expires_at ? (newDateLabel(transfer()?.expires_at ?? '')) : '' }}.
         </p>
         <label for="share-link">Lien unique de partage</label>
         <input id="share-link" type="text" [value]="link" readonly />
