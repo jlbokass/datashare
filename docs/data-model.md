@@ -1,6 +1,13 @@
+---
+layout: default
+title: "Conceptual UML data model"
+permalink: /data-model/
+lang: en
+---
+
 # DataShare — Conceptual data model (UML)
 
-**Status:** Draft v0.3 — review required for [DESIGN-02](https://github.com/jlbokass/datashare/issues/2). This is a **conceptual model**, not an implemented database.
+**Status:** Conceptual model reviewed in [DESIGN-02](https://github.com/jlbokass/datashare/issues/2). This is a **conceptual model**, not an implemented database.
 
 **Source:** OpenClassrooms *DataShare – Spécifications fonctionnelles*, US01–US10. The mandatory MVP is **US01–US06**; US07–US10 are optional. The supplied documentation template accepts UML or Merise for the data model.
 
