@@ -9,7 +9,7 @@ lang: fr
 
 [**English**](us02-public-sharing.md) · [Documentation technique](index.fr.md)
 
-**Statut : implémentation préparée sur une branche de travail. Tests Laravel/Angular, recette Docker/navigateur, revue ZIP et intégration de la CI encore à valider.**
+**Statut au 18 novembre 2026 :** CI backend (33 tests Laravel, 217 assertions, Pint) et frontend (tests et build) **vertes** sur [PR #43](https://github.com/jlbokass/datashare/pull/43). Le développeur confirme la recette locale **T01 PDF anonyme, T02 multifichiers, T03 lien invalide et T04 ZIP inoffensif : OK**. **T05 expiration : non validé** ; le transfert examiné avait une échéance standard à 7 jours, et non l'option locale de démonstration à 5 minutes. Aucune fusion dans `develop` à ce stade.
 
 Sources : [issue officielle US02 #5](https://github.com/jlbokass/datashare/issues/5), [contrat OpenAPI DESIGN-03](api/openapi.yaml), [handoff Figma](design-handoff.fr.md) et [SECURITY.md](https://github.com/jlbokass/datashare/blob/develop/SECURITY.fr.md).
 
@@ -36,7 +36,7 @@ docker compose up -d
 2. Ouvre ce lien dans une **fenêtre de navigation privée**, sans connexion : vérifie nom, type, taille, échéance et bouton Télécharger. Le contenu sauvegardé doit correspondre au document initial et ne pas s'ouvrir comme page web active.
 3. Envoie **deux fichiers** (PDF et PNG) derrière un seul lien, puis télécharge chacun en vérifiant le nom et les octets.
 4. Ouvre `/share/bad-token` : message d'erreur compréhensible.
-5. Avec le mode démo local, crée un partage à **cinq minutes**, attends son expiration et retente. **410** tant qu'il est en BDD mais expiré, **404** après purge ; aucun téléchargement ne doit réussir. Le test automatisé couvre explicitement le cas 410.
+5. Vérifie d'abord `GET /api/demo/capabilities` : `five_minute_expiry` doit être `true` ; sinon, activer `TRANSFER_DEMO_5_MIN_ENABLED=true` dans `backend/.env` uniquement en environnement `APP_ENV=local`, exécuter `php artisan config:clear`, redémarrer `app` et `scheduler`, puis vérifier `schedule:list` (purge chaque minute). Sélectionne explicitement **« Démo locale — 5 minutes »**, crée un **nouveau** transfert, puis recontrôle le lien après son expiration. **410** tant qu'il est en BDD mais expiré, **404** après purge ; aucun téléchargement ne doit réussir. Le test automatisé couvre explicitement le cas 410.
 6. Essaie un ZIP **inoffensif** : il doit être téléchargé tel quel, sans extraction par Laravel, avec avertissement. Ne pas utiliser de véritable malware.
 7. Contrôle les largeurs **393px/1440px** et signale les écarts Figma dans [UI-01 #37](https://github.com/jlbokass/datashare/issues/37).
 
@@ -44,10 +44,10 @@ docker compose up -d
 
 ## Critères de validation
 
-- [ ] Tests Laravel : accès public, octets et en-têtes, 404, 410, fichier étranger, fichier privé manquant, ZIP inoffensif.
-- [ ] Tests Angular : lien valide/invalide/expiré, URL du téléchargement.
-- [ ] Recette navigateur PDF, multifichiers et ZIP sans compte.
-- [ ] Expiration réellement bloquante et stockage non exposé.
+- [x] Tests Laravel (33 verts, 217 assertions, Pint vert sur GitHub Actions) : accès public, octets et en-têtes, 404, 410, fichier étranger, fichier privé manquant, ZIP inoffensif.
+- [x] Tests Angular et build verts sur GitHub Actions : lien valide/invalide/expiré, URL du téléchargement.
+- [x] Recette navigateur T01 PDF anonyme, T02 multifichiers, T03 lien invalide et T04 ZIP inoffensif : verts selon le développeur.
+- [ ] T05 : refaire la recette locale après activation **et sélection** du mode 5 minutes ; vérifier le blocage des téléchargements à l'échéance, puis la purge. Les tests automatiques vérifient déjà 410/404, mais ne remplacent pas ce contrôle.
 - [ ] Risques ZIP discutés et consignés.
-- [ ] CI-01 [backend/frontend — PR CI-01 #42](https://github.com/jlbokass/datashare/pull/42) verte sur la PR après intégration de CI-01 ; journal IA et docs à jour.
+- [x] CI backend/frontend verte sur [PR #43](https://github.com/jlbokass/datashare/pull/43) (après la fusion de [CI-01 #42](https://github.com/jlbokass/datashare/pull/42)). Journal IA mis à jour avec les limites de la recette.
 - [ ] PR approuvée puis fusion dans `develop`.
