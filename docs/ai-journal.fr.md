@@ -51,6 +51,8 @@ _Toutes les entrées ci-dessous concernent le **18 novembre 2026** et sont regro
 
 | **TECH-04** · [#32](https://github.com/jlbokass/datashare/issues/32) · [PR brouillon #33](https://github.com/jlbokass/datashare/pull/33) | Préparation du raccordement Docker Compose app/frontend/web, de la passerelle Nginx, d'une route Laravel de santé hors métier, de la configuration hot reload, des guides bilingues et analyse du handoff UI de 23 pages. Le PDF source a été commité par le développeur. | Le développeur indique que **Docker, Angular et les contrôles health fonctionnent** en local. Les sorties et commandes exactes ne sont pas fournies ; **les migrations PostgreSQL, le hot reload dans le navigateur et les tests de non-régression Laravel/Angular ont ensuite été signalés verts par le développeur**. Aucun statut d'intégration ou conformité UI terminée n'est revendiqué. |
 
+| **US03** · [#6](https://github.com/jlbokass/datashare/issues/6) · branche `feat/us03-registration` | Délégation du contrôleur d'inscription, de la migration non destructive des utilisateurs, des erreurs de validation JSON, du support de tests SQLite/PostgreSQL, du formulaire Angular inspiré du handoff et des tests frontend/backend. | Le développeur a demandé US03 avant US04 et maintenu le contrat API sans JWT à l'inscription. **Aucune exécution locale des builds, tests, migrations ni recette UI n'est encore déclarée pour cette branche.** |
+
 ## 5. Modèle d'entrée pour les futures US
 
 Ajouter **une entrée courte par issue/PR significative** ; inutile de conserver chaque prompt. Lorsque la preuve manque, indiquer **« non vérifié »** plutôt que d'inventer un résultat.
