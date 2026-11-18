@@ -9,7 +9,7 @@ lang: fr
 
 [**English**](development.md) · [Accueil de la documentation](index.fr.md)
 
-**Statut : proposition non encore validée sur le Mac du développeur.** TECH-04 raccorde les squelettes Laravel 13 / Angular 22 issus de TECH-03. Cet environnement sert au **développement local**, pas à la production.
+**Statut : recette locale annoncée verte par le développeur (18 novembre 2026) : migrations PostgreSQL, hot reload Angular, contrôles health et tests/build Laravel/Angular. Les sorties détaillées du terminal ne sont pas archivées ici.** TECH-04 raccorde les squelettes Laravel 13 / Angular 22 issus de TECH-03. Cet environnement sert au **développement local**, pas à la production.
 
 ## Services et accès
 
