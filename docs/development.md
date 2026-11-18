@@ -9,7 +9,7 @@ lang: en
 
 [**Français**](development.fr.md) · [Documentation home](index.md)
 
-**Status: proposed, not yet validated on the developer's Mac.** TECH-04 connects the Laravel 13 / Angular 22 scaffolds produced in TECH-03. It is a local **development** setup, not production.
+**Status: locally validated according to the developer's report (18 November 2026): PostgreSQL migrations, Angular hot reload, health checks and Laravel/Angular tests/build are green. Detailed terminal output was not archived here.** TECH-04 connects the Laravel 13 / Angular 22 scaffolds produced in TECH-03. It is a local **development** setup, not production.
 
 ## Services and addresses
 
