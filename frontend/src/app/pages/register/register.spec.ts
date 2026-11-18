@@ -90,10 +90,10 @@ describe('Register', () => {
     request.flush({
       message: 'The provided data is invalid.',
       code: 'validation_error',
-      errors: { email: ['The email has already been taken.'] },
+      errors: { email: ['Cette adresse email est déjà utilisée.'] },
     }, { status: 422, statusText: 'Unprocessable Entity' });
 
-    expect(register.fieldErrors()['email']).toHaveLength(1);
+    expect(register.fieldErrors()['email']).toEqual(['Cette adresse email est déjà utilisée.']);
     expect(register.created()).toBe(false);
     expect(register.submitting()).toBe(false);
   });
