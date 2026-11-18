@@ -9,7 +9,7 @@ lang: fr
 
 [**English**](us03-registration.md) · [Documentation française](index.fr.md)
 
-**Statut : builds Docker, migrations PostgreSQL, tests Laravel/Angular et build Angular annoncés verts par le développeur. Recette de l'inscription dans le navigateur et contrôle responsive encore en attente.**
+**Statut : builds Docker, migrations PostgreSQL, tests Laravel/Angular et build Angular annoncés verts. Inscription, doublons, mot de passe trop court et message d'erreur français vérifiés dans le navigateur. La recette visuelle Figma complète reste à faire ultérieurement.**
 
 Cette issue couvre [US03 — Création de compte](https://github.com/jlbokass/datashare/issues/6), conformément aux spécifications OpenClassrooms, à notre [contrat OpenAPI](api/README.fr.md) et au [handoff UI](design-handoff.fr.md).
 
