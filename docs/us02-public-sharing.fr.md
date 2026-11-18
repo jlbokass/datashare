@@ -49,5 +49,5 @@ docker compose up -d
 - [ ] Recette navigateur PDF, multifichiers et ZIP sans compte.
 - [ ] Expiration réellement bloquante et stockage non exposé.
 - [ ] Risques ZIP discutés et consignés.
-- [ ] CI-01 [backend/frontend](ci.fr.md) verte sur la PR après intégration de CI-01 ; journal IA et docs à jour.
+- [ ] CI-01 [backend/frontend — PR CI-01 #42](https://github.com/jlbokass/datashare/pull/42) verte sur la PR après intégration de CI-01 ; journal IA et docs à jour.
 - [ ] PR approuvée puis fusion dans `develop`.

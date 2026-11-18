@@ -49,5 +49,5 @@ docker compose up -d
 - [ ] Browser PDF, multifile and harmless ZIP download tests green without login.
 - [ ] Expired links blocked and server-side private storage not exposed directly.
 - [ ] ZIP security limitations reviewed and recorded.
-- [ ] CI-01 [backend/frontend checks](ci.md) green on this PR after CI-01 merge; documentation and AI journal updated.
+- [ ] CI-01 [backend/frontend checks — CI-01 PR #42](https://github.com/jlbokass/datashare/pull/42) green on this PR after CI-01 merge; documentation and AI journal updated.
 - [ ] PR approved for `develop`.
