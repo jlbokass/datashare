@@ -8,6 +8,8 @@
 
 **Conception validée ; squelettes Laravel 13 et Angular 22 créés dans TECH-03.** Le développeur a indiqué que les contrôles Docker initiaux, les tests et le build frontend étaient verts. TECH-04 fournit le raccordement des services et le hot reload ; **le développeur confirme la recette locale verte**, migrations PostgreSQL et tests compris.
 
+US03 inscription et US04 connexion JWT ont été validées en recette locale et fusionnées dans `develop`. **US01 téléversement authentifié** (PDF, multifichiers, expiration et démo locale cinq minutes) a été **déclarée verte en recette** : migrations, tests, build et navigateur. Le téléchargement public relève toujours d'**US02**. [Recette et limites US01](docs/us01-upload.fr.md).
+
 Ce dépôt est public afin que l'évaluateur OpenClassrooms puisse consulter le code, les documents, les issues, les PR et les commits.
 
 ## Périmètre MVP
@@ -30,8 +32,8 @@ Les **US07 à US10** sont suivies séparément comme fonctionnalités facultativ
 - **Backend :** API REST PHP / Laravel ; authentification JWT exigée par le sujet.
 - **Frontend :** TypeScript / Angular.
 - **Base de données :** PostgreSQL.
-- **Stockage :** système de fichiers local privé proposé pour le MVP.
-- **Développement :** Docker Compose avec PHP/Composer, Node/npm, PostgreSQL et raccordement Nginx/Angular avec hot reload proposé dans TECH-04 (recette locale en attente).
+- **Stockage :** système de fichiers local privé, métadonnées PostgreSQL ; téléversement et purge US01 contrôlés en local par le développeur.
+- **Développement :** Docker Compose avec PHP/Composer, Node/npm, PostgreSQL, Nginx et hot reload Angular (TECH-04 déclaré vert en recette locale).
 
 Voir la [justification technique](docs/technology-choices.fr.md), l'[architecture](docs/architecture.fr.md), le [MCD UML](docs/data-model.fr.md), le [contrat OpenAPI](docs/api/openapi.yaml), le [guide TECH-04](docs/development.fr.md), la [synthèse du handoff UI](docs/design-handoff.fr.md) et le [guide Docker TECH-02](docs/docker-setup.fr.md).
 
@@ -45,10 +47,10 @@ Le propriétaire du dépôt indique avoir activé GitHub Pages pour la documenta
 
 ## Installation et preuves de qualité
 
-La [recette d'intégration locale](docs/development.fr.md) documente TECH-04, **avant exécution**. Ne pas reprendre automatiquement les consignes de l'ancien dépôt `datashare-legacy`.
+La [recette d'intégration locale](docs/development.fr.md) documente TECH-04 (déclarée verte par le développeur). Ne pas reprendre automatiquement les consignes de l'ancien dépôt `datashare-legacy`.
 
 La CI, la couverture de code et les scans de sécurité ne sont pas encore opérationnels. Les **badges de qualité seront ajoutés lorsque les vérifications correspondantes auront effectivement été exécutées**, sans afficher prématurément un statut vert.
 
 ## Référence pédagogique
 
-La mission OC, les spécifications et le modèle de documentation fournis restent en français dans leur version originale. Nos fichiers Markdown sont bilingues. Les [maquettes Figma](https://www.figma.com/design/i4HHiGsL7Kc3kVBo41m7F6) servent de référence visuelle.
+La mission OC, les spécifications et le modèle de documentation fournis restent en français dans leur version originale. Nos fichiers Markdown sont bilingues. Les [maquettes Figma](https://www.figma.com/design/i4HHiGsL7Kc3kVBo41m7F6), le [PDF handoff original de 23 pages](docs/design/DataShare_UI_Design_Handoff_v1.pdf) et la [synthèse bilingue](docs/design-handoff.fr.md) servent de référence visuelle. **US01 est fonctionnelle mais son écran n'est pas encore conforme à Figma** : voir [UI-01 #37](https://github.com/jlbokass/datashare/issues/37).

@@ -38,7 +38,11 @@ Le [journal d'utilisation de l'IA](ai-journal.fr.md) documente les tâches confi
 
 ## Comptes utilisateurs (en développement)
 
-[US03 — Création de compte](us03-registration.fr.md) est validée et fusionnée dans `develop`. [US04 — Connexion JWT et profil protégé](us04-jwt-login.fr.md) est préparée sur une branche dédiée ; dépendance Composer, recette navigateur et contrôles de sécurité restent à faire.
+[US03 — Inscription](us03-registration.fr.md) et [US04 — Connexion JWT](us04-jwt-login.fr.md) sont implémentées et ont été validées en recette locale par le développeur. [US01 — Téléversement authentifié et purge](us01-upload.fr.md) est en branche Draft ; aucune recette US01 n'est encore déclarée.
+
+## Transferts de fichiers — US01 en revue
+
+Le [guide US01 et ses critères de recette](us01-upload.fr.md) couvre l'envoi JWT multifichier, le stockage privé, l'expiration 1 à 7 jours et la purge planifiée. Le téléchargement public relève d'US02, et non de cette PR non encore validée.
 
 ## Exigences du MVP
 

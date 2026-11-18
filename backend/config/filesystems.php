@@ -38,6 +38,15 @@ return [
             'report' => false,
         ],
 
+        // Uploaded transfer bytes are outside public/ and never served directly.
+        'transfers' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/transfers'),
+            'visibility' => 'private',
+            'serve' => false,
+            'throw' => true,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

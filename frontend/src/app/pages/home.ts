@@ -1,24 +1,231 @@
-import { Component } from '@angular/core';
+import { HttpClient, HttpErrorResponse, HttpEventType } from '@angular/common/http';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../auth/auth.service';
+import { HomeNavigation } from './home-navigation';
+
+interface UploadedFile {
+  id: string;
+  original_name: string;
+  mime_type: string;
+  size_bytes: number;
+  uploaded_at: string;
+}
+
+interface Transfer {
+  id: string;
+  share_url: string;
+  expires_at: string;
+  files: UploadedFile[];
+}
 
 @Component({
   selector: 'app-home',
   imports: [RouterLink],
-  template: `
-    <section class="welcome" aria-labelledby="welcome-title">
-      <h1 id="welcome-title">Tu veux partager un fichier ?</h1>
-      <p>Crée ton compte pour préparer tes futurs transferts.</p>
-      <a class="welcome-action" routerLink="/register">Créer un compte</a>
-    </section>
-  `,
-  styles: [`
-    .welcome { text-align: center; max-width: 38rem; margin: auto; }
-    h1 { font: 700 2rem/1.25 'DM Sans', sans-serif; margin-bottom: 1rem; }
-    p { line-height: 1.5; margin-bottom: 1.5rem; }
-    .welcome-action { display: inline-block; padding: .85rem 1.5rem;
-      border-radius: 8px; background: #2c2c2c; color: #fff;
-      font-weight: 600; text-decoration: none; }
-    .welcome-action:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
-  `],
+  templateUrl: './home.html',
+  styleUrl: './home.scss',
 })
-export class Home {}
+export class Home implements OnInit {
+  readonly auth = inject(AuthService);
+  private readonly http = inject(HttpClient);
+  private readonly navigation = inject(HomeNavigation);
+
+  readonly files = signal<File[]>([]);
+  readonly expiresInDays = signal(7);
+  readonly demoEnabled = signal(false);
+  readonly demoSelected = signal(false);
+  readonly busy = signal(false);
+  readonly progress = signal<number | null>(null);
+  readonly errorMessage = signal<string | null>(null);
+  readonly copied = signal(false);
+  readonly transfer = signal<Transfer | null>(null);
+  readonly shareUrl = signal<string | null>(null);
+
+  private readonly maxFileBytes = 1_000_000_000;
+  private readonly maxTotalBytes = 2_000_000_000;
+  private readonly allowedExtensions = new Set([
+    'pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'txt', 'mp3', 'mp4', 'zip',
+  ]);
+
+  constructor() {
+    // RouterLink to the current homepage does not navigate again.
+    this.navigation.resetRequested$.pipe(takeUntilDestroyed()).subscribe(() => this.reset());
+  }
+
+  ngOnInit(): void {
+    // The backend is authoritative: the demo option is hidden unless explicitly enabled.
+    this.http.get<{ five_minute_expiry: boolean }>('/api/demo/capabilities').subscribe({
+      next: (response) => this.demoEnabled.set(response.five_minute_expiry === true),
+      error: () => this.demoEnabled.set(false),
+    });
+  }
+
+  onFilesSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.setFiles(Array.from(input.files ?? []));
+    input.value = '';
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+
+    if (!this.busy()) {
+      this.setFiles(Array.from(event.dataTransfer?.files ?? []));
+    }
+  }
+
+  setFiles(files: File[]): void {
+    this.transfer.set(null);
+    this.shareUrl.set(null);
+    this.copied.set(false);
+    this.errorMessage.set(null);
+
+    if (files.length > 5) {
+      this.files.set([]);
+      this.errorMessage.set('Tu peux envoyer jusqu’à 5 fichiers par transfert.');
+      return;
+    }
+
+    if (files.some((file) => file.size > this.maxFileBytes)) {
+      this.files.set([]);
+      this.errorMessage.set('La taille de chaque fichier est limitée à 1 Go.');
+      return;
+    }
+
+    if (files.reduce((total, file) => total + file.size, 0) > this.maxTotalBytes) {
+      this.files.set([]);
+      this.errorMessage.set('La taille totale est limitée à 2 Go.');
+      return;
+    }
+
+    if (files.some((file) => !this.allowedExtensions.has(file.name.split('.').pop()?.toLowerCase() ?? ''))) {
+      this.files.set([]);
+      this.errorMessage.set('Type de fichier non autorisé. Consulte les formats acceptés.');
+      return;
+    }
+
+    this.files.set(files);
+  }
+
+  removeFile(index: number): void {
+    if (this.busy()) {
+      return;
+    }
+
+    this.files.update((previous) => previous.filter((_, i) => i !== index));
+    this.errorMessage.set(null);
+  }
+
+  changeExpiry(event: Event): void {
+    const selected = (event.target as HTMLSelectElement).value;
+    this.demoSelected.set(selected === 'demo5');
+
+    if (selected !== 'demo5') {
+      this.expiresInDays.set(Number(selected));
+    }
+  }
+
+  newDateLabel(iso: string): string {
+    return new Intl.DateTimeFormat('fr-FR', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date(iso));
+  }
+
+  formatSize(bytes: number): string {
+    return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(bytes / 1_000_000) + ' Mo';
+  }
+
+  onSubmit(event: SubmitEvent): void {
+    event.preventDefault();
+    this.upload();
+  }
+
+  upload(): void {
+    if (!this.auth.signedIn() || this.files().length === 0 || this.busy()) {
+      return;
+    }
+
+    const body = new FormData();
+
+    for (const file of this.files()) {
+      body.append('files[]', file, file.name);
+    }
+
+    if (this.demoEnabled() && this.demoSelected()) {
+      body.append('expires_in_minutes', '5');
+    } else {
+      body.append('expires_in_days', String(this.expiresInDays()));
+    }
+    this.errorMessage.set(null);
+    this.busy.set(true);
+    this.progress.set(null);
+
+    this.http.post<{ transfer: Transfer }>('/api/transfers', body, {
+      headers: this.auth.authorizationHeaders(),
+      observe: 'events',
+      reportProgress: true,
+    }).subscribe({
+      next: (event) => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
+          this.progress.set(Math.round(100 * event.loaded / event.total));
+        }
+
+        if (event.type === HttpEventType.Response && event.body) {
+          this.transfer.set(event.body.transfer);
+          this.shareUrl.set(window.location.origin + event.body.transfer.share_url);
+          this.busy.set(false);
+          this.progress.set(100);
+        }
+      },
+      error: (error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          this.auth.logout();
+          this.errorMessage.set('Ta session a expiré. Connecte-toi à nouveau.');
+        } else if (error.status === 413 || error.status === 422) {
+          this.errorMessage.set(error.error?.message || 'Vérifie les fichiers sélectionnés.');
+        } else {
+          this.errorMessage.set('Échec du téléversement. Réessaie.');
+        }
+
+        this.busy.set(false);
+        this.progress.set(null);
+      },
+    });
+  }
+
+  async copyLink(): Promise<void> {
+    const link = this.shareUrl();
+
+    if (!link) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(link);
+      this.copied.set(true);
+    } catch {
+      this.errorMessage.set('La copie automatique est indisponible. Sélectionne le lien pour le copier.');
+    }
+  }
+
+  reset(): void {
+    if (this.busy()) {
+      return;
+    }
+
+    this.files.set([]);
+    this.transfer.set(null);
+    this.shareUrl.set(null);
+    this.errorMessage.set(null);
+    this.progress.set(null);
+    this.copied.set(false);
+    this.demoSelected.set(false);
+    this.expiresInDays.set(7);
+  }
+}
