@@ -35,7 +35,7 @@ class JwtService
     {
         try {
             $payload = JWT::decode($token, new Key($this->secret(), 'HS256'));
-        } catch (UnexpectedValueException | DomainException $exception) {
+        } catch (UnexpectedValueException|DomainException $exception) {
             // Invalid, expired, tampered or unsupported tokens fail closed.
             return null;
         }

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 class PurgeExpiredTransfers extends Command
 {
     protected $signature = 'transfers:purge-expired';
+
     protected $description = 'Remove expired transfers, their private files and metadata.';
 
     public function handle(): int
@@ -35,6 +36,7 @@ class PurgeExpiredTransfers extends Command
 
                     if (! $success) {
                         $failed++;
+
                         continue;
                     }
 
