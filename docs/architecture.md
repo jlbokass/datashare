@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Application architecture"
-permalink: /architecture/
+permalink: /architecture.html
 lang: en
 ---
 
