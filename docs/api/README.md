@@ -1,6 +1,13 @@
+---
+layout: default
+title: "REST API interface contract"
+permalink: /api/
+lang: en
+---
+
 # DataShare API — Interface contract
 
-**Status:** Draft v0.1 — DESIGN-03 ([issue #3](https://github.com/jlbokass/datashare/issues/3)). **This is a design contract, not implemented Laravel code.**
+**Status:** Contract reviewed in DESIGN-03 ([issue #3](https://github.com/jlbokass/datashare/issues/3)). **This is a design contract, not implemented Laravel code.**
 
 - [Version française](README.fr.md)
 - [OpenAPI 3.1 specification](openapi.yaml)
