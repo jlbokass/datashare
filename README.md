@@ -37,11 +37,11 @@ See [the technical rationale](docs/technology-choices.md), [architecture](docs/a
 
 ## Documentation and project workflow
 
-The documentation is maintained in **English and French** in the same repository. [Start here](docs/index.md), or open the [French documentation hub](docs/index.fr.md).
+The documentation is maintained in **English and French** in the same repository. [Start here](docs/index.md), or open the [French documentation hub](docs/index.fr.md). Our [AI development journal](docs/ai-journal.md) records AI contributions and developer supervision, with a [French version](docs/ai-journal.fr.md).
 
 Git workflow: work branches → Pull Requests → `develop` → reviewed release Pull Request → protected `main`. See the [issues](https://github.com/jlbokass/datashare/issues) for the official user stories and remaining work.
 
-GitHub Pages will publish the static documentation from `main` / `docs` after activation: **https://jlbokass.github.io/datashare/** (not yet confirmed live). GitHub Pages does **not** host the Laravel API.
+The repository owner reports GitHub Pages has been enabled for static documentation from `main` / `docs`: **https://jlbokass.github.io/datashare/**. The live rendering has not been independently verified here. GitHub Pages does **not** host the Laravel API.
 
 ## Installation and quality evidence
 

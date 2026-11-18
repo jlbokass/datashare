@@ -37,11 +37,11 @@ Voir la [justification technique](docs/technology-choices.fr.md), l'[architectur
 
 ## Documentation et workflow Git
 
-La documentation est produite en **français et en anglais** dans le même dépôt. [Accéder à l'accueil français](docs/index.fr.md) ou à la [documentation anglaise](docs/index.md).
+La documentation est produite en **français et en anglais** dans le même dépôt. [Accéder à l'accueil français](docs/index.fr.md) ou à la [documentation anglaise](docs/index.md). Le [journal d'utilisation de l'IA](docs/ai-journal.fr.md) retrace les contributions IA et la supervision du développeur ([English](docs/ai-journal.md)).
 
 Workflow : branches de travail → PR → `develop` → PR de livraison revue → `main` protégée. Les [issues](https://github.com/jlbokass/datashare/issues) conservent les User Stories officielles et les tâches restant à réaliser.
 
-GitHub Pages publiera la documentation statique à partir de `main` / `docs` après son activation : **https://jlbokass.github.io/datashare/** (publication non encore vérifiée). GitHub Pages **n'exécute pas l'API Laravel**.
+Le propriétaire du dépôt indique avoir activé GitHub Pages pour la documentation statique depuis `main` / `docs` : **https://jlbokass.github.io/datashare/**. Le rendu public n'a pas été vérifié indépendamment ici. GitHub Pages **n'exécute pas l'API Laravel**.
 
 ## Installation et preuves de qualité
 

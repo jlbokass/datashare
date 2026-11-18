@@ -24,6 +24,10 @@ Prototype de plateforme de partage sécurisé de fichiers — P3 OpenClassrooms.
 
 Les quatre documents existent en français et en anglais. Les fonctionnalités optionnelles figurent dans **le même MCD** que le MVP, avec une présentation visuelle distincte.
 
+## Utilisation de l'IA et supervision
+
+Le [journal d'utilisation de l'IA](ai-journal.fr.md) documente les tâches confiées, décisions du développeur, corrections et preuves, avec une [version anglaise](ai-journal.md). Les premières entrées sont explicitement rétrospectives.
+
 ## Exigences du MVP
 
 US01 téléversement connecté · US02 téléchargement par lien · US03 inscription · US04 connexion JWT · US05 historique personnel · US06 suppression individuelle d'un fichier.
