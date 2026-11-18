@@ -1,7 +1,9 @@
 import { HttpClient, HttpErrorResponse, HttpEventType } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
+import { HomeNavigation } from './home-navigation';
 
 interface UploadedFile {
   id: string;
@@ -24,12 +26,15 @@ interface Transfer {
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
-export class Home {
+export class Home implements OnInit {
   readonly auth = inject(AuthService);
   private readonly http = inject(HttpClient);
+  private readonly navigation = inject(HomeNavigation);
 
   readonly files = signal<File[]>([]);
   readonly expiresInDays = signal(7);
+  readonly demoEnabled = signal(false);
+  readonly demoSelected = signal(false);
   readonly busy = signal(false);
   readonly progress = signal<number | null>(null);
   readonly errorMessage = signal<string | null>(null);
@@ -42,6 +47,19 @@ export class Home {
   private readonly allowedExtensions = new Set([
     'pdf', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'txt', 'mp3', 'mp4', 'zip',
   ]);
+
+  constructor() {
+    // RouterLink to the current homepage does not navigate again.
+    this.navigation.resetRequested$.pipe(takeUntilDestroyed()).subscribe(() => this.reset());
+  }
+
+  ngOnInit(): void {
+    // The backend is authoritative: the demo option is hidden unless explicitly enabled.
+    this.http.get<{ five_minute_expiry: boolean }>('/api/demo/capabilities').subscribe({
+      next: (response) => this.demoEnabled.set(response.five_minute_expiry === true),
+      error: () => this.demoEnabled.set(false),
+    });
+  }
 
   onFilesSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -104,7 +122,12 @@ export class Home {
   }
 
   changeExpiry(event: Event): void {
-    this.expiresInDays.set(Number((event.target as HTMLSelectElement).value));
+    const selected = (event.target as HTMLSelectElement).value;
+    this.demoSelected.set(selected === 'demo5');
+
+    if (selected !== 'demo5') {
+      this.expiresInDays.set(Number(selected));
+    }
   }
 
   formatSize(bytes: number): string {
@@ -127,7 +150,11 @@ export class Home {
       body.append('files[]', file, file.name);
     }
 
-    body.append('expires_in_days', String(this.expiresInDays()));
+    if (this.demoEnabled() && this.demoSelected()) {
+      body.append('expires_in_minutes', '5');
+    } else {
+      body.append('expires_in_days', String(this.expiresInDays()));
+    }
     this.errorMessage.set(null);
     this.busy.set(true);
     this.progress.set(null);
@@ -191,5 +218,7 @@ export class Home {
     this.errorMessage.set(null);
     this.progress.set(null);
     this.copied.set(false);
+    this.demoSelected.set(false);
+    this.expiresInDays.set(7);
   }
 }
