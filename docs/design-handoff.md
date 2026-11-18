@@ -15,7 +15,7 @@ lang: en
 
 ## Role and scope
 
-This handoff is the **visual reference and UI acceptance checklist** for upcoming Angular screens; the **OC specifications and US01–US06** define MVP behavior. TECH-04 only establishes the local backend/frontend runtime; **it does not implement the UI**.
+This handoff is the **visual reference and UI acceptance checklist** for upcoming Angular screens; the **OC specifications and US01–US06** define MVP behavior. TECH-04 established the runtime; US01 now implements a functional upload screen, **but the developer reported deviations from the Figma layout**. Visual alignment remains tracked under [UI-01 #37](https://github.com/jlbokass/datashare/issues/37), separate from functional upload acceptance.
 
 - 12 original design exports, grouped into upload, login/registration, personal space, components, and public download variants (PDF pp. 2–3).
 - Desktop **1440 × 1024**, mobile **393 × 852**. Verify intermediate widths **320 / 768 / 1024 px** and mobile navigation (PDF pp. 1, 21).

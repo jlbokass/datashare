@@ -8,7 +8,7 @@
 
 **Design approved; Laravel 13 and Angular 22 scaffolds generated in TECH-03.** The developer reported the initial Docker, test and frontend build checks successful. TECH-04 now provides a local development gateway and Angular hot reload; **the developer reports successful local integration checks**, including PostgreSQL migrations and regression tests.
 
-US03 registration and US04 JWT login have been locally validated by the developer and merged into `develop`. **US01 upload is being implemented on a feature branch**; its tests, large-file limits and browser flow await local verification. [US01 acceptance recipe](docs/us01-upload.md).
+US03 registration and US04 JWT login have been locally validated by the developer and merged into `develop`. **US01 authenticated upload** (PDF, multiple files, expiry and local five-minute demo) was reported **green by the developer** with migrations, tests, build and browser checks. The public download is not available until **US02**. [US01 acceptance and limitations](docs/us01-upload.md).
 
 This repository is public so the OpenClassrooms evaluator can inspect the code, documentation, issues, Pull Requests and commit history.
 
@@ -32,7 +32,7 @@ Advanced **US07–US10** are tracked as optional. The automatic removal of expir
 - **Backend:** PHP / Laravel REST API; JWT authentication required by the specification.
 - **Frontend:** TypeScript / Angular.
 - **Database:** PostgreSQL.
-- **File storage:** private local filesystem; US01 transfer disk and daily expiry purge implemented on a feature branch, pending local verification.
+- **File storage:** private local filesystem, metadata in PostgreSQL; US01 file upload and scheduled expiry cleanup locally checked by the developer.
 - **Development environment:** Docker Compose with PHP/Composer, Node/npm, PostgreSQL, Nginx and Angular hot reload (TECH-04 locally validated by the developer).
 
 See [the technical rationale](docs/technology-choices.md), [architecture](docs/architecture.md), [UML conceptual model](docs/data-model.md), [OpenAPI contract](docs/api/openapi.yaml), [TECH-04 local setup](docs/development.md), [UI handoff review](docs/design-handoff.md), and [TECH-02 Docker setup](docs/docker-setup.md).
@@ -47,10 +47,10 @@ The repository owner reports GitHub Pages has been enabled for static documentat
 
 ## Installation and quality evidence
 
-The [local integration recipe](docs/development.md) documents the TECH-04 environment **pending execution**. No steps from historical `datashare-legacy` apply automatically.
+The [local integration recipe](docs/development.md) records the TECH-04 environment (developer-reported green). No steps from historical `datashare-legacy` apply automatically.
 
 CI, code coverage and security scans are not operational yet. Their README **quality badges will be added only after the corresponding checks run successfully**; no green status is asserted in advance.
 
 ## Reference
 
-The original OpenClassrooms mission, specifications and documentation template remain in their original French. The project's authored Markdown is bilingual. The [Figma designs](https://www.figma.com/design/i4HHiGsL7Kc3kVBo41m7F6) are the UI reference.
+The original OpenClassrooms mission, specifications and documentation template remain in their original French. The project's authored Markdown is bilingual. The [Figma designs](https://www.figma.com/design/i4HHiGsL7Kc3kVBo41m7F6), [original 23-page UI handoff PDF](docs/design/DataShare_UI_Design_Handoff_v1.pdf) and [bilingual handoff review](docs/design-handoff.md) are the visual references. **Functional US01 is not yet visually Figma-compliant**; see [UI-01 #37](https://github.com/jlbokass/datashare/issues/37).

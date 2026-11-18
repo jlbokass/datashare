@@ -15,7 +15,7 @@ lang: fr
 
 ## Rôle et périmètre
 
-Le handoff est la **référence visuelle et la grille de recette UI** des prochains écrans Angular ; les **spécifications OC et US01–US06** restent la source des exigences métier. TECH-04 prépare uniquement l'environnement front/back ; **il n'implémente pas les écrans**.
+Le handoff est la **référence visuelle et la grille de recette UI** des prochains écrans Angular ; les **spécifications OC et US01–US06** restent la source des exigences métier. TECH-04 a préparé l'environnement ; US01 comprend désormais un écran de téléversement fonctionnel, **mais le développeur a signalé des écarts visuels avec Figma**. Leur correction est suivie dans [UI-01 #37](https://github.com/jlbokass/datashare/issues/37), distincte de la validation métier.
 
 - Douze exports initiaux regroupés en téléversement, connexion/inscription, espace personnel, composants et variantes de téléchargement public (PDF p. 2–3).
 - Desktop **1440 × 1024**, mobile **393 × 852**. Vérifier aussi **320 / 768 / 1024 px** et la navigation mobile (PDF p. 1 et 21).

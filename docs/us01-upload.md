@@ -9,7 +9,7 @@ lang: en
 
 [**Français**](us01-upload.fr.md) · [Documentation home](index.md)
 
-**Status: the developer reported green migrations, tests, build, PDF/multi-file upload and one-day expiry. A home-navigation regression and requested five-minute demo expiry have been addressed in the branch and await fresh local testing. The screen is not yet Figma-compliant.**
+**Status: the developer reports green Docker/migrations, tests/build, PDF/multi-file upload, one-day expiry, repaired home navigation and the optional five-minute demo. **Full Figma visual alignment is still pending [UI-01 #37](https://github.com/jlbokass/datashare/issues/37).** No performance/antivirus or real 1-GB network stress evidence is claimed.**
 
 Source: [US01 — Upload (avec compte)](https://github.com/jlbokass/datashare/issues/4), [DESIGN-02 UML](data-model.md), [DESIGN-03 OpenAPI](api/README.md), and [Figma handoff](design-handoff.md).
 

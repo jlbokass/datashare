@@ -9,7 +9,7 @@ lang: fr
 
 [**English**](us01-upload.md) · [Documentation française](index.fr.md)
 
-**Statut : le développeur a confirmé migrations, tests, build, téléversement PDF/multifichier et expiration à un jour verts. Un problème de retour à l'accueil et le besoin d'une expiration démo de cinq minutes ont été corrigés sur la branche ; leur nouvelle recette reste à effectuer. La conformité visuelle Figma n'est pas encore atteinte.**
+**Statut : le développeur a confirmé la recette Docker/migrations, tests/build, upload PDF/multifichier, expiration d'un jour, retour à l'accueil corrigé et option de démonstration à cinq minutes verts. La **conformité visuelle Figma reste à traiter dans [UI-01 #37](https://github.com/jlbokass/datashare/issues/37)**. Aucun résultat de charge réelle à 1 Go, d'antivirus ou de performance n'est revendiqué.**
 
 Sources : [US01 — Upload (avec compte)](https://github.com/jlbokass/datashare/issues/4), [MCD DESIGN-02](data-model.fr.md), [OpenAPI DESIGN-03](api/README.fr.md), [handoff Figma](design-handoff.fr.md).
 
