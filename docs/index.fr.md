@@ -11,7 +11,7 @@ lang: fr
 
 Prototype de plateforme de partage sécurisé de fichiers — P3 OpenClassrooms.
 
-**État actuel :** conception validée et squelettes Laravel/Angular créés. Les premiers contrôles Docker ont été annoncés verts par le développeur ; l'intégration TECH-04 et le hot reload **attendent une recette locale** et ne prouvent pas de déploiement applicatif.
+**État actuel :** conception validée et squelettes Laravel/Angular créés. Les premiers contrôles Docker ont été annoncés verts par le développeur ; l'intégration TECH-04 et le hot reload **ont été annoncés verts en recette locale par le développeur** et ne prouvent pas de déploiement applicatif.
 
 ## Livrables de conception
 
