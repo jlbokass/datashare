@@ -1,78 +1,79 @@
-# DataShare — Conceptual data model (MCD)
+# DataShare — Conceptual data model (UML)
 
-**Status:** Draft v0.1 for [DESIGN-02](https://github.com/jlbokass/datashare/issues/2). **No database schema or application code has been implemented in this issue.**
+**Status:** Draft v0.2 — review required in [DESIGN-02](https://github.com/jlbokass/datashare/issues/2). This is **conceptual design**, not a deployed database or implemented Laravel model.
 
-**Source of requirements:** OpenClassrooms, *DataShare – Spécifications fonctionnelles* (pp. 2–5), mandatory **US01–US06**. The mission calls for a conceptual data model (MCD); the official documentation template permits Merise or UML.
+**Source:** OpenClassrooms *DataShare – Spécifications fonctionnelles*, mandatory US01–US06 (pp. 2–5). The supplied technical documentation template expressly accepts **UML or Merise** to document the conceptual model.
 
-- [Version française](data-model.fr.md)
-- [Editable draw.io MCD](diagrams/data-model.drawio)
-- [SVG preview](diagrams/data-model.svg)
+- [Français](data-model.fr.md)
+- [Editable UML diagram — draw.io](diagrams/data-model.drawio) (**two tabs:** MVP and optional extensions)
+- [SVG of the mandatory MVP model](diagrams/data-model.svg)
 
-## 1. Conceptual diagram
+## 1. UML class diagram — mandatory MVP
 
-![DataShare MCD — users, transfers and files](diagrams/data-model.svg)
+![UML class diagram — DataShare MVP](diagrams/data-model.svg)
 
-This diagram uses **Merise-style** entities and associations. It is a **conceptual business model**, not a PostgreSQL physical schema: there are no foreign keys, SQL column types, migrations or Laravel-specific classes here.
+A UML class diagram can represent a **conceptual data model** when it describes domain entities, attributes and multiplicities rather than technical SQL tables or implementation methods. Identifiers are domain identities (`{id}`), **not SQL primary-key declarations**.
 
-## 2. Proposed entities
+### Entities and proposed attributes
 
-| Conceptual entity (FR / EN) | Conceptual attributes | Reason |
+| Entity | Conceptual attributes | Requirement / design interpretation |
 | --- | --- | --- |
-| **UTILISATEUR / USER** | User identifier, unique email, password hash, registration date | US03 registration, US04 login, authenticated ownership |
-| **TRANSFERT / TRANSFER** | Transfer identifier, unique unpredictable share token, creation date, expiry date | Links multiple files to one share-link and one expiry choice |
-| **FICHIER / FILE** | File identifier, original filename, MIME type, size in bytes, upload date | US01 upload; US02 file metadata; US05 history; US06 individual deletion |
+| **UTILISATEUR / USER** | `idUtilisateur: UUID {id}`; `email: String {unique}`; `motDePasseHash: String`; `dateCreation: DateTime` | Required account and login data (US03, US04). The password is securely hashed/salted. |
+| **UTILISATEUR — optional** | `nom: String [0..1]`; `prenom: String [0..1]` | Suggested enrichment of a user profile, **not required** for US03. No MVP acceptance criterion depends on these fields. |
+| **TRANSFERT / TRANSFER** | `idTransfert: UUID {id}`; `tokenPartage: String {unique}`; `dateCreation: DateTime`; `dateExpiration: DateTime` | One proposed share token and expiry date for a group of files (US01, US02). |
+| **TRANSFERT — optional** | `titre: String [0..1]`; `message: Text [0..1]` | Useful for a richer sharing UI, **not mandatory** in the official user-story text. |
+| **TRANSFERT — derived** | `/statut: EtatLien {derived}` | Calculated from expiry; not a persisted status. A purged record no longer appears. |
+| **FICHIER / FILE** | `idFichier: UUID {id}`; `nomOriginal: String`; `tailleOctets: Long`; `typeMime: String`; `dateEnvoi: DateTime` | File metadata needed for upload, download, history and individual deletion (US01, US02, US05, US06). |
 
-The *storage path/object key* is intentionally **not** an MCD attribute. That technical implementation detail will be addressed when translating this model into PostgreSQL tables and a private filesystem.
+### UML associations and multiplicities
 
-A separate **SHARE_LINK** entity is not necessary for this proposal: the unique token and expiry belong to TRANSFERT. A recipient with the token is not required to register, so recipients are not modeled as registered users.
+| Association | At UTILISATEUR / TRANSFERT end | At TRANSFERT / FICHIER end | Meaning |
+| --- | --- | --- | --- |
+| **UTILISATEUR — creates — TRANSFERT** | **1** (USER end) | **0..*** (TRANSFER end) | Each transfer has one registered owner; each user may create zero or many transfers. |
+| **TRANSFERT — contains — FICHIER** | **1** (TRANSFER end) | **1..*** (FILE end) | Each file belongs to exactly one transfer; each transfer contains one or more files. |
 
-## 3. Associations and cardinalities
+**Important:** In UML, a multiplicity is written near the class it counts, at the **end of the association**. Therefore `UTILISATEUR "1" — "0..*" TRANSFERT` is the intended reading, **not** a minimum of one transfer per registered user.
 
-| Association | Entity A | Cardinality A | Entity B | Cardinality B |
-| --- | --- | --- | --- | --- |
-| **CRÉER / CREATES** | UTILISATEUR | **0,N** | TRANSFERT | **1,1** |
-| **CONTENIR / CONTAINS** | TRANSFERT | **1,N** | FICHIER | **1,1** |
+A **filled diamond** on the TRANSFERT end of the second association indicates a composition/lifecycle relationship: deleting a transfer deletes its files, although an individual file may be deleted without deleting sibling files.
 
-**Interpretation:**
-- A registered user may have no transfers or many; every MVP transfer has **exactly one owner**.
-- Every transfer must contain **at least one file**, potentially several; every file belongs to exactly one transfer.
-- A file's owner is determined **through its transfer**. Authorization must enforce that ownership; the absence of a direct conceptual FILE → USER association does not grant public management access.
+## 2. Business rules and MVP boundary
 
-This grouping is a **design proposal**, not an explicit mandated data structure. The OpenClassrooms objective supports transferring one or more files; US01/US02 describe individual file interactions. A share token for a batch of files can satisfy both, provided the individual file operations remain available.
-
-## 4. Business rules inferred from the official US
-
-| Rule | Requirement and modeling consequence |
+| Rule | Consequence |
 | --- | --- |
-| **R1 — Registration** | Email is unique; passwords are stored as salted, one-way hashes (US03). |
-| **R2 — Sharing** | Each TRANSFERT has one unpredictable, unique token; public download needs the token but no account (US01, US02). |
-| **R3 — Expiration** | Each TRANSFERT has an expiration date, defaulting to **seven days** after upload and configurable with a maximum of **seven days** (US01). All its files inherit that expiry. |
-| **R4 — Metadata** | The public share view exposes each file's name, type, size and expiry date (US02). History shows filename, size, upload date, expiry date and valid/expired link status (US05). |
-| **R5 — Ownership** | Users can view/manage only their own uploaded files, by following TRANSFERT ownership (US05, US06). |
-| **R6 — Individual deletion** | Deleting a FICHIER removes **only that file's bytes and metadata**, never siblings in the same TRANSFERT. Confirmation is required in Angular; authorization and deletion are enforced by Laravel (US06). |
-| **R7 — Last file deleted** | **Proposed invariant:** if the last file is deleted, also remove the empty TRANSFERT and invalidate its link. This keeps the **1,N** cardinality truthful. |
-| **R8 — Expired content** | Expired files cannot be downloaded; file bytes and associated metadata must be automatically deleted (US01). History shows only non-expired files by default per US06. |
-| **R9 — Derived status** | The valid/expired link status can be calculated from the expiry date; it need not be an extra stored conceptual attribute. |
+| **US01 — upload** | An authenticated user can upload a file; the platform permits one or more files to be transferred. File content is stored privately, outside PostgreSQL. |
+| **US01 — sharing** | A unique, unpredictable token identifies the proposed TRANSFERT; this is a **design decision**, not an imposed entity structure. |
+| **US01 — expiry** | Expiration defaults to seven days and is user configurable up to seven days. Uploaded bytes and associated metadata must be automatically deleted on expiry. |
+| **US02 — download** | A recipient holding a valid share link can inspect filename, type, size and expiry date before downloading. An expired/invalid link produces a clear error. |
+| **US03/04 — users** | Email is unique; password hashing is mandatory, and authentication is based on JWT. |
+| **US05 — history** | A logged-in owner sees only their uploaded files, including filename, size, upload date, expiry and valid/expired link status. |
+| **US06 — deletion** | The owner can delete an **individual file**. Its bytes and metadata are deleted, and siblings in the same transfer remain available. Confirmation is required in the frontend. |
+| **Model invariant** | **Proposal:** deleting the final file also deletes the now-empty TRANSFERT and invalidates the share token, preserving the `1..*` cardinality. |
+| **Derived status** | `/statut` derives from `dateExpiration`; no stored status is required. Because expiry purge removes records, a historical expired item might disappear; this behavior must be reconciled with US05/US06 presentation rules. |
 
-**Timing clarification:** A scheduled *daily* cleanup is described in optional US10, but **automatic deletion at expiry already is a mandatory US01 requirement**. How to implement scheduling belongs to the architecture/implementation work, not the MCD.
+**One transfer / multiple files:** This design groups files under one share token and one expiry date, but it still permits each file to be managed independently. The grouping requires confirmation: the OC specifications do not prescribe a particular relational model.
 
-## 5. Out of MVP scope
+## 3. Your additional fields: conceptual vs implementation
 
-The MCD does **not** add:
-- US07 anonymous transfers (which would change owner cardinality).
-- US08 tags or tag associations.
-- US09 file-password protection (a field in Figma does not by itself make US09 a mandatory MVP story).
-- Additional US10 user-facing functionality beyond the expiry requirement already present in US01.
+- `cleStockage` (**storage key**) will be necessary when mapping file content to the chosen private storage, but it belongs in the **logical/physical model** rather than the minimal conceptual MCD.
+- `checksumSha256` is a potentially valuable integrity control; it is **not explicitly mandated** by the core stories and should only be implemented if justified.
+- `motDePasseHash` on TRANSFERT would imply **batch-level** protection, whereas optional **US09 describes password protection for a file**. If US09 is later prioritized, decide whether the password is per FILE or applies to the whole transfer; do not silently treat these as equivalent.
+- `statut` is a **derived domain property** (`/statut` in UML), not necessarily a database column.
 
-JWT session/token persistence, download logs, admin roles and password-recovery flows are likewise not part of the mandatory conceptual model.
+## 4. Optional extension — download logging
 
-## 6. Decisions to review before approval
+The **second page** of the [draw.io diagram](diagrams/data-model.drawio) illustrates the suggested **TÉLÉCHARGEMENT / DOWNLOAD EVENT** concept, separately from the mandatory MVP.
 
-- [ ] Validate **a single share token per transfer** when several files are uploaded together; if the intent is one link per file, revise the model.
-- [ ] Validate that **each file can be removed independently**, keeping other shared files available.
-- [ ] Confirm that deleting the final file also deletes the empty transfer.
-- [ ] Confirm that the expiry date is shared by the files within one transfer.
-- [ ] Verify the FR/EN diagrams and explanatory text are consistent.
-- [ ] Reconcile naming and operations with DESIGN-01 (architecture) and DESIGN-03 (OpenAPI) before final acceptance.
+A per-file download event is associated with **one FICHIER**, and a file may have **0..*** events. This is more informative than associating all events only with TRANSFERT when one share can include multiple files. Candidate attributes are event identifier, timestamp, optional IP hash and optional user agent.
 
-**Next step after approval:** derive the PostgreSQL logical/physical schema and Laravel models during technical initialization; do not confuse that later schema with the conceptual MCD delivered here.
+No mandatory user story requires persistent download auditing. IP hashes and user agents also introduce privacy, minimization, deletion and retention obligations. **No event table or tracking should be added to the MVP without a documented reason.**
+
+## 5. Pending design review
+
+- [ ] Confirm that one share link may represent multiple files, with a single expiry date.
+- [ ] Confirm that US06 removes one file while keeping sibling files available.
+- [ ] Confirm removal of an empty transfer after its last file is deleted.
+- [ ] Decide whether optional name/first name and title/message fields are worthwhile for the MVP UI; they are not required by the official US.
+- [ ] Keep password protection (US09) and persistent download tracing outside the MVP.
+- [ ] Check consistency with DESIGN-01 architecture and upcoming DESIGN-03 OpenAPI; maintain FR/EN parity.
+
+**Next step:** only after review, derive the PostgreSQL schema and Laravel models. Primary keys, foreign keys, storage keys, indexes and migration details belong to that subsequent technical model.
