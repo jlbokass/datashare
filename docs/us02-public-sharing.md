@@ -9,7 +9,7 @@ lang: en
 
 [**Français**](us02-public-sharing.fr.md) · [Documentation home](index.md)
 
-**Status: implementation in a feature branch. Laravel/Angular test execution, Docker browser acceptance, ZIP review and CI integration are pending.**
+**Status on 18 November 2026:** Backend CI (33 Laravel tests, 217 assertions and Pint) and frontend CI (tests and build) **passed** on [PR #43](https://github.com/jlbokass/datashare/pull/43). Developer-reported local browser tests **T01 anonymous PDF, T02 multiple files, T03 invalid link and T04 inert ZIP: PASS**. **T05 expiry: not accepted yet**; the tested transfer had the standard seven-day expiry, not the optional local five-minute demo. US02 is not yet merged into `develop`.
 
 Sources: [official US02 #5](https://github.com/jlbokass/datashare/issues/5), [DESIGN-03 OpenAPI](api/openapi.yaml), [UI handoff](design-handoff.md), [SECURITY.md](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md).
 
@@ -36,7 +36,7 @@ docker compose up -d
 2. Open the URL in a **new private browsing window**, *without logging in*. Confirm filename, type, size and expiry. Click **Download**; verify the real bytes match the original and that the file is saved, not executed/previewed inline.
 3. Upload **two files** (PDF and PNG), use the single share link, download each and check its filename and contents.
 4. Confirm that `/share/bad-token` shows a meaningful missing-link error.
-5. If local demo expiry is enabled, upload with the **five-minute option**, then retry after expiry. Expect 410 before purge or 404 afterward; both must block downloads. The automated test explicitly covers 410.
+5. First check `GET /api/demo/capabilities`: `five_minute_expiry` must be `true`. If disabled, enable `TRANSFER_DEMO_5_MIN_ENABLED=true` in `backend/.env` only with `APP_ENV=local`, run `php artisan config:clear`, restart `app` and `scheduler`, then check `schedule:list` (purge every minute). Explicitly select the **five-minute demo option** for a **new** transfer, then retry after expiry. Expect 410 before purge or 404 afterward; both must block downloads. The automated test explicitly covers 410.
 6. Try a harmless ZIP file. It should download unchanged, without server extraction, while the UI displays the archive warning. Do not test with real malicious software.
 7. Check 393px and 1440px against the Figma handoff; actual visual parity is separately tracked in [UI-01 #37](https://github.com/jlbokass/datashare/issues/37).
 
@@ -44,10 +44,10 @@ docker compose up -d
 
 ## Acceptance record
 
-- [ ] Laravel tests for anonymous access, bytes/headers, 404, 410, wrong file, missing private bytes and inert ZIP.
-- [ ] Angular tests for valid/malformed/expired share links and download URL generation.
-- [ ] Browser PDF, multifile and harmless ZIP download tests green without login.
-- [ ] Expired links blocked and server-side private storage not exposed directly.
+- [x] Laravel tests green in GitHub Actions (33 tests / 217 assertions / Pint) for anonymous access, bytes/headers, 404, 410, wrong file, missing private bytes and inert ZIP.
+- [x] Angular tests and build green in GitHub Actions for valid/malformed/expired share links and download URL generation.
+- [x] Developer reported T01 PDF, T02 multifile, T03 invalid link and T04 harmless ZIP green in browser.
+- [ ] T05 browser expiry: enable and explicitly choose local five-minute mode, confirm blocked download at expiry and subsequent purge. Automated HTTP 410/404 tests already pass.
 - [ ] ZIP security limitations reviewed and recorded.
-- [ ] CI-01 [backend/frontend checks — CI-01 PR #42](https://github.com/jlbokass/datashare/pull/42) green on this PR after CI-01 merge; documentation and AI journal updated.
+- [x] CI-01 [backend/frontend checks — CI-01 PR #42](https://github.com/jlbokass/datashare/pull/42) green on [US02 PR #43](https://github.com/jlbokass/datashare/pull/43); docs and AI journal updated with limits.
 - [ ] PR approved for `develop`.
