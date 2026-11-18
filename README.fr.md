@@ -37,7 +37,7 @@ Voir la [justification technique](docs/technology-choices.fr.md), l'[architectur
 
 ## Documentation et workflow Git
 
-La documentation est produite en **français et en anglais** dans le même dépôt. [Accéder à l'accueil français](docs/index.fr.md) ou à la [documentation anglaise](docs/index.md).
+La documentation est produite en **français et en anglais** dans le même dépôt. [Accéder à l'accueil français](docs/index.fr.md) ou à la [documentation anglaise](docs/index.md). Le [journal d'utilisation de l'IA](docs/ai-journal.fr.md) retrace les contributions IA et la supervision du développeur ([English](docs/ai-journal.md)).
 
 Workflow : branches de travail → PR → `develop` → PR de livraison revue → `main` protégée. Les [issues](https://github.com/jlbokass/datashare/issues) conservent les User Stories officielles et les tâches restant à réaliser.
 
