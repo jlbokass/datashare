@@ -9,7 +9,7 @@ lang: en
 
 [**Français**](us01-upload.fr.md) · [Documentation home](index.md)
 
-**Status: the developer reports green Docker/migrations, tests/build, PDF/multi-file upload, one-day expiry, repaired home navigation and the optional five-minute demo. **Full Figma visual alignment is still pending [UI-01 #37](https://github.com/jlbokass/datashare/issues/37).** No performance/antivirus or real 1-GB network stress evidence is claimed.**
+**Status:** The developer reports green Docker/migrations, tests/build, PDF/multi-file upload, one-day expiry, repaired home navigation and the optional five-minute demo. **Full Figma visual alignment remains open in [UI-01 #37](https://github.com/jlbokass/datashare/issues/37).** No performance/antivirus or real 1-GB network stress evidence is claimed.
 
 Source: [US01 — Upload (avec compte)](https://github.com/jlbokass/datashare/issues/4), [DESIGN-02 UML](data-model.md), [DESIGN-03 OpenAPI](api/README.md), and [Figma handoff](design-handoff.md).
 
