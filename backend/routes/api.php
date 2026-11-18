@@ -4,6 +4,8 @@ use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\CreateTransferController;
+use App\Http\Controllers\Api\DownloadPublicShareFileController;
+use App\Http\Controllers\Api\ShowPublicShareController;
 use App\Http\Middleware\AuthenticateJwt;
 use Illuminate\Support\Facades\Route;
 
@@ -26,5 +28,9 @@ Route::get('/demo/capabilities', fn () => response()->json([
         && (bool) config('transfers.demo_five_minutes', false),
 ]));
 
-// US01: authenticated private upload. Public downloads are implemented in US02.
+// US01: authenticated private upload.
 Route::post('/transfers', CreateTransferController::class)->middleware(AuthenticateJwt::class);
+
+// US02: public share metadata and file download, authorized by share token (no JWT).
+Route::get('/shares/{token}', ShowPublicShareController::class)->middleware('throttle:60,1');
+Route::get('/shares/{token}/files/{fileId}', DownloadPublicShareFileController::class)->middleware('throttle:60,1');
