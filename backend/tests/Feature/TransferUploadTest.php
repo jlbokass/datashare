@@ -147,6 +147,55 @@ class TransferUploadTest extends TestCase
         $this->assertDatabaseCount('transfers', 0);
     }
 
+    public function test_five_minute_expiry_is_rejected_when_demo_mode_is_disabled(): void
+    {
+        config()->set('transfers.demo_five_minutes', false);
+
+        $this->authenticate()->post('/api/transfers', [
+            'files' => [UploadedFile::fake()->create('report.pdf', 2, 'application/pdf')],
+            'expires_in_minutes' => 5,
+        ])->assertUnprocessable()
+            ->assertJsonPath('code', 'validation_error')
+            ->assertJsonValidationErrors(['expires_in_minutes']);
+
+        $this->assertDatabaseCount('transfers', 0);
+    }
+
+    public function test_demo_five_minute_expiry_is_accepted_only_when_enabled(): void
+    {
+        config()->set('transfers.demo_five_minutes', true);
+
+        $this->getJson('/api/demo/capabilities')
+            ->assertOk()
+            ->assertJsonPath('five_minute_expiry', false); // Testing environment is not local.
+
+        $this->authenticate()->post('/api/transfers', [
+            'files' => [UploadedFile::fake()->create('demo.pdf', 2, 'application/pdf')],
+            'expires_in_minutes' => 5,
+        ])->assertCreated();
+
+        $transfer = Transfer::query()->firstOrFail();
+        $this->assertEqualsWithDelta(5, now()->diffInMinutes($transfer->expires_at), 0.05);
+    }
+
+    public function test_demo_expiry_cannot_be_combined_with_days_or_modified(): void
+    {
+        config()->set('transfers.demo_five_minutes', true);
+
+        foreach ([
+            ['expires_in_minutes' => 5, 'expires_in_days' => 1],
+            ['expires_in_minutes' => 15],
+        ] as $expiry) {
+            $this->authenticate()->post('/api/transfers', [
+                'files' => [UploadedFile::fake()->create('demo.pdf', 2, 'application/pdf')],
+                ...$expiry,
+            ])->assertUnprocessable()
+                ->assertJsonPath('code', 'validation_error');
+        }
+
+        $this->assertDatabaseCount('transfers', 0);
+    }
+
     public function test_purge_preserves_active_transfers_and_private_files(): void
     {
         $this->authenticate()->post('/api/transfers', [
