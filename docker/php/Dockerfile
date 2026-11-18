@@ -7,10 +7,19 @@ RUN apt-get update \
         git \
         unzip \
         libpq-dev \
+        libsqlite3-dev \
         libonig-dev \
         libzip-dev \
     && docker-php-ext-install -j"$(nproc)" pdo_pgsql mbstring zip \
     && rm -rf /var/lib/apt/lists/*
+
+# Starter PHPUnit tests use isolated SQLite in memory. Production uses PostgreSQL.
+RUN if ! php -m | grep -qi '^pdo_sqlite
+
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+
+WORKDIR /workspace
+; then docker-php-ext-install pdo_sqlite; fi
 
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 
