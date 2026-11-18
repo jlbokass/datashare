@@ -34,7 +34,7 @@ Le [journal d'utilisation de l'IA](ai-journal.fr.md) documente les tâches confi
 
 ## Intégration continue
 
-[CI-01 — GitHub Actions, workflows et critères](ci.fr.md) documente les checks backend/frontend. **La première CI applicative n'est pas encore déclarée verte** ; GitHub Pages gère déjà la livraison des documents depuis `main/docs`.
+[CI-01 — GitHub Actions, workflows et critères](ci.fr.md) documente les checks backend/frontend. **La CI applicative a été vérifiée verte pour [US02 PR #43](https://github.com/jlbokass/datashare/pull/43)** (backend Laravel/Pint et frontend Angular/build). GitHub Pages gère uniquement la livraison des documents depuis `main/docs`.
 
 ## Environnement de développement
 
@@ -46,11 +46,11 @@ Le [journal d'utilisation de l'IA](ai-journal.fr.md) documente les tâches confi
 
 ## Comptes utilisateurs (en développement)
 
-[US03 — Inscription](us03-registration.fr.md), [US04 — Connexion JWT](us04-jwt-login.fr.md) et [US01 — Téléversement authentifié](us01-upload.fr.md) ont été implémentées et déclarées **vertes en local** par le développeur. US02/US05/US06 restent à faire ; les [écarts visuels UI-01](https://github.com/jlbokass/datashare/issues/37) sont suivis séparément.
+[US03 — Inscription](us03-registration.fr.md), [US04 — Connexion JWT](us04-jwt-login.fr.md) et [US01 — Téléversement authentifié](us01-upload.fr.md) ont été implémentées et déclarées **vertes en local** par le développeur. US02 est développée sur [PR #43](https://github.com/jlbokass/datashare/pull/43), avec 4 scénarios navigateur validés sur 5 (expiration à reprendre). US05/US06 restent à faire ; les [écarts visuels UI-01](https://github.com/jlbokass/datashare/issues/37) sont suivis séparément.
 
-## Transferts de fichiers — US01 en revue
+## Transferts de fichiers — US01 livré, US02 en revue
 
-Le [guide US01 et ses critères de recette](us01-upload.fr.md) couvre l'envoi JWT multifichier, le stockage privé, l'expiration 1 à 7 jours et la purge planifiée. Le téléchargement public relève d'US02, et non de cette PR non encore validée.
+Le [guide US01 et ses critères de recette](us01-upload.fr.md) couvre l'envoi JWT multifichier, le stockage privé, l'expiration 1 à 7 jours et la purge planifiée. La [recette US02](us02-public-sharing.fr.md) couvre le téléchargement public via un lien sans compte, les liens invalides et la politique ZIP. La vérification du mode d'expiration local à cinq minutes reste ouverte.
 
 ## Exigences du MVP
 
@@ -66,7 +66,7 @@ Le projet suit le workflow branches de travail → `develop` → `main` protég�
 
 ### Preuves de qualité — à compléter après intégration
 
-Le développeur a déclaré verts les contrôles locaux TECH-02–04 et US01–04. Les preuves de CI, E2E, couverture, scans et performances seront ajoutées **uniquement après leur exécution**.
+Le développeur a déclaré verts les contrôles locaux TECH-02–04 et US01–04. La CI backend/frontend de la PR #43 est réellement verte. E2E, couverture, scans et mesures de performances restent **à produire et documenter**.
 
 ---
 
