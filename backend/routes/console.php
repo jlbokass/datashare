@@ -10,4 +10,11 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Required by US01, independent of optional US10.
-Schedule::command(PurgeExpiredTransfers::class)->daily()->withoutOverlapping();
+$purge = Schedule::command(PurgeExpiredTransfers::class);
+
+// The five-minute demo needs minute-level cleanup; standard MVP uses daily purge.
+if (app()->environment('local') && config('transfers.demo_five_minutes', false)) {
+    $purge->everyMinute()->withoutOverlapping();
+} else {
+    $purge->daily()->withoutOverlapping();
+}
