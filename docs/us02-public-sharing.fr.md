@@ -9,7 +9,7 @@ lang: fr
 
 [**English**](us02-public-sharing.md) · [Documentation technique](index.fr.md)
 
-**Statut au 18 novembre 2026 :** CI backend (33 tests Laravel, 217 assertions, Pint) et frontend (tests et build) **vertes** sur [PR #43](https://github.com/jlbokass/datashare/pull/43). Le développeur confirme la recette locale **T01 PDF anonyme, T02 multifichiers, T03 lien invalide et T04 ZIP inoffensif : OK**. **T05 expiration : non validé** ; le transfert examiné avait une échéance standard à 7 jours, et non l'option locale de démonstration à 5 minutes. Aucune fusion dans `develop` à ce stade.
+**Statut au 18 novembre 2026 :** CI backend (33 tests Laravel, 217 assertions, Pint) et frontend (tests et build) **vertes** sur [PR #43](https://github.com/jlbokass/datashare/pull/43). Le développeur confirme les cinq scénarios de recette locale **T01 PDF anonyme, T02 multifichiers, T03 lien invalide, T04 ZIP inoffensif et T05 expiration : OK** après synchronisation de sa branche locale. Les codes HTTP précis observés pendant T05 n'ont pas été transmis comme logs ; les tests automatisés couvrent 410 et 404. Aucune fusion dans `develop` à ce stade.
 
 Sources : [issue officielle US02 #5](https://github.com/jlbokass/datashare/issues/5), [contrat OpenAPI DESIGN-03](api/openapi.yaml), [handoff Figma](design-handoff.fr.md) et [SECURITY.md](https://github.com/jlbokass/datashare/blob/develop/SECURITY.fr.md).
 
@@ -47,7 +47,7 @@ docker compose up -d
 - [x] Tests Laravel (33 verts, 217 assertions, Pint vert sur GitHub Actions) : accès public, octets et en-têtes, 404, 410, fichier étranger, fichier privé manquant, ZIP inoffensif.
 - [x] Tests Angular et build verts sur GitHub Actions : lien valide/invalide/expiré, URL du téléchargement.
 - [x] Recette navigateur T01 PDF anonyme, T02 multifichiers, T03 lien invalide et T04 ZIP inoffensif : verts selon le développeur.
-- [ ] T05 : refaire la recette locale après activation **et sélection** du mode 5 minutes ; vérifier le blocage des téléchargements à l'échéance, puis la purge. Les tests automatiques vérifient déjà 410/404, mais ne remplacent pas ce contrôle.
+- [x] T05 : expiration **validée en recette locale selon le développeur après synchronisation**. Les tests automatiques vérifient 410 avant purge et 404 après purge ; les logs détaillés de la recette navigateur n'ont pas été fournis.
 - [ ] Risques ZIP discutés et consignés.
 - [x] CI backend/frontend verte sur [PR #43](https://github.com/jlbokass/datashare/pull/43) (après la fusion de [CI-01 #42](https://github.com/jlbokass/datashare/pull/42)). Journal IA mis à jour avec les limites de la recette.
 - [ ] PR approuvée puis fusion dans `develop`.
