@@ -28,8 +28,8 @@ class CreateTransferController extends Controller
                 File::types(config('transfers.allowed_extensions'))
                     ->extensions(config('transfers.allowed_extensions')),
             ],
-            'expires_in_days' => ['sometimes', 'integer', 'between:1,7', 'prohibited_with:expires_in_minutes'],
-            'expires_in_minutes' => ['sometimes', 'integer', 'in:5', 'prohibited_with:expires_in_days'],
+            'expires_in_days' => ['sometimes', 'integer', 'between:1,7', 'prohibits:expires_in_minutes'],
+            'expires_in_minutes' => ['sometimes', 'integer', 'in:5', 'prohibits:expires_in_days'],
         ], [
             'files.required' => 'Ajoute au moins un fichier.',
             'files.array' => 'Les fichiers doivent être envoyés sous forme de liste.',
@@ -41,9 +41,9 @@ class CreateTransferController extends Controller
             'files.*.extensions' => 'Cette extension n’est pas autorisée.',
             'expires_in_days.integer' => 'Choisis un nombre de jours valide.',
             'expires_in_days.between' => 'L’expiration doit être comprise entre 1 et 7 jours.',
-            'expires_in_days.prohibited_with' => 'Choisis une seule durée d’expiration.',
+            'expires_in_days.prohibits' => 'Choisis une seule durée d’expiration.',
             'expires_in_minutes.in' => 'Seule la durée de démonstration de 5 minutes est autorisée.',
-            'expires_in_minutes.prohibited_with' => 'Choisis une seule durée d’expiration.',
+            'expires_in_minutes.prohibits' => 'Choisis une seule durée d’expiration.',
         ]);
 
         $demoRequested = array_key_exists('expires_in_minutes', $data);
