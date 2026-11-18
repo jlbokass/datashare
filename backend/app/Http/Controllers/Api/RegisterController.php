@@ -20,6 +20,15 @@ class RegisterController extends Controller
         $data = $request->validate([
             'email' => ['required', 'string', 'email:rfc', 'max:255', Rule::unique('users', 'email')],
             'password' => ['required', 'string', 'min:8'],
+        ], [
+            'email.required' => 'L’adresse email est obligatoire.',
+            'email.string' => 'L’adresse email doit être du texte.',
+            'email.email' => 'Saisis une adresse email valide.',
+            'email.max' => 'L’adresse email ne doit pas dépasser 255 caractères.',
+            'email.unique' => 'Cette adresse email est déjà utilisée.',
+            'password.required' => 'Le mot de passe est obligatoire.',
+            'password.string' => 'Le mot de passe doit être du texte.',
+            'password.min' => 'Le mot de passe doit comporter au moins 8 caractères.',
         ]);
 
         // Laravel's 'hashed' model cast performs salted password hashing.
