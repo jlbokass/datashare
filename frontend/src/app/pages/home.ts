@@ -130,6 +130,13 @@ export class Home implements OnInit {
     }
   }
 
+  newDateLabel(iso: string): string {
+    return new Intl.DateTimeFormat('fr-FR', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date(iso));
+  }
+
   formatSize(bytes: number): string {
     return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(bytes / 1_000_000) + ' Mo';
   }
