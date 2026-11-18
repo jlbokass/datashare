@@ -1,6 +1,13 @@
+---
+layout: default
+title: "Contrat d'interface API REST"
+permalink: /fr/api/
+lang: fr
+---
+
 # API DataShare — Contrat d'interface
 
-**Statut :** brouillon v0.1 — DESIGN-03 ([issue #3](https://github.com/jlbokass/datashare/issues/3)). **Ce contrat décrit une conception, pas une API Laravel déjà développée.**
+**Statut :** contrat validé dans DESIGN-03 ([issue #3](https://github.com/jlbokass/datashare/issues/3)). **Ce contrat décrit une conception, pas une API Laravel déjà développée.**
 
 - [English version](README.md)
 - [Spécification OpenAPI 3.1](openapi.yaml)
