@@ -2,7 +2,7 @@
 
 [Français](us05-personal-history.fr.md) · [Issue #8](https://github.com/jlbokass/datashare/issues/8)
 
-Implemented on `feat/us05-personal-history`; review and Docker/browser acceptance remain pending.
+Implemented on `feat/us05-personal-history` in [PR #45](https://github.com/jlbokass/datashare/pull/45). **Developer reports functional T01–T04 and multifile acceptance complete; both GitHub CI workflows are green.** PR review/merge into `develop` remains pending.
 
 ## API and security
 
@@ -43,6 +43,12 @@ The public download API remains authoritative for expiry.
 
 ## Verification — 19 November 2026
 
+**Developer acceptance update:** `bash scripts/qa.sh all` was run successfully on the developer's Mac outside the Codex sandbox. Browser/manual verification confirmed T01 owner history, T02 cross-account isolation, T03 empty history, T04 **HTTP 401 Unauthorized without JWT**, and multifile display. Full terminal logs and raw browser responses have not been archived in the repository. Automated tests also cover expired, unpurged and purged records.
+
+**GitHub Actions CI evidence for PR #45:** [backend](https://github.com/jlbokass/datashare/actions/runs/44423778354) **39 tests, 255 assertions and Pint passed**; [frontend](https://github.com/jlbokass/datashare/actions/runs/44423778417) **34 Angular tests and production build passed**. These later checks do not invalidate the earlier agent sandbox restrictions recorded below.
+
+### Earlier Codex sandbox execution record
+
 - Backend test-first cycle: six new tests failed with `405` before the route,
   then passed: `php artisan test --filter=TransferHistoryTest` (6 tests, 38 assertions).
 - Local `php artisan test`: **39 passed, 255 assertions**; `php vendor/bin/pint --test`: **PASS**.
@@ -64,3 +70,5 @@ browser: one empty account, multiple files owned by each, active/default view,
 expired-but-unpurged opt-in, and an expired session. Confirm the required metadata
 and that another account's filenames/share links never appear. Do not delete real
 data or run a destructive migration to prepare this acceptance check.
+
+**Subsequent acceptance:** local QA and the reported browser scenarios passed; visual and responsive checks remain deferred to [UI-01 #37](https://github.com/jlbokass/datashare/issues/37).
