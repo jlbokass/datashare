@@ -9,7 +9,7 @@ lang: fr
 
 [**English**](us04-jwt-login.md) · [Documentation française](index.fr.md)
 
-**Statut : Docker, migrations, tests backend/frontend, build, connexion/déconnexion et HTTP 401 sans JWT annoncés verts par le développeur. Le commit/push de la bibliothèque JWT et de son lockfile reste obligatoire avant fusion.**
+**Statut : Docker, migrations, tests backend/frontend, build, connexion/déconnexion et HTTP 401 sans JWT annoncés verts par le développeur. La dépendance et son lockfile sont maintenant commitées et vérifiées sur la branche (`firebase/php-jwt` v7.2.2) ; restent la revue et la fusion.**
 
 Références : [US04 OC](https://github.com/jlbokass/datashare/issues/7), [contrat OpenAPI DESIGN-03](api/README.fr.md), [handoff Figma](design-handoff.fr.md).
 
