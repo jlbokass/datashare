@@ -1,0 +1,81 @@
+:host {
+  display: block;
+  width: min(100%, 40rem);
+  margin: auto;
+}
+
+.share-card {
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  box-shadow: 0 8px 28px rgb(30 30 30 / 12%);
+  padding: clamp(1.25rem, 4vw, 2rem);
+}
+
+h1 {
+  font: 700 clamp(1.6rem, 4vw, 2rem)/1.25 'DM Sans', sans-serif;
+  margin: 0 0 1.25rem;
+  text-align: center;
+}
+
+h2 {
+  font: 600 1.25rem/1.4 'DM Sans', sans-serif;
+  margin: 0 0 .5rem;
+}
+
+.share-summary { line-height: 1.5; }
+.share-files { list-style: none; padding: 0; margin: 1.5rem 0; }
+
+.share-files li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .8rem;
+  padding: .9rem 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.file-details {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.file-details small { color: #595959; font-size: .85rem; }
+
+.download-link {
+  background: #2c2c2c;
+  color: white;
+  border-radius: 8px;
+  padding: .65rem .9rem;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.error-message {
+  padding: 1rem;
+  background: #ffefed;
+  color: #8f2626;
+  border-radius: 8px;
+}
+
+.zip-note {
+  background: #fff7e9;
+  border: 1px solid #ebca90;
+  border-radius: 8px;
+  padding: .85rem;
+  font-size: .875rem;
+  line-height: 1.5;
+}
+
+.home-link { display: block; text-align: center; color: #7a3409; margin-top: 1.5rem; }
+a:focus-visible { outline: 3px solid #e27f29; outline-offset: 3px; }
+
+@media (max-width: 420px) {
+  .share-files li { align-items: stretch; }
+  .download-link { text-align: center; width: 100%; }
+}

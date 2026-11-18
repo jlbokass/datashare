@@ -34,7 +34,7 @@ The [AI development journal](ai-journal.md) records delegated tasks, developer d
 
 ## Continuous integration
 
-[CI-01 — GitHub Actions workflow and acceptance](ci.md) documents separate backend/frontend checks. **Application CI is not yet green-validated**; GitHub Pages already handles documentation deployment from `main/docs`.
+[CI-01 — GitHub Actions workflow and acceptance](ci.md) documents separate backend/frontend checks. **Application CI has been verified green for [US02 PR #43](https://github.com/jlbokass/datashare/pull/43)** (Laravel/Pint and Angular tests/build). GitHub Pages deploys documentation only from `main/docs`.
 
 ## Development environment
 
@@ -46,11 +46,11 @@ The [AI development journal](ai-journal.md) records delegated tasks, developer d
 
 ## Account features (under development)
 
-[US03 — Registration](us03-registration.md), [US04 — JWT login](us04-jwt-login.md) and [US01 — Authenticated upload with expiry](us01-upload.md) were implemented and reported **locally green** by the developer. US02/US05/US06 remain incomplete; the [UI-01 visual mismatch](https://github.com/jlbokass/datashare/issues/37) is tracked separately.
+[US03 — Registration](us03-registration.md), [US04 — JWT login](us04-jwt-login.md) and [US01 — Authenticated upload with expiry](us01-upload.md) were implemented and reported **locally green** by the developer. US02 is implemented on [PR #43](https://github.com/jlbokass/datashare/pull/43), with 4 of 5 developer-reported browser scenarios accepted (expiry still pending). US05/US06 remain incomplete; the [UI-01 visual mismatch](https://github.com/jlbokass/datashare/issues/37) is tracked separately.
 
-## File transfers — US01 in review
+## File transfers — US01 delivered, US02 in review
 
-[US01 upload guide and acceptance criteria](us01-upload.md) covers multipart authenticated upload, private storage, 1–7 day expiration and scheduled cleanup. The public download experience belongs to US02, not to this unverified Draft.
+[US01 upload guide and acceptance criteria](us01-upload.md) covers multipart authenticated upload, private storage, 1–7 day expiration and scheduled cleanup. The [US02 acceptance guide](us02-public-sharing.md) covers anonymous public downloads, invalid links and ZIP limitations. The local five-minute expiry browser check remains outstanding.
 
 ## MVP requirements
 
@@ -66,7 +66,7 @@ The project uses work branches → `develop` → protected `main`. GitHub Pages 
 
 ### Quality evidence — to be completed after integration
 
-The developer reported TECH-02–04 and US01–04 local checks green. CI, E2E, coverage, security scans and performance evidence will be linked **only after those checks actually run**.
+The developer reported TECH-02–04 and US01–04 local checks green. Backend/frontend CI is confirmed green on PR #43. E2E, coverage, security scanning and performance measurements remain **outstanding**.
 
 ---
 

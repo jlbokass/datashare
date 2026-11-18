@@ -1,0 +1,39 @@
+<section class="share-card" aria-labelledby="share-title">
+  <h1 id="share-title">Un fichier à récupérer ?</h1>
+
+  @if (loading()) {
+    <p role="status">Chargement du transfert...</p>
+  } @else if (errorMessage(); as error) {
+    <div class="error-message" role="alert">
+      <h2>Lien indisponible</h2>
+      <p>{{ error }}</p>
+    </div>
+  } @else if (share(); as details) {
+    <div class="share-summary">
+      <p>Ce transfert contient {{ details.files.length }} fichier(s).</p>
+      <p>Disponible jusqu'au <strong>{{ formatDate(details.expires_at) }}</strong>.</p>
+    </div>
+
+    <ul class="share-files" aria-label="Fichiers disponibles">
+      @for (file of details.files; track file.id) {
+        <li>
+          <div class="file-details">
+            <strong>{{ file.original_name }}</strong>
+            <small>{{ formatSize(file.size_bytes) }} · {{ file.mime_type }}</small>
+          </div>
+          <a class="download-link" [href]="downloadUrl(file.id)"
+            [attr.aria-label]="'Télécharger ' + file.original_name">Télécharger</a>
+        </li>
+      }
+    </ul>
+
+    @if (hasZip(details.files)) {
+      <p class="zip-note">
+        Attention : les archives ZIP ne sont pas analysées par antivirus sur le serveur.
+        Ouvre uniquement les archives provenant de personnes de confiance.
+      </p>
+    }
+  }
+
+  <a class="home-link" routerLink="/">Retour à l'accueil</a>
+</section>
