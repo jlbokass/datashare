@@ -6,7 +6,7 @@
 
 ## État du projet
 
-**Conception validée ; l'implémentation applicative n'a pas encore commencé dans ce nouveau dépôt.** L'architecture, le modèle conceptuel UML, le contrat OpenAPI et les choix technologiques ont été examinés. Le socle minimal **Docker-first** est proposé dans TECH-02, mais son exécution locale reste à vérifier. Laravel et Angular ne sont pas encore générés.
+**Conception validée ; squelettes Laravel 13 et Angular 22 créés dans TECH-03.** Le développeur a indiqué que les contrôles Docker initiaux, les tests et le build frontend étaient verts. TECH-04 fournit le raccordement des services et le hot reload ; **le développeur confirme la recette locale verte**, migrations PostgreSQL et tests compris.
 
 Ce dépôt est public afin que l'évaluateur OpenClassrooms puisse consulter le code, les documents, les issues, les PR et les commits.
 
@@ -31,9 +31,9 @@ Les **US07 à US10** sont suivies séparément comme fonctionnalités facultativ
 - **Frontend :** TypeScript / Angular.
 - **Base de données :** PostgreSQL.
 - **Stockage :** système de fichiers local privé proposé pour le MVP.
-- **Développement :** Docker Compose préparé d'abord avec PHP/Composer, Node/npm et PostgreSQL ; Nginx et le routage suivront la génération des frameworks.
+- **Développement :** Docker Compose avec PHP/Composer, Node/npm, PostgreSQL et raccordement Nginx/Angular avec hot reload proposé dans TECH-04 (recette locale en attente).
 
-Voir la [justification technique](docs/technology-choices.fr.md), l'[architecture](docs/architecture.fr.md), le [MCD UML](docs/data-model.fr.md), le [contrat OpenAPI](docs/api/openapi.yaml) et le [guide Docker-first](docs/docker-setup.fr.md).
+Voir la [justification technique](docs/technology-choices.fr.md), l'[architecture](docs/architecture.fr.md), le [MCD UML](docs/data-model.fr.md), le [contrat OpenAPI](docs/api/openapi.yaml), le [guide TECH-04](docs/development.fr.md), la [synthèse du handoff UI](docs/design-handoff.fr.md) et le [guide Docker TECH-02](docs/docker-setup.fr.md).
 
 ## Documentation et workflow Git
 
@@ -45,7 +45,7 @@ Le propriétaire du dépôt indique avoir activé GitHub Pages pour la documenta
 
 ## Installation et preuves de qualité
 
-Les instructions d'installation seront rédigées **une fois les applications et l'environnement Docker réellement créés**. Ne pas reprendre les instructions de l'ancien dépôt `datashare-legacy` pour ce projet reparti de zéro.
+La [recette d'intégration locale](docs/development.fr.md) documente TECH-04, **avant exécution**. Ne pas reprendre automatiquement les consignes de l'ancien dépôt `datashare-legacy`.
 
 La CI, la couverture de code et les scans de sécurité ne sont pas encore opérationnels. Les **badges de qualité seront ajoutés lorsque les vérifications correspondantes auront effectivement été exécutées**, sans afficher prématurément un statut vert.
 

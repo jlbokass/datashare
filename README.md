@@ -6,7 +6,7 @@
 
 ## Project status
 
-**Design complete; application implementation has not started in this new repository.** The architecture, conceptual UML model, OpenAPI contract and technical choices have been reviewed. A minimal **Docker-first dependency configuration** is proposed in TECH-02; local execution has not yet been verified. Laravel and Angular have not been generated.
+**Design approved; Laravel 13 and Angular 22 scaffolds generated in TECH-03.** The developer reported the initial Docker, test and frontend build checks successful. TECH-04 now provides a local development gateway and Angular hot reload; **the developer reports successful local integration checks**, including PostgreSQL migrations and regression tests.
 
 This repository is public so the OpenClassrooms evaluator can inspect the code, documentation, issues, Pull Requests and commit history.
 
@@ -31,9 +31,9 @@ Advanced **US07–US10** are tracked as optional. The automatic removal of expir
 - **Frontend:** TypeScript / Angular.
 - **Database:** PostgreSQL.
 - **File storage:** private local filesystem proposed for the MVP.
-- **Development environment:** Docker Compose configured first with PHP/Composer, Node/npm and PostgreSQL; Nginx/application wiring follows framework initialization.
+- **Development environment:** Docker Compose with PHP/Composer, Node/npm, PostgreSQL and proposed Nginx + Angular hot reload wiring (TECH-04, pending local validation).
 
-See [the technical rationale](docs/technology-choices.md), [architecture](docs/architecture.md), [UML conceptual model](docs/data-model.md), [OpenAPI contract](docs/api/openapi.yaml), and [Docker-first setup instructions](docs/docker-setup.md).
+See [the technical rationale](docs/technology-choices.md), [architecture](docs/architecture.md), [UML conceptual model](docs/data-model.md), [OpenAPI contract](docs/api/openapi.yaml), [TECH-04 local setup](docs/development.md), [UI handoff review](docs/design-handoff.md), and [TECH-02 Docker setup](docs/docker-setup.md).
 
 ## Documentation and project workflow
 
@@ -45,7 +45,7 @@ The repository owner reports GitHub Pages has been enabled for static documentat
 
 ## Installation and quality evidence
 
-Installation instructions will be added **when the actual application and Docker environment exist**. Do not follow the historical `datashare-legacy` installation steps for this clean-slate repository.
+The [local integration recipe](docs/development.md) documents the TECH-04 environment **pending execution**. No steps from historical `datashare-legacy` apply automatically.
 
 CI, code coverage and security scans are not operational yet. Their README **quality badges will be added only after the corresponding checks run successfully**; no green status is asserted in advance.
 
