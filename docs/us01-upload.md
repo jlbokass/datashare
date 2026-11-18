@@ -9,7 +9,7 @@ lang: en
 
 [**Français**](us01-upload.fr.md) · [Documentation home](index.md)
 
-**Status: implementation proposed on `feat/us01-authenticated-upload`; local Docker, database, application and Figma acceptance are pending.**
+**Status: the developer reported green migrations, tests, build, PDF/multi-file upload and one-day expiry. A home-navigation regression and requested five-minute demo expiry have been addressed in the branch and await fresh local testing. The screen is not yet Figma-compliant.**
 
 Source: [US01 — Upload (avec compte)](https://github.com/jlbokass/datashare/issues/4), [DESIGN-02 UML](data-model.md), [DESIGN-03 OpenAPI](api/README.md), and [Figma handoff](design-handoff.md).
 
@@ -22,6 +22,10 @@ Source: [US01 — Upload (avec compte)](https://github.com/jlbokass/datashare/is
 - Each file is limited to **1,000,000,000 bytes** (decimal GB). Server validation checks both MIME content and the user-provided extension: PDF, PNG, JPEG, GIF, WEBP, TXT, MP3, MP4, ZIP. Executables and unlisted types are rejected. This is a **basic allowlist**, not antivirus scanning; ZIP archives may contain unsafe content.
 - For this local MVP we additionally limit uploads to **five files and 2,000,000,000 bytes combined**. These are documented **operational design limits**, *not* additional OpenClassrooms requirements. Nginx and PHP upload caps are configured above the aggregate limit to allow multipart overhead.
 - Uploaded bytes are cleaned up after a partially failed database/file operation. Server-side authorization and validation take precedence over the client UI.
+
+**Folders and ZIP — interim decision:** direct folder-tree uploading is **not** supported in the MVP. To transmit a folder, the sender can first package it as **one ZIP file**. ZIP data is stored as **opaque bytes**: the server never unpacks, previews or executes it. ZIPs can contain executables or decompression bombs, and no antivirus/content scanning is implemented yet; review this before delivering public download in US02. Native file pickers gray out `.exe` because of the `accept` filter, but the browser's file filter is only UX: dragged files and all server requests are still validated.
+
+**Five-minute LOCAL demo (outside the OC contract):** set `TRANSFER_DEMO_5_MIN_ENABLED=true` in the existing ignored `backend/.env` (local environment only). Run `docker compose exec -T app php artisan config:clear` then `docker compose restart app scheduler`. Confirm `curl -fsS http://127.0.0.1:8080/api/demo/capabilities` returns `five_minute_expiry: true` and `docker compose exec -T app php artisan schedule:list` shows purge every minute. Angular then offers **“Démo locale — 5 minutes”**. Laravel rejects this duration when the flag is off or the server isn't local/testing. After five minutes, the scheduler should physically purge the expired transfer on its next minute tick if running. Revert the flag to false after the demonstration and clear/restart again.
 
 **Not implemented yet:** the public retrieval endpoint and its file download (US02); personal history (US05); individual deletion (US06); optional password protection (US09) or tags (US08). The `/share/{token}` frontend route is an honest **pending US02 placeholder**, not a working download link. The Figma password field is deliberately omitted from this first upload form.
 
@@ -47,9 +51,9 @@ Verify the new `scheduler` service is running and `transfers:purge-expired` is l
 For the browser flow, **log in first at http://127.0.0.1:8080/login**, then click the DataShare logo **without refreshing the page**, since the US04 JWT is deliberately memory-only. On the home page:
 
 1. Upload a small PDF or PNG, obtain a generated share URL, and copy it.
-2. Upload **two files** in one transfer, select an expiry of **1 day**, and verify both file names appear.
-3. Try an executable `.exe` or `.php`, no file, more than five files, and a file larger than 1 GB (test with a known file only if practical). Expect clear errors and no upload.
-4. Check the home screen at 393px and 1440px, plus intermediate widths; review differences against Figma rather than claiming full pixel accuracy.
+2. Upload **two files** in one transfer, select an expiry of **1 day**, verify both names, then click the **DataShare brand** from the result to start a fresh transfer without losing authentication.
+3. **Drag and drop** an executable `.exe` or `.php` (the OS picker may gray it out), no file, more than five files, and a file larger than 1 GB if practical. Expect clear errors and no upload.
+4. If demo mode is enabled, upload with **five-minute expiry** and confirm the expiry timestamp and subsequent purge, without claiming public download is working. Check the home screen at 393px and 1440px, plus intermediate widths. **The developer reported visual mismatches; a dedicated Figma compliance review remains open.**
 5. Confirm the link opens a US02-pending page, **not** a working download. Actual download and 404/410 behavior are acceptance tests for US02.
 
 Store one small test upload in PostgreSQL. File bytes are under `backend/storage/app/private/transfers` and **must not be staged in Git**. Tests use `Storage::fake('transfers')` and SQLite in memory, so the live PostgreSQL migration and end-to-end browser flow must be checked separately.
