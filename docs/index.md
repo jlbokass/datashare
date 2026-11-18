@@ -34,7 +34,7 @@ The [AI development journal](ai-journal.md) records delegated tasks, developer d
 
 ## UI design reference
 
-[UI design handoff review and scope decisions](design-handoff.md) — visual tokens, desktop/mobile reference widths and explicit US09 password discrepancy. The full PDF must still be committed by the developer before merge.
+[UI design handoff review and scope decisions](design-handoff.md) — visual tokens, desktop/mobile reference widths and explicit US09 password discrepancy. The [source PDF](design/DataShare_UI_Design_Handoff_v1.pdf) is committed on the TECH-04 branch.
 
 ## MVP requirements
 
