@@ -1,6 +1,13 @@
+---
+layout: default
+title: "Modèle conceptuel UML"
+permalink: /data-model.fr.html
+lang: fr
+---
+
 # DataShare — Modèle conceptuel de données (UML)
 
-**Statut :** brouillon v0.3 — relecture nécessaire pour [DESIGN-02](https://github.com/jlbokass/datashare/issues/2). Il s'agit d'un **modèle conceptuel**, pas d'une base de données implémentée.
+**Statut :** modèle conceptuel validé dans [DESIGN-02](https://github.com/jlbokass/datashare/issues/2). Il s'agit d'un **modèle conceptuel**, pas d'une base de données implémentée.
 
 **Source :** OpenClassrooms, *DataShare – Spécifications fonctionnelles*, US01 à US10. Les **US01 à US06** constituent le MVP obligatoire ; US07 à US10 sont optionnelles. Le modèle de documentation fourni autorise UML ou Merise.
 
