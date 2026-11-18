@@ -11,7 +11,7 @@ lang: en
 
 Secure file-sharing MVP — OpenClassrooms P3.
 
-**Current state:** conceptual design approved; a minimal Docker-first dependency configuration is under review (TECH-02). Laravel/Angular application development has **not yet started**. This documentation is not proof of a deployed application.
+**Current state:** design approved and Laravel/Angular scaffolds present. Docker dependency checks were reported successful by the developer; TECH-04 service integration and hot reload are **awaiting local verification**, not proof of a deployed application.
 
 ## Design deliverables
 
@@ -30,7 +30,11 @@ The [AI development journal](ai-journal.md) records delegated tasks, developer d
 
 ## Development environment
 
-[Docker-first setup and local verification](docker-setup.md) — PHP/Composer, Node/npm and PostgreSQL are configured before Laravel and Angular scaffolding. The environment has **not yet been verified on the developer's Mac**.
+[Docker-first dependency setup](docker-setup.md) (TECH-02) · [Laravel / Angular integration and hot reload recipe](development.md) (TECH-04, awaiting local verification).
+
+## UI design reference
+
+[UI design handoff review and scope decisions](design-handoff.md) — visual tokens, desktop/mobile reference widths and explicit US09 password discrepancy. The full PDF must still be committed by the developer before merge.
 
 ## MVP requirements
 
@@ -44,9 +48,9 @@ US07–US10 remain optional; **US01 already mandates expiry and automatic deleti
 
 The project uses work branches → `develop` → protected `main`. GitHub Pages publishes **documentation only** from `main/docs`; running the Laravel API requires a separate application runtime.
 
-### Implementation and quality — to be documented later
+### Quality evidence — to be completed after integration
 
-The application installation, backend/frontend tests, CI, coverage, security scans and performance results will be linked here **after they exist**. No operational badges or test results are claimed during the design-only phase.
+The developer reported TECH-03 starter tests and Angular build successful. Future CI, coverage, security scans and performance evidence will be linked **after those checks actually run**. TECH-04 integration has not yet passed local recipe.
 
 ---
 
