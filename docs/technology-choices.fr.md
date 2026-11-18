@@ -1,6 +1,13 @@
+---
+layout: default
+title: "Justification des choix technologiques"
+permalink: /technology-choices.fr.html
+lang: fr
+---
+
 # DataShare — Justification des choix technologiques
 
-**DESIGN-04 · Brouillon à valider · MVP obligatoire : US01 à US06**
+**DESIGN-04 · Justification validée · MVP obligatoire : US01 à US06**
 
 **Références :** mission OpenClassrooms (justification sur **1 à 2 pages**), modèle de documentation technique et spécifications de l'application (technologies autorisées). Les choix ci-dessous décrivent la **solution envisagée**, et non des applications déjà installées.
 

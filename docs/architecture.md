@@ -1,6 +1,13 @@
+---
+layout: default
+title: "Application architecture"
+permalink: /architecture.html
+lang: en
+---
+
 # DataShare — Application architecture
 
-**Status:** Draft v0.1 — DESIGN-01 review required. This document describes the **proposed architecture**, not an existing deployment.
+**Status:** Conceptual architecture reviewed in DESIGN-01. This document describes the **proposed architecture**, not an existing deployment.
 
 **Source:** OpenClassrooms mission, step 1 (*Concevez l'architecture technique*), and *DataShare — Spécifications fonctionnelles*, MVP **US01–US06**.
 
