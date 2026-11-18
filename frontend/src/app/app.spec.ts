@@ -22,7 +22,8 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
-    const link = fixture.nativeElement.querySelector('a[routerLink="/register"]');
+    const link = fixture.nativeElement.querySelector('a.header-link');
     expect(link).toBeTruthy();
+    expect(link.getAttribute('href')).toBe('/register');
   });
 });
