@@ -64,7 +64,7 @@ docker compose run --rm node sh -lc 'cd frontend && npm run build && npm test --
 
 ## UI handoff
 
-The supplied [UI handoff review](design-handoff.md) defines the upcoming screen work. The full vector PDF is expected at **`docs/design/DataShare_UI_Design_Handoff_v1.pdf`** (owner binary commit **pending**). Source Figma remains authoritative if the designs change. The handoff includes optional password-protected sharing; **do not imply US09 exists until it is implemented**.
+The supplied [UI handoff review](design-handoff.md) defines the upcoming screen work. The [full vector PDF](design/DataShare_UI_Design_Handoff_v1.pdf) is committed on the TECH-04 branch. Source Figma remains authoritative if the designs change. The handoff includes optional password-protected sharing; **do not imply US09 exists until it is implemented**.
 
 ## Evidence to collect before merging
 
