@@ -3,10 +3,11 @@
 namespace App\Services;
 
 use App\Models\Transfer;
+use Carbon\CarbonInterface;
 
 class TransferPresenter
 {
-    public static function toArray(Transfer $transfer): array
+    public static function toArray(Transfer $transfer, ?CarbonInterface $at = null): array
     {
         return [
             'id' => $transfer->id,
@@ -14,7 +15,7 @@ class TransferPresenter
             'share_url' => '/share/'.$transfer->share_token,
             'created_at' => $transfer->created_at->toIso8601String(),
             'expires_at' => $transfer->expires_at->toIso8601String(),
-            'status' => $transfer->expires_at->isPast() ? 'expired' : 'valid',
+            'status' => $transfer->expires_at->lessThanOrEqualTo($at ?? now()) ? 'expired' : 'valid',
             'files' => $transfer->files->map(fn ($file) => [
                 'id' => $file->id,
                 'original_name' => $file->original_name,

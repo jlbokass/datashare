@@ -118,7 +118,7 @@ No direct file-storage URL may be returned. Downloads must be streamed through t
 
 ## 5. History and expiry
 
-US05 requests a valid/expired link status. US06 specifies that **only non-expired files appear by default**. The draft `GET /api/transfers` therefore excludes expired records by default and proposes an optional `include_expired=true` query switch for records awaiting physical purge. Fully purged records cannot reappear. The link status is **derived**, not an additional database column.
+US05 requests a valid/expired link status. US06 specifies that **only non-expired files appear by default**. The [US05 implementation](../us05-personal-history.md) of `GET /api/transfers` excludes expired records by default and supports an optional `include_expired=true` query switch for records awaiting physical purge. Fully purged records cannot reappear. The link status is **derived**, not an additional database column.
 
 US01 requires files **and metadata** to be removed at expiry. The cleanup mechanism was proposed in DESIGN-01, while OpenAPI only documents client-visible behavior.
 

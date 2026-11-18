@@ -118,7 +118,7 @@ Aucune URL directe vers le stockage privé n'est fournie. Les octets sont transm
 
 ## 5. Historique et expiration
 
-US05 demande un statut de lien valide/expiré, tandis qu'US06 indique que **les fichiers non expirés apparaissent par défaut**. Le brouillon de `GET /api/transfers` exclut donc les éléments expirés par défaut et propose un paramètre facultatif `include_expired=true` pour voir ceux qui attendent encore leur purge physique. Un fichier déjà purgé ne peut plus réapparaître. Le statut est **calculé** à partir de l'expiration.
+US05 demande un statut de lien valide/expiré, tandis qu'US06 indique que **les fichiers non expirés apparaissent par défaut**. L'[implémentation US05](../us05-personal-history.fr.md) de `GET /api/transfers` exclut les éléments expirés par défaut et prend en charge le paramètre facultatif `include_expired=true` pour voir ceux qui attendent encore leur purge physique. Un fichier déjà purgé ne peut plus réapparaître. Le statut est **calculé** à partir de l'expiration.
 
 US01 impose la suppression automatique des fichiers **et des métadonnées** à expiration. L'ordonnancement figure dans DESIGN-01 ; l'OpenAPI décrit seulement les effets observables côté client.
 
