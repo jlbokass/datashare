@@ -9,7 +9,7 @@ lang: en
 
 [**Français**](us03-registration.fr.md) · [Documentation home](index.md)
 
-**Status: implementation proposed; developer's local verification pending.**
+**Status: Docker builds, PostgreSQL migrations, Laravel/Angular tests and Angular build reported green by the developer. Browser registration and responsive checks are pending.**
 
 This issue implements the mandatory [US03 — Création de compte](https://github.com/jlbokass/datashare/issues/6) from the supplied OpenClassrooms specifications, using the approved [OpenAPI contract](api/README.md) and the [UI handoff](design-handoff.md).
 
