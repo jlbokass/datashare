@@ -60,3 +60,28 @@
   .header-link { font-size: .75rem; }
   .site-main { padding: 1.5rem .9rem 2rem; }
 }
+
+.site-header nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .65rem;
+  flex-wrap: wrap;
+}
+
+.header-secondary {
+  background: transparent;
+  color: #1e1e1e;
+  border: 1px solid #2c2c2c;
+}
+
+.header-logout {
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+@media (max-width: 420px) {
+  .site-header { padding-inline: .8rem; }
+  .site-header nav { gap: .35rem; }
+  .header-link { padding: .55rem; }
+}
