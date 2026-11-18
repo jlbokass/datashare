@@ -1,6 +1,13 @@
+---
+layout: default
+title: "Technology choices and rationale"
+permalink: /technology-choices/
+lang: en
+---
+
 # DataShare — Technology Choices and Rationale
 
-**DESIGN-04 · Draft for review · Mandatory MVP: US01–US06**
+**DESIGN-04 · Reviewed technology rationale · Mandatory MVP: US01–US06**
 
 **Basis:** OpenClassrooms mission (technical choices: **1–2 pages**), supplied technical-documentation template and application specifications (permitted stacks). The choices below describe the **planned solution**, not applications already installed.
 
