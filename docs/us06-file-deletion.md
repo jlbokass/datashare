@@ -4,6 +4,8 @@
 
 Implemented on `feat/us06-file-deletion` in [PR #46](https://github.com/jlbokass/datashare/pull/46). The developer reports **T01–T05 passed** in the local environment and **`bash scripts/qa.sh all` green** outside Codex sandbox. PR CI checks are recorded separately once confirmed. US06 implements **individual file deletion**, not bulk deletion. UI-01/Figma remains a separate TODO.
 
+**Verified CI evidence on [PR #46](https://github.com/jlbokass/datashare/pull/46), 19 November 2026:** [Backend CI](https://github.com/jlbokass/datashare/actions/runs/44446497875) — **52 Laravel tests, 364 assertions and Pint passed**; [Frontend CI](https://github.com/jlbokass/datashare/actions/runs/44446497731) — **44 Angular tests and production build passed**. GitHub Actions results are independent of the initial Codex sandbox restriction.
+
 ## HTTP contract and ownership
 
 `DELETE /api/transfers/{transferId}/files/{fileId}` follows [OpenAPI](api/openapi.yaml).
