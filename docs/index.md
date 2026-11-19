@@ -13,6 +13,10 @@ Secure file-sharing MVP — OpenClassrooms P3.
 
 **Status as of 19 November 2026:** all six mandatory functional stories US01–US06 are merged into `develop`, with developer-reported browser acceptance and green [PR #46 CI](https://github.com/jlbokass/datashare/pull/46). Visual parity and final quality checks remain open.
 
+## Install the local MVP
+
+[Step-by-step setup guide](installation.md) · [English README and Docker commands](https://github.com/jlbokass/datashare/blob/main/README.md). The application runs locally with Docker Compose at **http://127.0.0.1:8080/**. GitHub Pages **does not host the application**.
+
 ## Consolidated OpenClassrooms technical dossier
 
 [Technical documentation — eight OC sections](technical-documentation.md) (evolving draft). Root quality reports: [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md), [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md), [PERF](https://github.com/jlbokass/datashare/blob/develop/PERF.md), [MAINTENANCE](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md). **Plans exist; actual E2E, coverage, scans and measurements remain outstanding.**
