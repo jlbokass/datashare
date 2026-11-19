@@ -38,6 +38,9 @@ export class Account implements OnInit {
   readonly transfers = signal<HistoryTransfer[]>([]);
   readonly includeExpired = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly deletingFileId = signal<string | null>(null);
+  readonly deletionError = signal<string | null>(null);
+  readonly deletionSuccess = signal<string | null>(null);
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.requests.unsubscribe());
@@ -55,7 +58,7 @@ export class Account implements OnInit {
   }
 
   loadHistory(): void {
-    if (this.historyLoading()) return;
+    if (this.historyLoading() || this.deletingFileId()) return;
     if (!this.auth.signedIn()) {
       this.endSession('/login');
       return;
@@ -84,6 +87,45 @@ export class Account implements OnInit {
     }));
   }
 
+  deleteFile(transfer: HistoryTransfer, file: HistoryFile): void {
+    if (this.deletingFileId() || this.historyLoading()) return;
+    if (!this.auth.signedIn()) {
+      this.endSession('/login');
+      return;
+    }
+    if (!window.confirm(`Supprimer définitivement « ${file.original_name} » ? Cette action est irréversible.`)) return;
+
+    this.deletingFileId.set(file.id);
+    this.deletionError.set(null);
+    this.deletionSuccess.set(null);
+    const url = `/api/transfers/${encodeURIComponent(transfer.id)}/files/${encodeURIComponent(file.id)}`;
+
+    this.requests.add(this.http.delete<void>(url, {
+      headers: this.auth.authorizationHeaders(),
+    }).subscribe({
+      next: () => {
+        this.deletingFileId.set(null);
+        this.deletionSuccess.set(`« ${file.original_name} » a été supprimé.`);
+        this.loadHistory();
+      },
+      error: (error: HttpErrorResponse) => {
+        this.deletingFileId.set(null);
+        if (error.status === 401) {
+          this.endSession('/login');
+        } else {
+          this.deletionError.set(error.status === 404
+            ? 'Ce fichier est introuvable ou n’est plus disponible. Actualise ton historique.'
+            : 'Impossible de supprimer ce fichier. Réessaie plus tard.');
+        }
+      },
+    }));
+  }
+
+  refreshHistory(): void {
+    this.deletionError.set(null);
+    this.loadHistory();
+  }
+
   toggleExpired(event: Event): void {
     this.includeExpired.set((event.target as HTMLInputElement).checked);
     this.loadHistory();
@@ -108,6 +150,9 @@ export class Account implements OnInit {
     this.transfers.set([]);
     this.historyLoading.set(false);
     this.loading.set(false);
+    this.deletingFileId.set(null);
+    this.deletionError.set(null);
+    this.deletionSuccess.set(null);
     this.auth.logout();
     void this.router.navigateByUrl(destination);
   }

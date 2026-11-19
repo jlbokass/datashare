@@ -150,4 +150,126 @@ describe('Account — personal history', () => {
     expect(text()).not.toContain(user.email);
     expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith('/');
   });
+
+  describe('individual deletion', () => {
+    beforeEach(() => {
+      openHistory().flush({ transfers: [transfer] });
+      fixture.detectChanges();
+      vi.spyOn(window, 'confirm').mockReturnValue(true);
+    });
+
+    afterEach(() => vi.mocked(window.confirm).mockRestore());
+
+    function deleteButton(): HTMLButtonElement {
+      return fixture.nativeElement.querySelector('button[aria-label="Supprimer report.pdf"]');
+    }
+
+    const deleteUrl = '/api/transfers/transfer-id/files/file-one';
+
+    it('requires confirmation naming the file and cancellation sends no DELETE', () => {
+      vi.mocked(window.confirm).mockReturnValue(false);
+      deleteButton().click();
+
+      expect(window.confirm).toHaveBeenCalledWith(expect.stringContaining('report.pdf'));
+      expect(window.confirm).toHaveBeenCalledWith(expect.stringContaining('irréversible'));
+      http.expectNone((request) => request.method === 'DELETE');
+      expect(text()).toContain('report.pdf');
+      expect(text()).toContain('archive.zip');
+    });
+
+    it('sends the file URL and memory bearer, then refreshes while preserving the other file and link', () => {
+      deleteButton().click();
+      const request = http.expectOne(deleteUrl);
+      expect(request.request.method).toBe('DELETE');
+      expect(request.request.headers.get('Authorization')).toBe('Bearer memory.jwt.signature');
+      request.flush(null, { status: 204, statusText: 'No Content' });
+
+      const refresh = http.expectOne('/api/transfers');
+      expect(refresh.request.headers.get('Authorization')).toBe('Bearer memory.jwt.signature');
+      refresh.flush({ transfers: [{ ...transfer, files: [transfer.files[1]] }] });
+      expect(text()).toContain('report.pdf » a été supprimé');
+      expect(text()).toContain('archive.zip');
+      expect(fixture.nativeElement.querySelector('button[aria-label="Supprimer report.pdf"]')).toBeNull();
+      expect(fixture.nativeElement.querySelector('a[href="' + transfer.share_url + '"]')).not.toBeNull();
+    });
+
+    it('prevents duplicate deletion and disables file actions while pending', () => {
+      deleteButton().click();
+      const current = fixture.componentInstance.transfers()[0];
+      fixture.componentInstance.deleteFile(current, current.files[0]);
+      const request = http.expectOne(deleteUrl);
+      expect(window.confirm).toHaveBeenCalledTimes(1);
+      fixture.detectChanges();
+      expect(deleteButton().disabled).toBe(true);
+      expect(fixture.nativeElement.querySelector('input[type="checkbox"]').disabled).toBe(true);
+      request.flush(null, { status: 204, statusText: 'No Content' });
+      http.expectOne('/api/transfers').flush({ transfers: [] });
+    });
+
+    it.each([404, 500])('keeps files visible and allows a confirmed retry after HTTP %i', (status) => {
+      deleteButton().click();
+      http.expectOne(deleteUrl).flush({ message: '/private/path' }, { status, statusText: 'Failure' });
+      http.expectNone('/api/transfers');
+      expect(text()).toContain('report.pdf');
+      expect(text()).toContain('archive.zip');
+      expect(text()).not.toContain('/private/path');
+      expect(text()).not.toContain('a été supprimé');
+      expect(fixture.nativeElement.querySelector('[role="alert"]')).not.toBeNull();
+      expect(deleteButton().disabled).toBe(false);
+      expect(auth.signedIn()).toBe(true);
+      deleteButton().click();
+      expect(window.confirm).toHaveBeenCalledTimes(2);
+      http.expectOne(deleteUrl).flush(null, { status: 204, statusText: 'No Content' });
+      http.expectOne('/api/transfers').flush({ transfers: [] });
+    });
+
+    it('keeps the session and files on a network failure', () => {
+      deleteButton().click();
+      http.expectOne(deleteUrl).error(new ProgressEvent('error'));
+      expect(text()).toContain('Impossible de supprimer');
+      expect(auth.signedIn()).toBe(true);
+      expect(text()).toContain('archive.zip');
+    });
+
+    it('ends the session on deletion 401 without requesting a refresh', () => {
+      deleteButton().click();
+      http.expectOne(deleteUrl).flush({}, { status: 401, statusText: 'Unauthorized' });
+      http.expectNone('/api/transfers');
+      expect(auth.signedIn()).toBe(false);
+      expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith('/login');
+      expect(text()).not.toContain('archive.zip');
+    });
+
+    it('shows empty history after the last file is deleted and preserves the expiry filter', () => {
+      const checkbox = fixture.nativeElement.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      checkbox.checked = true;
+      checkbox.dispatchEvent(new Event('change'));
+      http.expectOne('/api/transfers?include_expired=true')
+        .flush({ transfers: [{ ...transfer, status: 'expired', files: [transfer.files[0]] }] });
+      fixture.detectChanges();
+      deleteButton().click();
+      http.expectOne(deleteUrl).flush(null, { status: 204, statusText: 'No Content' });
+      http.expectOne('/api/transfers?include_expired=true').flush({ transfers: [] });
+      expect(text()).toContain('a été supprimé');
+      expect(text()).toContain('Aucun transfert dans ton historique');
+      expect(fixture.nativeElement.querySelector('a[href="' + transfer.share_url + '"]')).toBeNull();
+    });
+
+    it('distinguishes successful deletion from failure to refresh history', () => {
+      deleteButton().click();
+      http.expectOne(deleteUrl).flush(null, { status: 204, statusText: 'No Content' });
+      http.expectOne('/api/transfers').flush({}, { status: 500, statusText: 'Server Error' });
+      expect(text()).toContain('a été supprimé');
+      expect(text()).toContain('Impossible de charger');
+      expect(text()).toContain('Réessayer');
+    });
+
+    it('cancels the pending subscription when leaving the account page', () => {
+      deleteButton().click();
+      const request = http.expectOne(deleteUrl);
+      fixture.destroy();
+      expect(request.cancelled).toBe(true);
+    });
+  });
+
 });

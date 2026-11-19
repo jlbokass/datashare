@@ -14,7 +14,7 @@
 | US01 local demonstration | Opt-in 5-minute expiry only in local mode, home reset and minute scheduler | Developer reported corrected home navigation, new tests and five-minute demo green; minute-level physical deletion has not been independently documented |
 | US02 | Public download and expiry handling | See [US02 evidence](docs/us02-public-sharing.md) |
 | US05 | Owner history, JWT, multiple files and expiry | [Developer-reported local T01–T04 and multifile PASS; GitHub CI backend 39 tests/255 assertions + Pint and frontend 34 tests + build PASS; earlier Codex sandbox restrictions retained separately](docs/us05-personal-history.md) |
-| US06 | Individual deletion | **Not implemented or verified** |
+| US06 | Individual deletion, ownership, storage failures and purge coordination | [Developer-reported T01–T05 and `qa.sh all` PASS on Mac; 13 new Laravel deletion tests; PR #46 CI backend 52 tests/364 assertions and Pint PASS, frontend 44 tests and build PASS; real PostgreSQL contention deferred to quality phase](docs/us06-file-deletion.md) |
 | UI-01 | Compare actual home/upload and confirmation frames with Figma at 393px, 1440px and intermediate widths | **Open visual nonconformity**: [issue #37](https://github.com/jlbokass/datashare/issues/37) |
 
 **Limits:** PHPUnit uses SQLite in-memory and fake private storage for many feature tests; local PostgreSQL migration and actual browser upload were separately reported successful. No isolated large-file network load, end-to-end suite or CI run has been recorded yet.

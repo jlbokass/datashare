@@ -9,11 +9,19 @@
     <section class="history" aria-labelledby="history-title" [attr.aria-busy]="historyLoading()">
       <h2 id="history-title">Mes fichiers envoyés</h2>
       <label class="expiry-switch">
-        <input type="checkbox" [checked]="includeExpired()" [disabled]="historyLoading()"
+        <input type="checkbox" [checked]="includeExpired()" [disabled]="historyLoading() || deletingFileId() !== null"
           (change)="toggleExpired($event)" aria-describedby="expiry-help">
         Inclure les transferts expirés
       </label>
       <p id="expiry-help" class="hint">Les transferts déjà purgés n'apparaissent plus dans l'historique.</p>
+
+      @if (deletionSuccess(); as message) {
+        <p role="status">{{ message }}</p>
+      }
+      @if (deletionError(); as message) {
+        <p role="alert">{{ message }}</p>
+        <button type="button" (click)="refreshHistory()" [disabled]="historyLoading() || deletingFileId() !== null">Actualiser l’historique</button>
+      }
 
       @if (historyLoading()) {
         <p role="status">Chargement de ton historique...</p>
@@ -44,6 +52,11 @@
                       <div><dt>Taille</dt><dd>{{ formatSize(file.size_bytes) }}</dd></div>
                       <div><dt>Date d'envoi</dt><dd><time [attr.datetime]="file.uploaded_at">{{ formatDate(file.uploaded_at) }}</time></dd></div>
                     </dl>
+                    <button class="delete-file" type="button" (click)="deleteFile(transfer, file)"
+                      [attr.aria-label]="'Supprimer ' + file.original_name"
+                      [disabled]="deletingFileId() !== null">
+                      {{ deletingFileId() === file.id ? 'Suppression en cours…' : 'Supprimer' }}
+                    </button>
                   </li>
                 }
               </ul>

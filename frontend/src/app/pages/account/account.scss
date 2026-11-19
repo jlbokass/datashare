@@ -23,3 +23,6 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid 
 dl { display: flex; flex-wrap: wrap; gap: .75rem 2rem; margin: 0; }
 dt { font-size: .85rem; color: #555; }
 dd { margin: .25rem 0 0; }
+
+.delete-file { margin-top: 1rem; background: white; color: #8a362b; border-color: #8a362b; }
+button:disabled { opacity: .6; cursor: wait; }
