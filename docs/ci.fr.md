@@ -24,6 +24,10 @@ Déclencheurs : **chaque PR vers `develop` ou `main`**, chaque push sur ces bran
 
 **Limite :** la CI Laravel actuelle teste sur **SQLite**, pas encore sur un service PostgreSQL réel. Les E2E navigateur, uploads vers stockage réel, fichiers volumineux, scans de dépendances, couverture et benchmarks sont des travaux distincts. Voir [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.fr.md).
 
+## Extension couverture QL-01 — CI et artefacts vérifiés
+
+La [PR #50](https://github.com/jlbokass/datashare/pull/50) configure PCOV + Clover/HTML/texte côté Laravel et V8 + HTML/LCOV/JSON côté Angular, sans changer les noms de jobs, Pint ni le build. **Preuves mesurées sur GitHub Actions le 19 novembre 2026 :** [Backend CI #44536846489](https://github.com/jlbokass/datashare/actions/runs/44536846489) **96,36 % de lignes (318/330), 52 tests/364 assertions** ; [Frontend CI #44536846492](https://github.com/jlbokass/datashare/actions/runs/44536846492) **79,58 % de lignes, 44 tests et build réussi**. Les artefacts sont attachés à leurs runs pour 14 jours (expiration le 3 décembre 2026). Aucun seuil ni service externe. [Périmètres et limites](coverage.fr.md).
+
 ## Livraison continue
 
 GitHub Pages publie déjà `main/docs` après les PR de livraison : c'est une **CD documentaire**, pas un déploiement applicatif. Il n'existe pas encore de serveur de production Laravel/PostgreSQL/Angular validé ni de pipeline de déploiement associé.
