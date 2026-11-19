@@ -9,16 +9,16 @@ lang: fr
 
 [**English**](ci.md) · [Documentation technique](index.fr.md)
 
-**État : premiers workflows réellement verts sur la branche CI-01 ; revue/fusion dans `develop` encore en attente.**
+**État au 19 novembre 2026 : les deux workflows sont intégrés à `develop` et valident chaque PR vers `develop` et `main`.** Les badges suivent la branche `develop` et reflètent les exécutions réelles.
 
-Au commit `2899a52`, le [run Backend CI](https://github.com/jlbokass/datashare/actions/runs/44319554856) a validé **25 tests PHPUnit (159 assertions)** et Pint ; le [run Frontend CI](https://github.com/jlbokass/datashare/actions/runs/44319554868) a validé **21 tests Angular (5 fichiers)** et le build de production. Ce sont des exécutions GitHub Actions vérifiées.
+Sur la dernière User Story fonctionnelle [PR #46](https://github.com/jlbokass/datashare/pull/46) : [Backend CI](https://github.com/jlbokass/datashare/actions/runs/44446701173) **52 tests Laravel, 364 assertions et Pint verts** ; [Frontend CI](https://github.com/jlbokass/datashare/actions/runs/44446701083) **44 tests Angular et build de production verts**. Il s'agit de preuves GitHub Actions, sans couverture chiffrée ni audit de sécurité.
 
 ## Workflows
 
 | Workflow GitHub Actions | Nom du contrôle à conserver | Exécution |
 | --- | --- | --- |
-| [Backend CI](https://github.com/jlbokass/datashare/blob/ci/github-actions-quality-gates/.github/workflows/backend-ci.yml) | `Backend / Tests and style` | PHP 8.4, validation `composer.json/lock`, installation verrouillée, `APP_KEY` éphémère, tests Laravel sur SQLite en mémoire, style Pint |
-| [Frontend CI](https://github.com/jlbokass/datashare/blob/ci/github-actions-quality-gates/.github/workflows/frontend-ci.yml) | `Frontend / Tests and build` | Node.js 24, `npm ci`, tests Angular non interactifs, build de production |
+| [Backend CI](https://github.com/jlbokass/datashare/blob/develop/.github/workflows/backend-ci.yml) | `Backend / Tests and style` | PHP 8.4, validation `composer.json/lock`, installation verrouillée, `APP_KEY` éphémère, tests Laravel sur SQLite en mémoire, style Pint |
+| [Frontend CI](https://github.com/jlbokass/datashare/blob/develop/.github/workflows/frontend-ci.yml) | `Frontend / Tests and build` | Node.js 24, `npm ci`, tests Angular non interactifs, build de production |
 
 Déclencheurs : **chaque PR vers `develop` ou `main`**, chaque push sur ces branches et exécution manuelle. Aucun filtre de chemins : les checks restent visibles même pour une PR documentaire, indispensable si on les rend obligatoires. Permissions minimales `contents: read`, aucun secret de production, annulation possible des exécutions obsolètes sur une même branche.
 

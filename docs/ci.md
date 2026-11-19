@@ -9,16 +9,16 @@ lang: en
 
 [**Français**](ci.fr.md) · [Technical documentation](index.md)
 
-**Status: first CI runs confirmed green on the CI-01 feature PR. Review and merge to `develop` remain pending.**
+**Status on 19 November 2026: both workflows are merged into `develop` and check every PR targeting `develop` or `main`.** Badges track actual runs on the `develop` branch.
 
-At commit `2899a52`, the [Backend CI run](https://github.com/jlbokass/datashare/actions/runs/44319554856) passed **25 PHPUnit tests (159 assertions)** and Pint; the [Frontend CI run](https://github.com/jlbokass/datashare/actions/runs/44319554868) passed **21 Angular tests (5 test files)** and production build. These are real GitHub Actions runs, not local-only reports.
+On the latest functional User Story [PR #46](https://github.com/jlbokass/datashare/pull/46): [Backend CI](https://github.com/jlbokass/datashare/actions/runs/44446701173) **52 Laravel tests, 364 assertions and Pint passed**; [Frontend CI](https://github.com/jlbokass/datashare/actions/runs/44446701083) **44 Angular tests and the production build passed**. These are GitHub Actions results, not measured code coverage or a security audit.
 
-## Planned workflows
+## Active workflows
 
 | GitHub Actions workflow | Stable job/check name | What it runs |
 | --- | --- | --- |
-| [Backend CI](https://github.com/jlbokass/datashare/blob/ci/github-actions-quality-gates/.github/workflows/backend-ci.yml) | `Backend / Tests and style` | PHP 8.4, Composer manifest/lock validation, `composer install`, ephemeral `APP_KEY`, Laravel tests with SQLite in memory, Pint formatting |
-| [Frontend CI](https://github.com/jlbokass/datashare/blob/ci/github-actions-quality-gates/.github/workflows/frontend-ci.yml) | `Frontend / Tests and build` | Node.js 24, `npm ci`, Angular tests (`--watch=false`), production build |
+| [Backend CI](https://github.com/jlbokass/datashare/blob/develop/.github/workflows/backend-ci.yml) | `Backend / Tests and style` | PHP 8.4, Composer manifest/lock validation, `composer install`, ephemeral `APP_KEY`, Laravel tests with SQLite in memory, Pint formatting |
+| [Frontend CI](https://github.com/jlbokass/datashare/blob/develop/.github/workflows/frontend-ci.yml) | `Frontend / Tests and build` | Node.js 24, `npm ci`, Angular tests (`--watch=false`), production build |
 
 Both checks trigger on **all pull requests targeting `develop` or `main`**, plus pushes to these branches and manual dispatch. No path filters are used so the eventual required checks do not disappear on documentation-only PRs. Runs use minimal `contents: read` permissions, no production credentials, and may cancel older runs on the same ref.
 

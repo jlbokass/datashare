@@ -9,7 +9,7 @@ lang: en
 
 [**Français**](development.fr.md) · [Documentation home](index.md)
 
-**Status: locally validated according to the developer's report (18 November 2026): PostgreSQL migrations, Angular hot reload, health checks and Laravel/Angular tests/build are green. Detailed terminal output was not archived here.** TECH-04 connects the Laravel 13 / Angular 22 scaffolds produced in TECH-03. It is a local **development** setup, not production.
+**Historical TECH-04 integration guide (18 November 2026).** The developer reported the initial integration checks passing. US01–US06 have since been implemented: use the [current MVP installation guide](installation.md) and [README](https://github.com/jlbokass/datashare/blob/main/README.md) for a **fresh installation**. The original integration recipe below is not a production deployment.
 
 ## Services and addresses
 
@@ -25,7 +25,7 @@ Nginx routes `/api/*` and `/up` to Laravel and everything else to the Angular de
 
 ## Local recipe (from the repository root)
 
-1. Switch to `feat/tech-04-dev-integration` after pulling `develop`.
+1. Switch to `develop` after pulling updates. For a fresh clone without `.env` files or installed dependencies, start from the [current installation guide](installation.md).
 2. Keep the **root `.env`** previously made for TECH-02, containing unique local `POSTGRES_*` credentials. **Never commit it.**
 3. Keep the `backend/.env` created in TECH-03, with its existing `APP_KEY`; do **not** overwrite it. The Compose `app` service provides `DB_*` at runtime from the root `.env` and overrides any old SQLite value in the generated Laravel `.env`.
 4. Execute:
@@ -60,7 +60,7 @@ docker compose run --rm node sh -lc 'cd frontend && npm run build && npm test --
 - Node's `node_modules` live in a separate Docker named volume to avoid host/container native package conflicts. First startup installs with `npm ci`; a `package-lock.json` change may require `docker compose run --rm node sh -lc 'cd frontend && npm ci'` and recreation of the frontend volume later. Do not use `down -v` casually.
 - Only Nginx is bound to loopback; PostgreSQL, PHP-FPM and Angular are **not host-exposed**.
 - Stop without wiping database data: `docker compose down`. Never run `docker compose down -v` unless explicitly discarding database **and frontend dependencies**.
-- This setup has no JWT, file-transfer implementation, production hardening, reverse-proxy TLS, Dozzle or actual UI screens.
+- **JWT and file-transfer features US01–US06 were implemented after TECH-04.** This page documents the earlier integration checks; production hardening, public TLS, Dozzle and final Figma acceptance have not been completed.
 
 ## UI handoff
 

@@ -9,7 +9,7 @@ lang: fr
 
 [**English**](development.md) · [Accueil de la documentation](index.fr.md)
 
-**Statut : recette locale annoncée verte par le développeur (18 novembre 2026) : migrations PostgreSQL, hot reload Angular, contrôles health et tests/build Laravel/Angular. Les sorties détaillées du terminal ne sont pas archivées ici.** TECH-04 raccorde les squelettes Laravel 13 / Angular 22 issus de TECH-03. Cet environnement sert au **développement local**, pas à la production.
+**Document historique TECH-04 (18 novembre 2026).** L'intégration de base avait été déclarée verte par le développeur. Depuis, les US01–US06 sont implémentées : pour une **nouvelle installation complète**, suivre le [guide courant du MVP](installation.fr.md), puis le [README](https://github.com/jlbokass/datashare/blob/main/README.fr.md). Les commandes ci-dessous retracent la recette d'intégration, pas un déploiement en production.
 
 ## Services et accès
 
@@ -25,7 +25,7 @@ Nginx oriente `/api/*` et `/up` vers Laravel, le reste vers Angular. Les WebSock
 
 ## Recette locale (à la racine du dépôt)
 
-1. Se placer sur `feat/tech-04-dev-integration` après synchronisation de `develop`.
+1. Se placer sur `develop` après synchronisation. Pour une installation neuve sans fichiers `.env` ni dépendances, commencer par le [guide d'installation](installation.fr.md).
 2. Conserver le **`.env` de la racine** créé lors de TECH-02, avec les identifiants locaux uniques `POSTGRES_*`. **Ne jamais le commiter.**
 3. Conserver `backend/.env` issu de TECH-03 et sa clé `APP_KEY` : **ne pas l'écraser**. Le service `app` reçoit les variables `DB_*` depuis le `.env` racine et celles-ci priment sur les valeurs SQLite historiques du fichier Laravel local.
 4. Exécuter :
@@ -60,7 +60,7 @@ docker compose run --rm node sh -lc 'cd frontend && npm run build && npm test --
 - `node_modules` est conservé dans un volume Docker dédié pour éviter les conflits de dépendances natives Mac/containeur. Le premier démarrage exécute `npm ci` ; un changement de lockfile peut nécessiter une réinstallation. Éviter `down -v`.
 - Seule la passerelle Nginx écoute sur l'interface locale de l'hôte ; la BDD, PHP-FPM et Angular ne sont **pas exposés publiquement**.
 - Arrêter les conteneurs sans effacer PostgreSQL : `docker compose down`. **Ne pas utiliser `docker compose down -v`** sauf si la perte des données et dépendances est voulue.
-- Aucune authentification JWT, transfert de fichier, sécurisation de production, TLS, Dozzle ou maquette métier n'est encore réalisé.
+- **Depuis TECH-04, JWT et les transferts de fichiers US01–US06 ont été implémentés.** Ce guide reste un instantané des tests d'intégration initiaux ; sécurisation de production, TLS, Dozzle et conformité Figma ne sont pas déclarés achevés.
 
 ## Handoff UI
 

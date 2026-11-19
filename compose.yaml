@@ -34,6 +34,9 @@ services:
     working_dir: /workspace
     volumes:
       - ./:/workspace
+      # Reuse dependencies installed by the frontend service on a fresh clone.
+      # scripts/qa.sh runs Angular tests/build from this CLI service.
+      - frontend_node_modules:/workspace/frontend/node_modules
 
   app:
     build:
