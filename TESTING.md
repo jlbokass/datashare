@@ -2,7 +2,7 @@
 
 [Français](TESTING.fr.md) · [Technical documentation](docs/technical-documentation.md)
 
-**Status: evolving plan, 18 November 2026.** This file distinguishes **developer-reported local success** from captured evidence and future tests.
+**Status: evolving plan updated 19 November 2026.** This file distinguishes **developer-reported local success** from captured evidence and future tests.
 
 ## Scope, checks and current evidence
 
@@ -17,7 +17,7 @@
 | US06 | Individual deletion, ownership, storage failures and purge coordination | [Developer-reported T01–T05 and `qa.sh all` PASS on Mac; 13 new Laravel deletion tests; PR #46 CI backend 52 tests/364 assertions and Pint PASS, frontend 44 tests and build PASS; real PostgreSQL contention deferred to quality phase](docs/us06-file-deletion.md) |
 | UI-01 | Compare actual home/upload and confirmation frames with Figma at 393px, 1440px and intermediate widths | **Open visual nonconformity**: [issue #37](https://github.com/jlbokass/datashare/issues/37) |
 
-**Limits:** PHPUnit uses SQLite in-memory and fake private storage for many feature tests; local PostgreSQL migration and actual browser upload were separately reported successful. No isolated large-file network load, end-to-end suite or CI run has been recorded yet.
+**Limits:** PHPUnit uses SQLite in-memory and fake private storage for many feature tests; local PostgreSQL migration and actual browser upload were separately reported successful. No actual 1-GB network load or E2E suite has been recorded. QL-01 CI evidence and temporary downloadable artifacts are linked below.
 
 ## How to run locally
 
@@ -37,8 +37,8 @@ Manual acceptance scripts are versioned in [US03](docs/us03-registration.md), [U
 ## Required remaining evidence before OC delivery
 
 - [ ] End-to-end automation (Cypress, Playwright or equivalent), at least **2–3 critical scenarios**: registration/login, upload/public download, history/deletion/expiry. Those scenarios require US02/US05/US06.
-- [ ] QL-01: [coverage evidence](docs/coverage.md). **Laravel local: 96.36% lines (318/330), PHP 8.4/Xdebug, 52 tests/364 assertions. Angular: not measured (execution blocked).** PCOV/V8 CI artifacts and screenshot remain pending. **70% is an indicative target only; no threshold is enforced.**
-- [ ] GitHub Actions backend (PHPUnit/Pint) and frontend (Angular tests/build) workflows are authored under CI-01. **First runs verified green:** [backend](https://github.com/jlbokass/datashare/actions/runs/44319554856) (25 tests, 159 assertions, Pint) and [frontend](https://github.com/jlbokass/datashare/actions/runs/44319554868) (21 tests, production build) on the CI-01 PR. Review and merge are still pending; see [CI guide](docs/ci.md).
+- [x] QL-01 [measured coverage and limitations](docs/coverage.md): **GitHub Actions Laravel/PCOV 96.36% of lines (318/330), 52 tests/364 assertions/Pint; Angular/V8 79.58% of lines, 44 tests and production build**. [Backend CI run/artifact](https://github.com/jlbokass/datashare/actions/runs/44536846489), [frontend CI run/artifact](https://github.com/jlbokass/datashare/actions/runs/44536846492), expiring 3 December 2026. **70% was indicative, not imposed as a CI threshold**; no third-party coverage badge.
+- [x] GitHub Actions backend (PHPUnit/Pint) and frontend (Angular tests/build) workflows are integrated into `develop` and `main`. Tests and build are verified green on [QL-01 PR #50](https://github.com/jlbokass/datashare/pull/50); see the [CI guide](docs/ci.md).
 - [ ] Real-size upload behavior, multipart 413 handling, scheduler purge and corrupted/unsafe file cases.
 - [ ] Accessibility, desktop/mobile visual review and external user feedback when available.
 
