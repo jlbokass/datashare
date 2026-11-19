@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\CreateTransferController;
+use App\Http\Controllers\Api\DeleteTransferFileController;
 use App\Http\Controllers\Api\DownloadPublicShareFileController;
 use App\Http\Controllers\Api\ListTransfersController;
 use App\Http\Controllers\Api\LoginController;
@@ -33,6 +34,10 @@ Route::post('/transfers', CreateTransferController::class)->middleware(Authentic
 
 // US05: history belongs exclusively to the verified JWT owner.
 Route::get('/transfers', ListTransfersController::class)->middleware(AuthenticateJwt::class);
+
+// US06: owner-authorized individual file deletion.
+Route::delete('/transfers/{transferId}/files/{fileId}', DeleteTransferFileController::class)
+    ->middleware(AuthenticateJwt::class);
 
 // US02: public share metadata and file download, authorized by share token (no JWT).
 Route::get('/shares/{token}', ShowPublicShareController::class)->middleware('throttle:60,1');

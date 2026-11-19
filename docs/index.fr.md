@@ -46,7 +46,7 @@ Le [journal d'utilisation de l'IA](ai-journal.fr.md) documente les tâches confi
 
 ## Comptes utilisateurs (en développement)
 
-[US03 — Inscription](us03-registration.fr.md), [US04 — Connexion JWT](us04-jwt-login.fr.md) et [US01 — Téléversement authentifié](us01-upload.fr.md) ont été implémentées et déclarées **vertes en local** par le développeur. US02 est développée sur [PR #43](https://github.com/jlbokass/datashare/pull/43), avec 4 scénarios navigateur validés sur 5 (expiration à reprendre). [US05 historique personnel](us05-personal-history.fr.md) est implémenté sur sa branche, avec backend local vert et recette Docker/exécution Angular à vérifier. US06 reste à faire ; les [écarts visuels UI-01](https://github.com/jlbokass/datashare/issues/37) sont suivis séparément.
+[US03 — Inscription](us03-registration.fr.md), [US04 — Connexion JWT](us04-jwt-login.fr.md) et [US01 — Téléversement authentifié](us01-upload.fr.md) ont été implémentées et déclarées **vertes en local** par le développeur. US02 est développée sur [PR #43](https://github.com/jlbokass/datashare/pull/43), avec 4 scénarios navigateur validés sur 5 (expiration à reprendre). [US05 historique personnel](us05-personal-history.fr.md) est implémenté sur sa branche, avec backend local vert et recette Docker/exécution Angular à vérifier. [US06 suppression individuelle](us06-file-deletion.fr.md) est implémentée sur sa branche ; recette Docker/navigateur et concurrence à vérifier ; les [écarts visuels UI-01](https://github.com/jlbokass/datashare/issues/37) sont suivis séparément.
 
 ## Transferts de fichiers — US01 livré, US02 en revue
 

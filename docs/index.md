@@ -46,7 +46,7 @@ The [AI development journal](ai-journal.md) records delegated tasks, developer d
 
 ## Account features (under development)
 
-[US03 — Registration](us03-registration.md), [US04 — JWT login](us04-jwt-login.md) and [US01 — Authenticated upload with expiry](us01-upload.md) were implemented and reported **locally green** by the developer. US02 is implemented on [PR #43](https://github.com/jlbokass/datashare/pull/43), with 4 of 5 developer-reported browser scenarios accepted (expiry still pending). [US05 personal history](us05-personal-history.md) is implemented on its feature branch, with local backend checks passing and Docker/Angular runtime acceptance pending. US06 remains incomplete; the [UI-01 visual mismatch](https://github.com/jlbokass/datashare/issues/37) is tracked separately.
+[US03 — Registration](us03-registration.md), [US04 — JWT login](us04-jwt-login.md) and [US01 — Authenticated upload with expiry](us01-upload.md) were implemented and reported **locally green** by the developer. US02 is implemented on [PR #43](https://github.com/jlbokass/datashare/pull/43), with 4 of 5 developer-reported browser scenarios accepted (expiry still pending). [US05 personal history](us05-personal-history.md) is implemented on its feature branch, with local backend checks passing and Docker/Angular runtime acceptance pending. [US06 individual deletion](us06-file-deletion.md) is implemented on its feature branch; Docker/browser and concurrency acceptance remain pending; the [UI-01 visual mismatch](https://github.com/jlbokass/datashare/issues/37) is tracked separately.
 
 ## File transfers — US01 delivered, US02 in review
 
