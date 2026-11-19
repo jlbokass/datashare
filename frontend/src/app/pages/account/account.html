@@ -1,0 +1,69 @@
+<section class="account-card">
+  <h1>Mon espace</h1>
+  @if (loading()) {
+    <p role="status">Vérification de la session...</p>
+  } @else if (auth.user(); as user) {
+    <p>Connecté avec l'adresse <strong>{{ user.email }}</strong>.</p>
+    <button type="button" (click)="logout()">Déconnexion</button>
+
+    <section class="history" aria-labelledby="history-title" [attr.aria-busy]="historyLoading()">
+      <h2 id="history-title">Mes fichiers envoyés</h2>
+      <label class="expiry-switch">
+        <input type="checkbox" [checked]="includeExpired()" [disabled]="historyLoading() || deletingFileId() !== null"
+          (change)="toggleExpired($event)" aria-describedby="expiry-help">
+        Inclure les transferts expirés
+      </label>
+      <p id="expiry-help" class="hint">Les transferts déjà purgés n'apparaissent plus dans l'historique.</p>
+
+      @if (deletionSuccess(); as message) {
+        <p role="status">{{ message }}</p>
+      }
+      @if (deletionError(); as message) {
+        <p role="alert">{{ message }}</p>
+        <button type="button" (click)="refreshHistory()" [disabled]="historyLoading() || deletingFileId() !== null">Actualiser l’historique</button>
+      }
+
+      @if (historyLoading()) {
+        <p role="status">Chargement de ton historique...</p>
+      } @else if (errorMessage(); as message) {
+        <p role="alert">{{ message }}</p>
+        <button type="button" (click)="loadHistory()">Réessayer</button>
+      } @else if (transfers().length === 0) {
+        <p role="status">{{ includeExpired() ? 'Aucun transfert dans ton historique.' : 'Aucun transfert actif dans ton historique.' }}</p>
+        <a routerLink="/">Envoyer des fichiers</a>
+      } @else {
+        <ul class="transfer-list">
+          @for (transfer of transfers(); track transfer.id) {
+            <li class="transfer">
+              <div class="transfer-heading">
+                <span class="link-status" [class.expired]="transfer.status === 'expired'">
+                  Lien : {{ transfer.status === 'valid' ? 'Valide' : 'Expiré' }}
+                </span>
+                @if (transfer.status === 'valid') {
+                  <a [routerLink]="transfer.share_url">Ouvrir le lien de partage</a>
+                }
+              </div>
+              <p>Expiration : <time [attr.datetime]="transfer.expires_at">{{ formatDate(transfer.expires_at) }}</time></p>
+              <ul class="file-list">
+                @for (file of transfer.files; track file.id) {
+                  <li>
+                    <h3>{{ file.original_name }}</h3>
+                    <dl>
+                      <div><dt>Taille</dt><dd>{{ formatSize(file.size_bytes) }}</dd></div>
+                      <div><dt>Date d'envoi</dt><dd><time [attr.datetime]="file.uploaded_at">{{ formatDate(file.uploaded_at) }}</time></dd></div>
+                    </dl>
+                    <button class="delete-file" type="button" (click)="deleteFile(transfer, file)"
+                      [attr.aria-label]="'Supprimer ' + file.original_name"
+                      [disabled]="deletingFileId() !== null">
+                      {{ deletingFileId() === file.id ? 'Suppression en cours…' : 'Supprimer' }}
+                    </button>
+                  </li>
+                }
+              </ul>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+</section>

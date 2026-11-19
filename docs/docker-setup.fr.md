@@ -9,7 +9,7 @@ lang: fr
 
 [**English**](docker-setup.md) · [Accueil de la documentation](index.fr.md)
 
-**TECH-02 · Brouillon, recette locale non encore effectuée.** Ce lot prépare les **dépendances avant l'initialisation des applications** ; il ne crée et n'exécute ni Laravel ni Angular.
+**Document d'archive TECH-02 :** ce lot préparait les dépendances avant la génération des applications. Les tests Docker ont été déclarés verts depuis et US01–US06 ont été implémentées. **Pour installer le MVP actuel**, utiliser le [guide d'installation à jour](installation.fr.md). Les descriptions d'étapes suivantes restent une trace du socle initial, pas l'état de livraison actuel.
 
 ## Pourquoi Docker avant les frameworks ?
 

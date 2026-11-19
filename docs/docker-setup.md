@@ -9,7 +9,7 @@ lang: en
 
 [**Français**](docker-setup.fr.md) · [Documentation home](index.md)
 
-**TECH-02 · Draft, awaiting local verification.** This issue prepares **dependencies before application scaffolding**; it does not create or run Laravel or Angular.
+**Historical TECH-02 foundation guide:** this issue originally prepared dependencies before application scaffolding. The developer subsequently reported Docker checks passing and US01–US06 were implemented. **To install the current MVP**, follow the [up-to-date setup guide](installation.md). The steps below document the original foundation, not the current release status.
 
 ## Why Docker first?
 

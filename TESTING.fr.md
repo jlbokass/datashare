@@ -12,7 +12,9 @@
 | US04 connexion | JWT signé si identifiants valides ; 401 si mauvais identifiants ou absence de token ; profil protégé | Tests/build et parcours connexion-déconnexion/401 annoncés verts ; captures absentes |
 | US01 upload | JWT obligatoire ; 1 à 5 fichiers, 1 Go/fichier, plafond choisi 2 Go cumulés ; stockage privé ; un lien ; expiration 1–7 jours | Docker, migration PostgreSQL, PHPUnit, tests/build Angular, PDF et multifichier, expiration un jour déclarés verts |
 | US01 démo locale | Expiration optionnelle à 5 minutes uniquement en local, retour accueil et planificateur à la minute | Tests, correction navigation et démo cinq minutes annoncés verts ; purge physique à la minute non documentée indépendamment |
-| US02 / US05 / US06 | Téléchargement public / historique propriétaire / suppression individuelle | **Non réalisés ou vérifiés** |
+| US02 | Téléchargement public et expiration | Voir les [preuves US02](docs/us02-public-sharing.fr.md) |
+| US05 | Historique propriétaire, JWT, multifichiers et expiration | [Recette locale T01–T04 et multifichiers déclarée OK ; GitHub CI backend 39 tests/255 assertions + Pint, frontend 34 tests + build verts ; restrictions du sandbox Codex documentées séparément](docs/us05-personal-history.fr.md) |
+| US06 | Suppression individuelle, propriété, échecs de stockage et coordination purge | [T01–T05 et `qa.sh all` déclarés verts sur le Mac du développeur ; 13 tests Laravel de suppression ajoutés ; CI PR #46 backend 52 tests/364 assertions et Pint verts, frontend 44 tests et build verts ; contention réelle PostgreSQL reportée à la phase qualité](docs/us06-file-deletion.fr.md) |
 | UI-01 | Comparaison au Figma à 393 et 1440 px, et largeurs intermédiaires | **Écarts visuels ouverts** : [issue #37](https://github.com/jlbokass/datashare/issues/37) |
 
 **Limite :** les tests PHPUnit utilisent notamment SQLite en mémoire et un stockage factice. La migration PostgreSQL et le vrai transfert navigateur ont été contrôlés séparément par le développeur. Aucun rapport de charge 1 Go ou exécution CI archivée.
@@ -34,7 +36,7 @@ Les recettes détaillées sont dans [US03](docs/us03-registration.fr.md), [US04]
 
 - [ ] **2 à 3 scénarios E2E critiques** avec Cypress, Playwright ou équivalent : inscription/connexion, upload/téléchargement, historique/suppression/expiration après US02/05/06.
 - [ ] Rapport et capture de couverture ; **objectif indicatif de 70 % ou plus** : non mesuré.
-- [ ] CI avec tests, format et build, avec résultats GitHub Actions.
+- [ ] Workflows GitHub Actions CI-01 rédigés (PHPUnit/Pint, tests/build Angular). **Premiers runs vérifiés verts :** [backend](https://github.com/jlbokass/datashare/actions/runs/44319554856) (25 tests, 159 assertions, Pint) et [frontend](https://github.com/jlbokass/datashare/actions/runs/44319554868) (21 tests, build production) dans la PR CI-01. La revue/fusion reste à faire ; voir [guide CI](docs/ci.fr.md).
 - [ ] Tests réels de taille/limites, 413, purge planifiée, extensions interdites et fichiers corrompus.
 - [ ] Accessibilité, vérification Figma desktop/mobile et retours externes si disponibles.
 

@@ -58,8 +58,8 @@ The rationale documents the **original design decisions**; actual framework/runt
 | `GET /api/auth/me` | **US04**, JWT protected |
 | `POST /api/transfers` | **US01**, JWT-protected multipart, responds 201 and share link |
 | `GET /api/shares/{token}`, `GET /api/shares/{token}/files/{fileId}` | **US02 pending**; generated link currently opens a pending page |
-| `GET /api/transfers` | **US05 pending** |
-| `DELETE /api/transfers/{transferId}/files/{fileId}` | **US06 pending** |
+| `GET /api/transfers` | [US05 implemented on feature branch; Docker/browser acceptance pending](us05-personal-history.md) |
+| `DELETE /api/transfers/{transferId}/files/{fileId}` | [US06 implemented; acceptance pending](us06-file-deletion.md) |
 
 `GET /api/health` is an infrastructure smoke endpoint, **not** an OC business User Story. Contract includes 401/404/410/413/422 response designs; never claim unimplemented endpoints work.
 
@@ -108,4 +108,4 @@ The **original OC mission supplied** mentions an older restriction to one AI-dev
 
 ## Remaining before final OC delivery
 
-Complete US02/US05/US06, capture 2–3 E2E scenarios and coverage evidence (indicative 70%), produce a security dependency scan and critical endpoint performance test with real metrics, resolve US02 ZIP risk and UI-01 Figma mismatch, document deployment/production HTTPS and finalize the quality files and maintenance procedures. This page is the **living index**, not a substitute for missing evidence.
+Complete US02 acceptance, US05 Docker/browser acceptance and US06 deletion/concurrency acceptance, capture 2–3 E2E scenarios and coverage evidence (indicative 70%), produce a security dependency scan and critical endpoint performance test with real metrics, resolve US02 ZIP risk and UI-01 Figma mismatch, document deployment/production HTTPS and finalize the quality files and maintenance procedures. This page is the **living index**, not a substitute for missing evidence.
