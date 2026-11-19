@@ -2,7 +2,7 @@
 
 [English](TESTING.md) · [Documentation technique](docs/technical-documentation.fr.md)
 
-**Statut : plan évolutif au 18 novembre 2026.** Les résultats **déclarés verts par le développeur** sont distingués des rapports réellement archivés et des tests futurs.
+**Statut : plan évolutif actualisé le 19 novembre 2026.** Les résultats **déclarés verts par le développeur** sont distingués des rapports réellement archivés et des tests futurs.
 
 ## Périmètre et état
 
@@ -17,7 +17,7 @@
 | US06 | Suppression individuelle, propriété, échecs de stockage et coordination purge | [T01–T05 et `qa.sh all` déclarés verts sur le Mac du développeur ; 13 tests Laravel de suppression ajoutés ; CI PR #46 backend 52 tests/364 assertions et Pint verts, frontend 44 tests et build verts ; contention réelle PostgreSQL reportée à la phase qualité](docs/us06-file-deletion.fr.md) |
 | UI-01 | Comparaison au Figma à 393 et 1440 px, et largeurs intermédiaires | **Écarts visuels ouverts** : [issue #37](https://github.com/jlbokass/datashare/issues/37) |
 
-**Limite :** les tests PHPUnit utilisent notamment SQLite en mémoire et un stockage factice. La migration PostgreSQL et le vrai transfert navigateur ont été contrôlés séparément par le développeur. Aucun rapport de charge 1 Go ou exécution CI archivée.
+**Limite :** les tests PHPUnit utilisent notamment SQLite en mémoire et un stockage factice. La migration PostgreSQL et le vrai transfert navigateur ont été contrôlés séparément par le développeur. Aucun rapport de charge réelle à 1 Go. Les preuves CI QL-01 sont accessibles via les liens ci-dessous et conservées 14 jours.
 
 ## Exécution locale
 
@@ -35,8 +35,8 @@ Les recettes détaillées sont dans [US03](docs/us03-registration.fr.md), [US04]
 ## Preuves restant à produire
 
 - [ ] **2 à 3 scénarios E2E critiques** avec Cypress, Playwright ou équivalent : inscription/connexion, upload/téléchargement, historique/suppression/expiration après US02/05/06.
-- [ ] QL-01 : [preuves de couverture](docs/coverage.fr.md). **Laravel local : 96,36 % des lignes (318/330), PHP 8.4/Xdebug, 52 tests/364 assertions. Angular : non mesuré (exécution bloquée).** Artefacts CI PCOV/V8 et capture à produire. **70 % reste un objectif indicatif ; aucun seuil imposé.**
-- [ ] Workflows GitHub Actions CI-01 rédigés (PHPUnit/Pint, tests/build Angular). **Premiers runs vérifiés verts :** [backend](https://github.com/jlbokass/datashare/actions/runs/44319554856) (25 tests, 159 assertions, Pint) et [frontend](https://github.com/jlbokass/datashare/actions/runs/44319554868) (21 tests, build production) dans la PR CI-01. La revue/fusion reste à faire ; voir [guide CI](docs/ci.fr.md).
+- [x] QL-01 : [preuves de couverture](docs/coverage.fr.md). **GitHub Actions : Laravel PCOV 96,36 % des lignes (318/330), 52 tests/364 assertions/Pint ; Angular V8 79,58 % des lignes, 44 tests et build de production**. [Run et artefact backend](https://github.com/jlbokass/datashare/actions/runs/44536846489), [run et artefact frontend](https://github.com/jlbokass/datashare/actions/runs/44536846492). Les artefacts expirent le 3 décembre 2026. **70 % reste un objectif indicatif, aucun seuil CI imposé et aucun badge tiers.**
+- [x] Workflows GitHub Actions CI-01 intégrés dans `develop` et `main`. Les tests PHP/Angular et la vérification Pint/build sont réellement verts sur [PR #50](https://github.com/jlbokass/datashare/pull/50) ; voir [guide CI](docs/ci.fr.md).
 - [ ] Tests réels de taille/limites, 413, purge planifiée, extensions interdites et fichiers corrompus.
 - [ ] Accessibilité, vérification Figma desktop/mobile et retours externes si disponibles.
 
