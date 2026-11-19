@@ -14,7 +14,7 @@
 | US01 démo locale | Expiration optionnelle à 5 minutes uniquement en local, retour accueil et planificateur à la minute | Tests, correction navigation et démo cinq minutes annoncés verts ; purge physique à la minute non documentée indépendamment |
 | US02 | Téléchargement public et expiration | Voir les [preuves US02](docs/us02-public-sharing.fr.md) |
 | US05 | Historique propriétaire, JWT, multifichiers et expiration | [Recette locale T01–T04 et multifichiers déclarée OK ; GitHub CI backend 39 tests/255 assertions + Pint, frontend 34 tests + build verts ; restrictions du sandbox Codex documentées séparément](docs/us05-personal-history.fr.md) |
-| US06 | Suppression individuelle, propriété, échecs de stockage et coordination purge | [Laravel local 52 tests/364 assertions + Pint PASS ; contrôles statiques Angular PASS ; recette Docker/exécution Angular/concurrence PostgreSQL à effectuer](docs/us06-file-deletion.fr.md) |
+| US06 | Suppression individuelle, propriété, échecs de stockage et coordination purge | [T01–T05 et `qa.sh all` déclarés verts sur le Mac du développeur ; 13 tests Laravel de suppression ajoutés ; CI PR #46 à contrôler et contention réelle PostgreSQL reportée à la phase qualité](docs/us06-file-deletion.fr.md) |
 | UI-01 | Comparaison au Figma à 393 et 1440 px, et largeurs intermédiaires | **Écarts visuels ouverts** : [issue #37](https://github.com/jlbokass/datashare/issues/37) |
 
 **Limite :** les tests PHPUnit utilisent notamment SQLite en mémoire et un stockage factice. La migration PostgreSQL et le vrai transfert navigateur ont été contrôlés séparément par le développeur. Aucun rapport de charge 1 Go ou exécution CI archivée.
