@@ -2,9 +2,7 @@
 
 [English](us06-file-deletion.md) · [Issue #9](https://github.com/jlbokass/datashare/issues/9)
 
-Implémentée sur `feat/us06-file-deletion`. Recette développeur et CI de ce changement
-à effectuer. L'implémentation respecte la suppression **d'un fichier** des
-spécifications OC, sans suppression en masse. UI-01/Figma reste un TODO distinct.
+Implémentée sur `feat/us06-file-deletion` dans [PR #46](https://github.com/jlbokass/datashare/pull/46). Le développeur a déclaré **T01–T05 validés** dans son environnement local et **`bash scripts/qa.sh all` vert** hors sandbox Codex. Les vérifications CI de la PR restent à consigner séparément. US06 respecte la suppression **d'un fichier**, sans suppression en masse. UI-01/Figma reste un TODO distinct.
 
 ## Contrat HTTP et propriété
 
@@ -81,7 +79,15 @@ la session et renvoie à la connexion. Quitter la page annule l'abonnement clien
 - Les tests SQLite vérifient les ordres séquentiels purge/suppression,
   **pas la contention réelle des verrous PostgreSQL**.
 
-## Recette développeur restante
+## Recette développeur — compte rendu complémentaire
+
+**19 novembre 2026, validation annoncée par le développeur :** T01 suppression simple, T02 suppression d'un fichier parmi plusieurs, T03 annulation, T04 suppression refusée à un compte non propriétaire, T05 invalidation de l'ancien lien après suppression du dernier fichier : **5/5 OK**. La commande `bash scripts/qa.sh all` est également **verte sur son Mac**. Les sorties de terminal, captures et réponses HTTP détaillées ne sont pas archivées ici. Les restrictions Docker du sandbox Codex citées plus haut restent exactes pour **son exécution initiale**, pas pour la recette ultérieure du développeur.
+
+### Contrôles complémentaires avant livraison OC
+
+Les scénarios locaux T01–T05 étant déclarés acceptés, aucune nouvelle suppression de fichiers réels n'est nécessaire. En phase qualité, revoir le risque de non-atomicité stockage/BDD, l'intégration réelle PostgreSQL en concurrence dans une base isolée et les scénarios E2E. La passe visuelle/responsive/accessibilité reste dans [UI-01 #37](https://github.com/jlbokass/datashare/issues/37).
+
+#### Plan de recette initial (pour traçabilité)
 
 1. Exécuter `bash scripts/qa.sh all` hors sandbox et vérifier la CI.
 2. Avec des fichiers de test jetables, annuler : aucun DELETE ni changement de fichier.
