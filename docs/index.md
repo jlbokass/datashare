@@ -11,7 +11,7 @@ lang: en
 
 Secure file-sharing MVP — OpenClassrooms P3.
 
-**Current state:** design approved and Laravel/Angular scaffolds present. Docker dependency checks were reported successful by the developer; TECH-04 service integration and hot reload **were reported locally verified by the developer**, not proof of a deployed application.
+**Status as of 19 November 2026:** all six mandatory functional stories US01–US06 are merged into `develop`, with developer-reported browser acceptance and green [PR #46 CI](https://github.com/jlbokass/datashare/pull/46). Visual parity and final quality checks remain open.
 
 ## Consolidated OpenClassrooms technical dossier
 
@@ -32,9 +32,12 @@ All four deliverables have French counterparts accessible within their respectiv
 
 The [AI development journal](ai-journal.md) records delegated tasks, developer decisions, corrections and evidence, with a [French equivalent](ai-journal.fr.md). Its first entries are explicitly retrospective.
 
-## Continuous integration
+## Continuous integration and quality badges
 
-[CI-01 — GitHub Actions workflow and acceptance](ci.md) documents separate backend/frontend checks. **Application CI has been verified green for [US02 PR #43](https://github.com/jlbokass/datashare/pull/43)** (Laravel/Pint and Angular tests/build). GitHub Pages deploys documentation only from `main/docs`.
+[![Backend CI](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml?query=branch%3Adevelop)
+[![Frontend CI](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml?query=branch%3Adevelop)
+
+These badges reflect **real `develop` workflow runs**, not a fabricated coverage score. [CI-01 guide](ci.md) describes Laravel/Pint checks and Angular tests/build. The latest verified functional PR [#46](https://github.com/jlbokass/datashare/pull/46) passed **52 Laravel tests / 364 assertions and 44 Angular tests**. E2E, security audits, measured coverage and performance remain pending.
 
 ## Development environment
 
@@ -44,13 +47,15 @@ The [AI development journal](ai-journal.md) records delegated tasks, developer d
 
 [UI design handoff review and scope decisions](design-handoff.md) — visual tokens, desktop/mobile reference widths and explicit US09 password discrepancy. The [source PDF](design/DataShare_UI_Design_Handoff_v1.pdf) is committed on the TECH-04 branch.
 
-## Account features (under development)
+## Functional MVP — US01 through US06
 
-[US03 — Registration](us03-registration.md), [US04 — JWT login](us04-jwt-login.md) and [US01 — Authenticated upload with expiry](us01-upload.md) were implemented and reported **locally green** by the developer. US02 is implemented on [PR #43](https://github.com/jlbokass/datashare/pull/43), with 4 of 5 developer-reported browser scenarios accepted (expiry still pending). [US05 personal history](us05-personal-history.md) is implemented on its feature branch, with local backend checks passing and Docker/Angular runtime acceptance pending. [US06 individual deletion](us06-file-deletion.md) is implemented on its feature branch; Docker/browser and concurrency acceptance remain pending; the [UI-01 visual mismatch](https://github.com/jlbokass/datashare/issues/37) is tracked separately.
+- [US03 — Registration](us03-registration.md) and [US04 — JWT login](us04-jwt-login.md)
+- [US01 — Private upload, expiration and purge](us01-upload.md)
+- [US02 — Public share metadata and download](us02-public-sharing.md) — T01–T05 accepted per developer
+- [US05 — Personal history](us05-personal-history.md) — owner isolation and HTTP 401 accepted
+- [US06 — Individual deletion](us06-file-deletion.md) — T01–T05 accepted per developer
 
-## File transfers — US01 delivered, US02 in review
-
-[US01 upload guide and acceptance criteria](us01-upload.md) covers multipart authenticated upload, private storage, 1–7 day expiration and scheduled cleanup. The [US02 acceptance guide](us02-public-sharing.md) covers anonymous public downloads, invalid links and ZIP limitations. The local five-minute expiry browser check remains outstanding.
+These features are merged into **`develop`**. Publishing `main` and visual/responsive acceptance are separate steps. ZIP archives are not antivirus-scanned.
 
 ## MVP requirements
 
@@ -64,9 +69,9 @@ US07–US10 remain optional; **US01 already mandates expiry and automatic deleti
 
 The project uses work branches → `develop` → protected `main`. GitHub Pages publishes **documentation only** from `main/docs`; running the Laravel API requires a separate application runtime.
 
-### Quality evidence — to be completed after integration
+### Remaining quality deliverables
 
-The developer reported TECH-02–04 and US01–04 local checks green. Backend/frontend CI is confirmed green on PR #43. E2E, coverage, security scanning and performance measurements remain **outstanding**.
+[Testing evidence](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) separates GitHub-verified results, developer-reported acceptance and remaining work. **Before OC delivery:** representative E2E, measured coverage, security checks, performance, PostgreSQL concurrency and [UI/responsive acceptance](https://github.com/jlbokass/datashare/issues/37).
 
 ---
 
