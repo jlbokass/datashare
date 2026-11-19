@@ -35,7 +35,7 @@ Les recettes détaillées sont dans [US03](docs/us03-registration.fr.md), [US04]
 ## Preuves restant à produire
 
 - [ ] **2 à 3 scénarios E2E critiques** avec Cypress, Playwright ou équivalent : inscription/connexion, upload/téléchargement, historique/suppression/expiration après US02/05/06.
-- [ ] Rapport et capture de couverture ; **objectif indicatif de 70 % ou plus** : non mesuré.
+- [ ] QL-01 : [preuves de couverture](docs/coverage.fr.md). **Laravel local : 96,36 % des lignes (318/330), PHP 8.4/Xdebug, 52 tests/364 assertions. Angular : non mesuré (exécution bloquée).** Artefacts CI PCOV/V8 et capture à produire. **70 % reste un objectif indicatif ; aucun seuil imposé.**
 - [ ] Workflows GitHub Actions CI-01 rédigés (PHPUnit/Pint, tests/build Angular). **Premiers runs vérifiés verts :** [backend](https://github.com/jlbokass/datashare/actions/runs/44319554856) (25 tests, 159 assertions, Pint) et [frontend](https://github.com/jlbokass/datashare/actions/runs/44319554868) (21 tests, build production) dans la PR CI-01. La revue/fusion reste à faire ; voir [guide CI](docs/ci.fr.md).
 - [ ] Tests réels de taille/limites, 413, purge planifiée, extensions interdites et fichiers corrompus.
 - [ ] Accessibilité, vérification Figma desktop/mobile et retours externes si disponibles.

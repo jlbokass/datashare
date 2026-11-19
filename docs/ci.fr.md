@@ -24,6 +24,10 @@ Déclencheurs : **chaque PR vers `develop` ou `main`**, chaque push sur ces bran
 
 **Limite :** la CI Laravel actuelle teste sur **SQLite**, pas encore sur un service PostgreSQL réel. Les E2E navigateur, uploads vers stockage réel, fichiers volumineux, scans de dépendances, couverture et benchmarks sont des travaux distincts. Voir [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.fr.md).
 
+## Extension couverture QL-01 (branche dédiée, validation CI à effectuer)
+
+La configuration QL-01 ajoute PCOV + Clover/HTML/texte aux tests backend et V8 + HTML/LCOV/totaux JSON à Angular, en conservant noms des jobs, Pint et build. Rapports archivés séparément dans Actions pour 14 jours. Aucun seuil ni service externe. Voir les [mesures réelles, périmètres et limites](coverage.fr.md) ; les résultats PR #46 ci-dessus ne mesurent pas la couverture.
+
 ## Livraison continue
 
 GitHub Pages publie déjà `main/docs` après les PR de livraison : c'est une **CD documentaire**, pas un déploiement applicatif. Il n'existe pas encore de serveur de production Laravel/PostgreSQL/Angular validé ni de pipeline de déploiement associé.
