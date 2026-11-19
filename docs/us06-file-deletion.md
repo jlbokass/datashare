@@ -2,9 +2,7 @@
 
 [Français](us06-file-deletion.fr.md) · [Issue #9](https://github.com/jlbokass/datashare/issues/9)
 
-Implemented on `feat/us06-file-deletion`. Developer acceptance and CI for this
-change remain pending. This implements the OC specification's **individual file**
-deletion, not bulk deletion. UI-01/Figma work remains a separate TODO.
+Implemented on `feat/us06-file-deletion` in [PR #46](https://github.com/jlbokass/datashare/pull/46). The developer reports **T01–T05 passed** in the local environment and **`bash scripts/qa.sh all` green** outside Codex sandbox. PR CI checks are recorded separately once confirmed. US06 implements **individual file deletion**, not bulk deletion. UI-01/Figma remains a separate TODO.
 
 ## HTTP contract and ownership
 
@@ -75,7 +73,15 @@ the client subscription, **not necessarily a DELETE already received by the serv
   permissions (exit 1), before tests/build started. PHP local is 8.5.9; Docker/CI is 8.4.
 - SQLite tests verify sequential purge/deletion outcomes, **not PostgreSQL lock contention**.
 
-## Remaining developer acceptance
+## Developer acceptance — subsequent record
+
+**19 November 2026, developer-reported:** T01 delete single file, T02 delete one file from a multi-file transfer, T03 cancel confirmation, T04 reject a non-owner, T05 invalidate the public link after deleting the last file: **5/5 PASS**. `bash scripts/qa.sh all` also **passed on the developer's Mac**. Full local terminal outputs, screenshots and HTTP traces are not archived here. The earlier Codex Docker sandbox restrictions described above remain historically accurate for **that agent-run attempt**, not the later developer acceptance.
+
+### Additional checks before OC delivery
+
+The five browser scenarios were accepted; no further deletion of actual files is necessary for this acceptance. The quality phase should revisit non-atomic filesystem/DB changes, real PostgreSQL concurrency in an isolated database and critical E2E scenarios. UI, responsive and accessibility checks remain in [UI-01 #37](https://github.com/jlbokass/datashare/issues/37).
+
+#### Original acceptance plan (historical checklist)
 
 1. Run `bash scripts/qa.sh all` outside the sandbox and inspect CI.
 2. With disposable test uploads, cancel deletion: no DELETE and no file changes.
