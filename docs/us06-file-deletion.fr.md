@@ -4,6 +4,8 @@
 
 Implémentée sur `feat/us06-file-deletion` dans [PR #46](https://github.com/jlbokass/datashare/pull/46). Le développeur a déclaré **T01–T05 validés** dans son environnement local et **`bash scripts/qa.sh all` vert** hors sandbox Codex. Les vérifications CI de la PR restent à consigner séparément. US06 respecte la suppression **d'un fichier**, sans suppression en masse. UI-01/Figma reste un TODO distinct.
 
+**Preuves CI sur [PR #46](https://github.com/jlbokass/datashare/pull/46), 19 novembre 2026 :** [Backend CI](https://github.com/jlbokass/datashare/actions/runs/44446497875) — **52 tests Laravel, 364 assertions et Pint verts** ; [Frontend CI](https://github.com/jlbokass/datashare/actions/runs/44446497731) — **44 tests Angular et build de production réussis**. Ces résultats GitHub Actions sont indépendants de l'exécution initiale bloquée dans le sandbox Codex.
+
 ## Contrat HTTP et propriété
 
 `DELETE /api/transfers/{transferId}/files/{fileId}` respecte [OpenAPI](api/openapi.yaml).
