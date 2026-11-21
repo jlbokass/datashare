@@ -2,7 +2,7 @@
 
 [Français](TESTING.fr.md) · [Technical documentation](docs/technical-documentation.md)
 
-**Status: evolving plan updated 21 November 2026.** This file distinguishes **developer-reported local success** from captured evidence and future tests. This QL-02 update is documentation only: no tests were executed.
+**Status: evolving plan updated 21 November 2026.** This file distinguishes **developer-reported local success** from captured evidence and future tests. This documentation revision does not constitute a new test execution.
 
 ## Scope, checks and current evidence
 
@@ -23,6 +23,8 @@
 
 ### Strategy and sources
 
+**Proportionality rule:** verify business acceptance at the least costly level that provides sufficient confidence; do not add E2E scenarios, investigations or infrastructure beyond the documented need.
+
 Scope covers the critical US01–US06 MVP journeys, based on the [repository transcription of the OC P3 brief](README.md#mvp-scope), the [API contract](docs/api/openapi.yaml) and [issue #51](https://github.com/jlbokass/datashare/issues/51), consulted on 21 November 2026. The original OC P3 brief is not versioned in the repository inspected by Codex, but was provided to the assistant for review. Its absence from the repository does not constitute a nonconformity of the plan.
 
 - **Unit/component tests:** PHPUnit and Vitest/Angular TestBed check focused behavior; Angular HTTP test doubles are allowed at this level, not in E2E tests.
@@ -39,19 +41,19 @@ The following three rows are the **three business scenarios**, regardless of fil
 
 | Scenario / US | Preconditions | Main actions | Expected results | Acceptance criteria | Actual status on 21 November 2026 |
 | --- | --- | --- | --- | --- | --- |
-| **E2E-01 — US03/04: registration, login and account protection** | Unique synthetic account; separate owner and anonymous contexts; ready infrastructure | Register through UI, sign in through UI, access `/account`; attempt anonymous access; log out and retry protected access | Registration 201 and confirmation; login/me 200; “Mon espace” heading and email; anonymous account access redirects to `/login`, protected API without JWT returns 401; logout clears local session | Validate 01a, 01b, 01c and continuous registration → login; SPA transition without reload after login; protected access refused after logout in the same context | **Partial**: developer reports 01a and 01b passing locally; 01c absent; continuous journey unproven; no referenced QL-02 CI evidence |
+| **E2E-01 — US03/04: registration, login and account protection** | Independent synthetic accounts; separate anonymous context; ready infrastructure | Register through UI and verify confirmation; sign in through UI and verify account identity; reject anonymous access; log out | Registration 201; login/me 200; “Mon espace” and expected email; guest redirected to `/login`, protected APIs without JWT return 401; local logout effective | 01a, 01b and 01c run as independent tests; no single registration → login SPA transition is required | **Developer-reported local PASS** for 01a, 01b and 01c; consolidated suite must be rerun after restoring 01a; no QL-02 CI evidence referenced |
 | **E2E-02 — US01/02: authenticated upload and public download** | Signed-in user; small synthetic TXT with known bytes; new context without session | Upload through UI, obtain the unique link, open it anonymously, verify metadata and download | Upload 201; share accessible without JWT; consistent metadata; completed download | Check the actual received filename and bytes, not merely link visibility; no real document or recipient authentication | **Planned**: no corresponding test in this branch; no local or CI evidence for this QL-02 journey |
 | **E2E-03 — US05/06: history, deletion and revocation** | Signed-in owner; transfer with two synthetic files; share open in an anonymous context | Check history; if possible, cancel deletion (optional); confirm first-file deletion; check remaining file; delete last file | If cancellation is tested: no DELETE and no changes; deletions return 204; first file removed; second still downloadable through the same share; empty transfer removed; old share returns 404 and UI error | Check both history files, remaining file bytes and final revocation; one business journey; cancellation check is optional and does not block closure | **Planned**: no corresponding test; cancellation check is optional as requested by the issue (“if possible”); no local or CI QL-02 evidence |
 
-### E2E-01 status before 01c and available evidence
+### E2E-01 status and available evidence
 
 - **Smoke** (`e2e/smoke.spec.ts`, commit `2ac0379`): Angular home displayed; developer-reported local PASS. Counts neither as a business scenario nor as authentication evidence.
 - **E2E-01a** (`e2e/registration.spec.ts`, `459344e`): UI registration, POST 201 and visible confirmation; developer-reported local PASS.
 - **E2E-01b** (`e2e/login.spec.ts`, `6d5c25b`): setup through `APIRequestContext`, UI login, POST login/GET me 200, displayed identity and preserved SPA document; developer-reported local PASS. The test neither reads nor persists the JWT.
-- **E2E-01c — plan only**: verify `/account` without a session → `/login` and `/api/auth/me` without JWT → 401; after login, log out through UI and retry protected navigation in the same context/document. An independent anonymous context complements this check. Distinguish clearing the Angular session from server-side JWT revocation, which US04 does not implement.
-- **Continuous journey still to confirm**: 01a and 01b create separate users; 01b creates its user through the API. Their separate success does not prove UI registration → UI login for the same user.
+- **E2E-01c** (`e2e/session.spec.ts`, commit `eec7a4a`): anonymous `/account` access redirects to `/login`; `/api/auth/me` and `/api/transfers` without JWT return 401; UI logout and browser-back access remain protected without a hard reload. Developer-reported local PASS; no QL-02 CI evidence.
+- **Continuous registration → login journey: non-blocking**. Registration and login have independent automated coverage and the developer separately checked the full journey manually. An additional SPA-transition test was attempted and removed due to disproportionate maintenance cost. It is neither an extra OC requirement nor evidence of an application defect.
 
-These local validations are developer reports, not executions performed during this review or GitHub Actions evidence. SHAs identify code, not execution results. Earlier Codex Docker attempts were blocked by socket permissions; they are not Chromium successes. The three currently selected files represent one smoke and two E2E-01 fragments, **not E2E-01 through E2E-03**.
+These local validations are developer reports, not executions performed during this review or GitHub Actions evidence. SHAs identify code, not execution results. Earlier Codex Docker attempts were blocked by socket permissions; they are not Chromium successes. The four current files (smoke, registration, login, session) cover technical smoke and E2E-01, **not E2E-02 or E2E-03**.
 
 Existing command to use after preparing the isolated stack (not executed for this update):
 
@@ -62,7 +64,7 @@ docker compose -f compose.test.yaml --profile e2e run --no-deps playwright \
 
 ### QL-02 exit criteria and open gaps
 
-- [ ] All **three complete business scenarios** in the matrix pass locally against the isolated stack; E2E-01 includes 01c and UI continuity. Discovery alone is not browser execution.
+- [ ] All **three complete business scenarios** in the matrix pass locally against the isolated stack; E2E-01 is covered by the independent checks 01a, 01b and 01c. Discovery alone is not browser execution.
 - [ ] The same journeys pass in ephemeral CI, in a separate E2E workflow for PRs targeting `develop`/`main` and pushes, with non-destructive migrations, readiness checks, bounded timeout and one worker. A green PR run is linked as evidence. **Only backend/frontend workflows currently exist.**
 - [ ] No regressions, verified through Laravel/Pint/Angular/build (`bash scripts/qa.sh all`) and existing CI. Preserve QL-01 measurements without artificial exclusions; the 52 Laravel/44 Angular counts and QL-01 percentages are historical references, not freshly executed results on this branch.
 - [ ] Record each scenario's date, SHA, command, environment/Chromium version, test count, PASS/FAIL/SKIPPED, limitations and sanitized report; for CI, include the run/job URL and short-retention artifact. Regenerate expired evidence. Reports must contain no secrets or user files.
