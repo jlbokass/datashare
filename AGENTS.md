@@ -14,6 +14,15 @@ repository root. For Laravel-specific conventions, also read any generated
 - Treat `docs/api/openapi.yaml`, the GitHub issues, and the OC specification
   as requirements; reconcile documentation with implemented behavior.
 
+## Outcome-first delivery and productivity
+
+- Begin with the user's objective and documented acceptance criteria. Distinguish **required**, **risk-justified**, and **optional** work; never promote an optional technical experiment into a release gate.
+- Choose the smallest sufficient solution and validation level. Reuse existing tools and tests; avoid extra frameworks, infrastructure, documents, scenarios, or diagnostics without a clear return on effort.
+- Define the stopping condition before implementation. Once requirements are met and no critical defect remains, finish the task rather than expanding its scope.
+- Ground debugging in observed evidence, clearly separating facts and hypotheses. If an investigation becomes disproportionate, reassess the business value and offer the simpler compliant option.
+- Prefer focused changes, brief reviews, and actionable results. Manual acceptance is appropriate where automation has lower value than its construction and maintenance cost. Automate repetitive, critical paths.
+- Do not change unrelated code or force additional work solely to exercise a tool. Keep the developer in control of trade-offs and decisions.
+
 ## Safety rules
 
 - Keep uploads on the private `transfers` disk; never expose storage paths.
