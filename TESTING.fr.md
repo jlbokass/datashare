@@ -2,7 +2,7 @@
 
 [English](TESTING.md) · [Documentation technique](docs/technical-documentation.fr.md)
 
-**Statut : plan évolutif actualisé le 21 novembre 2026.** Les résultats **déclarés verts par le développeur** sont distingués des rapports réellement archivés et des tests futurs. La présente mise à jour QL-02 est documentaire : aucun test n'a été exécuté.
+**Statut : plan évolutif actualisé le 21 novembre 2026.** Les résultats **déclarés verts par le développeur** sont distingués des rapports réellement archivés et des tests futurs. Cette révision documentaire ne constitue pas une nouvelle exécution des tests.
 
 ## Périmètre et état
 
@@ -23,6 +23,8 @@
 
 ### Stratégie et sources
 
+**Principe de proportionnalité :** vérifier les critères métier au niveau le moins coûteux qui apporte une confiance suffisante ; ne pas multiplier les tests E2E, les investigations ou l'infrastructure au-delà du besoin documenté.
+
 Le périmètre couvre les parcours critiques US01–US06 du MVP, selon la [transcription du sujet OC P3](README.fr.md#périmètre-mvp), le [contrat API](docs/api/openapi.yaml) et l'[issue #51](https://github.com/jlbokass/datashare/issues/51) consultée le 21 novembre 2026. Le sujet OC P3 original n'est pas versionné dans le dépôt inspecté par Codex, mais a été fourni à l'assistant pour relecture. Son absence du dépôt ne constitue pas une non-conformité du plan.
 
 - **Unitaires/composants :** PHPUnit et Vitest/Angular TestBed vérifient les comportements ciblés ; les doubles HTTP Angular sont permis à ce niveau, pas en E2E.
@@ -39,19 +41,19 @@ Les trois lignes suivantes sont les **trois scénarios métier**, indépendammen
 
 | Scénario / US | Préconditions | Principales actions | Résultats attendus | Critères d'acceptation | État réel au 21 novembre 2026 |
 | --- | --- | --- | --- | --- | --- |
-| **E2E-01 — US03/04 : inscription, connexion et protection du compte** | Compte synthétique unique ; contexte propriétaire et contexte anonyme distincts ; infrastructure prête | Inscription UI, connexion UI, accès à `/account` ; accès anonyme ; déconnexion puis nouvelle tentative d'accès protégé | Inscription 201 et confirmation ; login/me 200 ; titre « Mon espace » et email ; anonyme redirigé vers `/login`, API protégée sans JWT en 401 ; session locale supprimée après déconnexion | Valider 01a, 01b, 01c et la continuité inscription → connexion ; transition SPA sans rechargement après connexion ; refus de l'accès protégé après déconnexion dans le même contexte | **Partiel** : 01a et 01b déclarés verts localement par le développeur ; 01c absent ; parcours continu non démontré ; aucune preuve CI QL-02 référencée |
+| **E2E-01 — US03/04 : inscription, connexion et protection du compte** | Comptes synthétiques indépendants ; contexte anonyme séparé ; infrastructure prête | Inscription via l'UI et confirmation ; connexion via l'UI et identité dans `/account` ; accès anonyme et déconnexion | Inscription 201 ; login/me 200 ; titre « Mon espace » et email ; accès sans session redirigé vers `/login`, API sans JWT en 401 ; déconnexion locale effective | 01a, 01b et 01c sont des tests indépendants ; aucun enchaînement SPA unique inscription → connexion n'est imposé | **Validé localement selon le développeur** pour 01a, 01b et 01c ; suite à relancer après restauration du test 01a ; aucune preuve CI QL-02 référencée |
 | **E2E-02 — US01/02 : upload authentifié et téléchargement public** | Utilisateur connecté ; petit TXT synthétique aux octets connus ; nouveau contexte sans session | Téléverser via l'UI, récupérer le lien unique, l'ouvrir anonymement, vérifier les métadonnées, télécharger | Upload 201 ; partage accessible sans JWT ; métadonnées cohérentes ; téléchargement abouti | Vérifier effectivement le nom et les octets du fichier reçu, pas seulement la présence du lien ; aucun vrai document ni authentification du destinataire | **À réaliser** : aucun test correspondant présent dans la branche ; aucune preuve locale ou CI pour ce parcours QL-02 |
 | **E2E-03 — US05/06 : historique, suppression et révocation** | Utilisateur propriétaire connecté ; transfert de deux fichiers synthétiques ; partage ouvert dans un contexte anonyme | Vérifier l'historique ; si possible, annuler une suppression (facultatif) ; confirmer la suppression du premier fichier ; vérifier le second ; supprimer le dernier | Si l'annulation est testée : aucun DELETE ni changement ; suppressions 204 ; premier fichier retiré ; second toujours téléchargeable via le même lien ; transfert vide retiré ; ancien partage 404 et erreur UI | Contrôler les deux fichiers de l'historique, les octets du fichier restant et la révocation finale ; une seule chaîne métier ; vérification d'annulation facultative, non bloquante pour la clôture | **À réaliser** : aucun test correspondant présent ; vérification d'annulation facultative conformément à l'issue (« si possible ») ; aucune preuve locale ou CI QL-02 |
 
-### État d'E2E-01 avant 01c et preuves disponibles
+### État d'E2E-01 et preuves disponibles
 
 - **Smoke** (`e2e/smoke.spec.ts`, commit `2ac0379`) : accueil Angular affiché ; validé localement selon le développeur. Ne compte ni comme scénario métier ni comme preuve d'authentification.
 - **E2E-01a** (`e2e/registration.spec.ts`, `459344e`) : inscription UI, POST 201 et confirmation visible ; validé localement selon le développeur.
 - **E2E-01b** (`e2e/login.spec.ts`, `6d5c25b`) : création préalable via `APIRequestContext`, connexion UI, POST login/GET me 200, identité affichée et document SPA conservé ; validé localement selon le développeur. Le test ne lit ni ne persiste le JWT.
-- **E2E-01c — plan uniquement** : vérifier `/account` sans session → `/login` et `/api/auth/me` sans JWT → 401 ; après connexion, déconnecter via l'UI puis retenter une navigation protégée dans le même contexte/document. Un contexte anonyme indépendant complète ce contrôle. Ne pas confondre suppression de la session Angular et révocation serveur du JWT, non implémentée en US04.
-- **Parcours continu à confirmer** : 01a et 01b créent deux utilisateurs indépendants ; 01b prépare le sien par API. Leur réussite séparée ne prouve pas inscription UI → connexion UI pour le même utilisateur.
+- **E2E-01c** (`e2e/session.spec.ts`, commit `eec7a4a`) : accès anonyme au compte redirigé vers `/login`, `/api/auth/me` et `/api/transfers` sans JWT en 401, puis déconnexion UI et refus d'accès protégé via retour navigateur dans la même session SPA. Déclaré vert localement par le développeur ; aucune preuve CI QL-02.
+- **Parcours continu inscription → connexion : non bloquant**. Les deux opérations sont couvertes par des tests indépendants ; le développeur a aussi vérifié manuellement leur enchaînement. Un test supplémentaire de transition SPA a été tenté puis retiré pour coût de maintenance disproportionné. Il ne constitue ni une exigence OC supplémentaire ni une anomalie applicative démontrée.
 
-Ces validations locales sont des déclarations du développeur, pas des exécutions effectuées lors de cette revue ni des preuves GitHub Actions. Les SHA identifient le code, pas un résultat d'exécution. Les essais Docker précédents de Codex étaient bloqués par le socket ; ils ne sont pas des succès Chromium. Les trois fichiers actuellement découverts représentent un smoke et deux fragments d'E2E-01, **pas E2E-01 à E2E-03**.
+Ces validations locales sont des déclarations du développeur, pas des exécutions effectuées lors de cette revue ni des preuves GitHub Actions. Les SHA identifient le code, pas un résultat d'exécution. Les essais Docker précédents de Codex étaient bloqués par le socket ; ils ne sont pas des succès Chromium. Les quatre fichiers actuels (smoke, inscription, connexion, session) couvrent le contrôle technique et E2E-01, **pas E2E-02 ni E2E-03**.
 
 Commande existante à utiliser après préparation de la stack isolée (non exécutée pour cette mise à jour) :
 
@@ -62,7 +64,7 @@ docker compose -f compose.test.yaml --profile e2e run --no-deps playwright \
 
 ### Critères de sortie QL-02 et écarts ouverts
 
-- [ ] Les **trois scénarios métier complets** de la matrice passent localement sur la stack isolée ; E2E-01 inclut 01c et la continuité UI. La découverte seule n'est pas une exécution navigateur.
+- [ ] Les **trois scénarios métier complets** de la matrice passent localement sur la stack isolée ; E2E-01 est couvert par les validations indépendantes 01a, 01b et 01c. La découverte seule n'est pas une exécution navigateur.
 - [ ] Les mêmes parcours passent en CI éphémère, dans un workflow E2E séparé sur PR vers `develop`/`main` et push, avec migrations non destructrices, contrôles de disponibilité, timeout borné et un worker. Un run vert sur PR est lié aux preuves. **Seuls les workflows backend/frontend sont actuellement présents.**
 - [ ] Absence de régression vérifiée par Laravel/Pint/Angular/build (`bash scripts/qa.sh all`) et les CI existantes. Préserver la mesure QL-01 sans exclusions artificielles ; les références 52 tests Laravel/44 Angular et les pourcentages QL-01 sont historiques, pas des résultats fraîchement exécutés sur cette branche.
 - [ ] Pour chaque scénario : date, SHA, commande, environnement/version Chromium, nombre de tests, PASS/FAIL/SKIPPED, limitations et rapport assaini ; pour CI, URL du run/job et artefact à rétention courte. Une preuve expirée doit être régénérée. Les rapports ne doivent contenir aucun secret ni fichier utilisateur.
