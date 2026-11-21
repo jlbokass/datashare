@@ -60,7 +60,7 @@ services:
         mkdir -p storage/app/private/transfers storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
         export APP_KEY="$$(php -r 'echo "base64:".base64_encode(random_bytes(32));')"
         export JWT_SECRET="$$(php -r 'echo bin2hex(random_bytes(32));')"
-        exec php artisan serve --host=0.0.0.0 --port=8000
+        exec php artisan serve --no-reload --host=0.0.0.0 --port=8000
 
   frontend:
     image: node:24-bookworm-slim
