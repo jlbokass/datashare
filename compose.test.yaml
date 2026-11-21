@@ -1,0 +1,114 @@
+
+name: datashare-ql02-test
+
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: datashare_ql02
+      POSTGRES_USER: datashare_ql02
+      POSTGRES_PASSWORD: ql02-local-test-only
+
+    tmpfs:
+      - /var/lib/postgresql
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U datashare_ql02 -d datashare_ql02
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    working_dir: /workspace/backend
+    volumes:
+      - ./backend:/workspace/backend:ro
+    tmpfs:
+      - /workspace/backend/storage
+      - /workspace/backend/bootstrap/cache
+    environment:
+      APP_ENV: testing
+      APP_DEBUG: 'false'
+      APP_URL: http://app:8000
+      APP_KEY: ''
+      JWT_SECRET: ''
+      DB_CONNECTION: pgsql
+      # Ignore a developer DB_URL that could override the isolated connection.
+      DB_URL: ''
+      DB_HOST: db
+      DB_PORT: '5432'
+      DB_DATABASE: datashare_ql02
+      DB_USERNAME: datashare_ql02
+      DB_PASSWORD: ql02-local-test-only
+      SESSION_DRIVER: array
+      CACHE_STORE: array
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: array
+      LOG_CHANNEL: single
+    depends_on:
+      db:
+        condition: service_healthy
+    command:
+      - sh
+      - -ec
+      - |
+        test -f vendor/autoload.php || { echo 'Missing backend/vendor/autoload.php' >&2; exit 1; }
+        mkdir -p storage/app/private/transfers storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
+        export APP_KEY="$$(php -r 'echo "base64:".base64_encode(random_bytes(32));')"
+        export JWT_SECRET="$$(php -r 'echo bin2hex(random_bytes(32));')"
+        exec php artisan serve --host=0.0.0.0 --port=8000
+
+  frontend:
+    image: node:24-bookworm-slim
+    working_dir: /workspace/frontend
+    volumes:
+      - ./frontend:/workspace/frontend:ro
+      - type: volume
+        source: frontend_node_modules
+        target: /workspace/frontend/node_modules
+        volume:
+          nocopy: true
+    tmpfs:
+      - /workspace/frontend/.angular
+    command:
+      - sh
+      - -ec
+      - |
+        npm ci --no-audit --no-fund
+        exec npm run start -- --host 0.0.0.0 --port 4200
+
+  web:
+    image: nginx:1.29-alpine
+    volumes:
+      - ./docker/nginx/test.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+      - frontend
+
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.63.0-noble
+    profiles: [e2e]
+    working_dir: /workspace/e2e
+    init: true
+    shm_size: 1gb
+    volumes:
+      - ./e2e:/workspace/e2e
+      - type: volume
+        source: playwright_node_modules
+        target: /workspace/e2e/node_modules
+        volume:
+          nocopy: true
+    command:
+      - sh
+      - -ec
+      - |
+        npm ci --no-audit --no-fund
+        exec npm test
+
+volumes:
+  frontend_node_modules:
+  playwright_node_modules:
