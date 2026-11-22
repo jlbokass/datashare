@@ -2,7 +2,7 @@
 
 [Français](SECURITY.fr.md) · [Technical documentation](docs/technical-documentation.md) · [QL-03 tracking](https://github.com/jlbokass/datashare/issues/53)
 
-**23 November 2026: Composer reported no security advisories and npm reported zero vulnerabilities.** The developer ran both checks locally on `quality/ql-03-security`, branched from `develop` (`36291cd`). Terminal output was provided as a screenshot; the exact local checkout SHA and audit tool versions were not recorded.
+**Security audits — 23 November 2026.** Checks executed in the project's local Docker environment on `quality/ql-03-security` (branched from `develop` at commit `36291cd`). **Results: Composer reported no security advisories and npm reported zero vulnerabilities.** Terminal output was provided as a screenshot; the exact local checkout SHA and audit tool versions were not recorded.
 
 ## 1. Dependency audits and decisions
 
