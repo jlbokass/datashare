@@ -1,45 +1,65 @@
-# DataShare — Testing plan and evidence (OC P3)
+# DataShare — Test plan and results
 
-[Français](TESTING.fr.md) · [Technical documentation](docs/technical-documentation.md)
+[Français](TESTING.fr.md) · [Technical documentation](docs/technical-documentation.md) · [QL-02 tracking](https://github.com/jlbokass/datashare/issues/51)
 
-**Status: evolving plan updated 19 November 2026.** This file distinguishes **developer-reported local success** from captured evidence and future tests.
+**Status as of 22 November 2026.** Mandatory MVP features US01–US06 are covered by backend, frontend and three critical E2E business scenarios. All three GitHub Actions workflows on [PR #52](https://github.com/jlbokass/datashare/pull/52) are **passing**. Merge into `develop` remains subject to review.
 
-## Scope, checks and current evidence
+## 1. Scope and acceptance criteria
 
-| Scope | Expected acceptance | Current record |
+Tests run at the most appropriate level: **PHPUnit** for backend rules and APIs, **Vitest** for Angular and **Playwright/Chromium** for full user journeys. E2E tests use real Angular → Nginx → Laravel → PostgreSQL and private file storage, without mocking the API.
+
+| Critical journey | Verified acceptance criteria | Tests |
 | --- | --- | --- |
-| US03 registration | Valid/unique email; minimum 8-character password; salted hash; duplicate and invalid rejected | Developer reported backend/frontend tests and browser cases green; French duplicate error corrected; no archived test report |
-| US04 login | Correct credentials give signed JWT; wrong credentials/absent token 401; protected profile | Developer reported tests/build and browser login/logout/401 green; no token/session screenshots |
-| US01 upload | JWT required; 1–5 files, 1 GB each, 2 GB aggregate operational cap; private storage; one share token; 1–7 day expiry | Developer reported Docker, PostgreSQL migration, PHPUnit, Angular tests/build, PDF and multifile upload, one-day expiry green |
-| US01 local demonstration | Opt-in 5-minute expiry only in local mode, home reset and minute scheduler | Developer reported corrected home navigation, new tests and five-minute demo green; minute-level physical deletion has not been independently documented |
-| US02 | Public download and expiry handling | See [US02 evidence](docs/us02-public-sharing.md) |
-| US05 | Owner history, JWT, multiple files and expiry | [Developer-reported local T01–T04 and multifile PASS; GitHub CI backend 39 tests/255 assertions + Pint and frontend 34 tests + build PASS; earlier Codex sandbox restrictions retained separately](docs/us05-personal-history.md) |
-| US06 | Individual deletion, ownership, storage failures and purge coordination | [Developer-reported T01–T05 and `qa.sh all` PASS on Mac; 13 new Laravel deletion tests; PR #46 CI backend 52 tests/364 assertions and Pint PASS, frontend 44 tests and build PASS; real PostgreSQL contention deferred to quality phase](docs/us06-file-deletion.md) |
-| UI-01 | Compare actual home/upload and confirmation frames with Figma at 393px, 1440px and intermediate widths | **Open visual nonconformity**: [issue #37](https://github.com/jlbokass/datashare/issues/37) |
+| **E2E-01 · US03–US04** — registration, login, account | Registration HTTP 201; login and identity HTTP 200; APIs without JWT reject access (401); anonymous account access redirects; logout effective | Laravel + Angular; `registration.spec.ts`, `login.spec.ts`, `session.spec.ts` |
+| **E2E-02 · US01–US02** — upload and public sharing | Authenticated upload HTTP 201; public link opened without a session; downloaded file **name and bytes match** | Laravel + Angular; `upload-download.spec.ts` |
+| **E2E-03 · US05–US06** — history and deletion | Owner's files visible; deletions HTTP 204; second file remains downloadable; deleting the last file revokes the share (404) | Laravel + Angular; `history-deletion.spec.ts` |
 
-**Limits:** PHPUnit uses SQLite in-memory and fake private storage for many feature tests; local PostgreSQL migration and actual browser upload were separately reported successful. No actual 1-GB network load or E2E suite has been recorded. QL-01 CI evidence and temporary downloadable artifacts are linked below.
+A sixth test, `smoke.spec.ts`, confirms that the application renders. **Six tests cover three business scenarios plus a technical smoke check**; they are not six additional E2E journeys. Registration → login in the same SPA navigation was checked manually; automating the entire transition in one test is not an acceptance requirement.
 
-## How to run locally
+Detailed validation (file types and sizes, expiry, JWT, ownership and error conditions) is mainly covered by Laravel and Angular tests rather than duplicated in E2E. Source requirements are listed in the [MVP scope](README.md#mvp-scope) and the [OpenAPI contract](docs/api/openapi.yaml).
 
-From repository root after installing dependencies and configuring the ignored `.env` files:
+## 2. Results and evidence
+
+**Verified reference:** commit `9810a88`, PR #52, GitHub Actions on **22 November 2026**.
+
+| Level | CI result | Line coverage | Evidence |
+| --- | --- | --- | --- |
+| **Laravel / PHPUnit + Pint** | **52 tests PASS**, 364 assertions; formatting PASS | **96.36%** (318/330) | [Backend run](https://github.com/jlbokass/datashare/actions/runs/45076254553) |
+| **Angular / Vitest + build** | **44 tests PASS**; production build PASS | **79.58%** | [Frontend run](https://github.com/jlbokass/datashare/actions/runs/45076254559) |
+| **Playwright / Chromium** | **6 tests PASS**, one worker, 5.8 s | Not applicable | [E2E run](https://github.com/jlbokass/datashare/actions/runs/45076254577) |
+
+The indicative OpenClassrooms **70%** line-coverage target is met on both codebases; **do not add or average the two percentages**. Measurement details: [QL-01 coverage report](docs/coverage.md). The developer also reported **6/6 local E2E PASS** on 22 November 2026; the GitHub Actions runs provide independently checked evidence.
+
+CI coverage artifacts are retained for **14 days**, and the E2E summary for **7 days**, subject to GitHub retention. **A durable screenshot of a coverage report still needs to be included in the assessment submission**, as requested in the specifications.
+
+## 3. Running the checks
+
+From repository root after installing dependencies according to the [README](README.md):
 
 ```bash
-docker compose config --quiet
-docker compose up -d --build
-docker compose exec -T app php artisan migrate --force
-docker compose exec -T app php artisan schedule:list
-docker compose run --rm php sh -lc 'cd backend && php artisan test'
-docker compose run --rm node sh -lc 'cd frontend && npm run build && npm test -- --watch=false'
+# Laravel tests, Pint, Angular tests and build
+bash scripts/qa.sh all
 ```
 
-Manual acceptance scripts are versioned in [US03](docs/us03-registration.md), [US04](docs/us04-jwt-login.md) and [US01](docs/us01-upload.md). Do not commit real credentials, JWTs, files uploaded by others or terminal screenshots displaying secrets.
+For E2E use **only** `compose.test.yaml`: PostgreSQL and file storage are temporary and isolated from development data.
 
-## Required remaining evidence before OC delivery
+```bash
+docker compose -f compose.test.yaml up -d --build db app frontend web
+docker compose -f compose.test.yaml exec -T app sh -ec '
+  export APP_KEY="base64:$(php -r "echo base64_encode(random_bytes(32));")"
+  export JWT_SECRET="$(php -r "echo bin2hex(random_bytes(32));")"
+  php artisan migrate --force
+'
+# Once Angular and the API are ready:
+docker compose -f compose.test.yaml --profile e2e run --rm --no-deps playwright
+```
 
-- [ ] End-to-end automation (Cypress, Playwright or equivalent), at least **2–3 critical scenarios**: registration/login, upload/public download, history/deletion/expiry. Those scenarios require US02/US05/US06.
-- [x] QL-01 [measured coverage and limitations](docs/coverage.md): **GitHub Actions Laravel/PCOV 96.36% of lines (318/330), 52 tests/364 assertions/Pint; Angular/V8 79.58% of lines, 44 tests and production build**. [Backend CI run/artifact](https://github.com/jlbokass/datashare/actions/runs/44536846489), [frontend CI run/artifact](https://github.com/jlbokass/datashare/actions/runs/44536846492), expiring 3 December 2026. **70% was indicative, not imposed as a CI threshold**; no third-party coverage badge.
-- [x] GitHub Actions backend (PHPUnit/Pint) and frontend (Angular tests/build) workflows are integrated into `develop` and `main`. Tests and build are verified green on [QL-01 PR #50](https://github.com/jlbokass/datashare/pull/50); see the [CI guide](docs/ci.md).
-- [ ] Real-size upload behavior, multipart 413 handling, scheduler purge and corrupted/unsafe file cases.
-- [ ] Accessibility, desktop/mobile visual review and external user feedback when available.
+The [E2E CI workflow](.github/workflows/e2e-ci.yml) shows clean installation and readiness checks. **Never run mutating E2E checks against `compose.yaml` or delete development volumes.**
 
-**Evidence policy:** report date, Git SHA, command, test count, pass/fail, coverage/output location; never convert a planned test into a green badge.
+## 4. Limits and remaining deliverables
+
+- PHPUnit/Feature tests primarily use **in-memory SQLite and fake file storage**. E2E also verifies real HTTP flows against **isolated PostgreSQL and private storage**, but only with small synthetic files; no 1 GB load test is implied.
+- Line coverage does not guarantee defect-free software. Playwright screenshots, videos and traces remain disabled to avoid disclosing credentials and files.
+- **Outside this test-plan work:** [security scan](SECURITY.md) and [performance benchmark](PERF.md) remain to be completed; [Figma and accessibility review](https://github.com/jlbokass/datashare/issues/37) remains open. Maintenance procedures are in [MAINTENANCE.md](MAINTENANCE.md).
+
+**QL-02 decision:** the three business scenarios and CI checks are validated. No additional E2E scenario is required for this work package.
