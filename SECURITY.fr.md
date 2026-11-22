@@ -1,37 +1,33 @@
-# DataShare — Sécurité et gestion des accès (OC P3)
+# DataShare — Sécurité et audit des dépendances
 
-[English](SECURITY.md) · [Documentation technique](docs/technical-documentation.fr.md)
+[English](SECURITY.md) · [Documentation technique](docs/technical-documentation.fr.md) · [Lot QL-03](https://github.com/jlbokass/datashare/issues/53)
 
-**Statut : état de conception/implémentation, pas un audit achevé. Aucun résultat de scan des dépendances n'a encore été archivé.**
+**Bilan du 23 novembre 2026 : aucun avis de vulnérabilité détecté par Composer, aucune vulnérabilité détectée par npm.** Contrôles réalisés en local par le développeur sur la branche `quality/ql-03-security`, créée depuis `develop` (`36291cd`). Les sorties ont été communiquées sous forme de capture ; le SHA exact du poste et les versions des outils d'audit n'ont pas été relevés.
 
-## Contrôles présents au stade US01
+## 1. Audits et décisions
 
-| Domaine | En place | Limites |
+| Écosystème | Commande exécutée depuis la racine | Résultat |
 | --- | --- | --- |
-| Comptes | Email unique, validation serveur, mots de passe hashés et salés par Laravel | Pas d'email de confirmation, conforme au périmètre OC |
-| JWT | HS256 avec `firebase/php-jwt` v7.2.2, contrôle émetteur/expiration, clé `JWT_SECRET` dédiée, durée 30 min | Pas de révocation serveur ni refresh ; token Angular en mémoire, nouvelle connexion après actualisation |
-| Routes | Middleware JWT sur `POST /api/transfers` et `GET /api/auth/me`, erreur 401 générique | Vérifications propriétaire US05/US06 à venir |
-| Stockage | `storage/app/private/transfers` hors répertoire public ; noms générés, validations MIME et extension | ZIP opaque accepté, **sans extraction ni antivirus** |
-| Limites | 1 000 000 000 octets/fichier ; plafonds choisis 5 fichiers et 2 Go cumulés ; configuration Nginx/PHP ; erreurs 413/422 | Pas de preuve de charge réelle à 1 Go ; ZIP peut contenir des exécutables/bombes |
-| Expiration | 1–7 jours, purge quotidienne octets + métadonnées ; démo locale de 5 min sous flag | Contrôler fonctionnement de la purge en environnement déployé |
-| Transport | Nginx local restreint à `127.0.0.1:8080` | **Pas encore de déploiement HTTPS/TLS en production** |
+| PHP / Composer (`backend/composer.lock`) | `docker compose run --rm php sh -lc 'cd backend && composer audit --locked --format=summary'` | **0 avis de vulnérabilité** |
+| Angular / npm (`frontend/package-lock.json`) | `docker compose run --rm node sh -lc 'cd frontend && npm audit'` | **0 vulnérabilité** |
 
-Les maquettes du handoff présentent un partage protégé par mot de passe : c'est **US09 facultative**, pas une fonctionnalité de sécurité opérationnelle. L'envoi direct d'un dossier n'est pas pris en charge ; un dossier peut être compressé en ZIP unique.
+Les audits couvrent les dépendances déclarées, y compris celles utilisées pour le développement, à la date du contrôle. **Décision : aucune mise à jour corrective nécessaire** au vu de ces résultats. La notification de disponibilité de npm 12.2.3 est une suggestion de nouvelle version, **pas une vulnérabilité** ; aucune mise à jour automatique n'a été effectuée. Aucun nouveau scan n'est nécessaire tant que les dépendances restent inchangées pour ce lot.
 
-## Risques et décisions ouverts
+## 2. Protections du MVP
 
-- **US02 téléchargement public non réalisé** : contrôler token imprévisible, expiration, streaming via API, en-tête `Content-Disposition: attachment`, `nosniff`, noms sûrs et codes 404/410, sans URL de stockage exposée.
-- **Archives ZIP** : aucune extraction/exécution côté serveur, mais le téléchargement ne garantit pas l'innocuité du contenu. Arbitrage suivi dans [US02 #5](https://github.com/jlbokass/datashare/issues/5).
-- La déconnexion efface le JWT navigateur, **sans l'invalider côté serveur avant ses 30 minutes**.
-- HTTPS, CSP, sauvegardes, réponse aux incidents, scans et tests d'intrusion restent à réaliser. Ne pas qualifier l'application de sécurisée pour la production.
-- Dozzle demandera un arbitrage particulier sur l'accès privilégié à l'API/socket Docker.
+| Domaine | Mesures implémentées |
+| --- | --- |
+| Comptes et JWT | Email unique, validation côté serveur, mot de passe hashé ; JWT signé et vérifié côté Laravel. Inscription et connexion publiques avec limitation de fréquence ; JWT exigé pour consulter son compte, téléverser, afficher son historique ou supprimer ses fichiers. |
+| Fichiers et partage | Stockage privé hors racine web, noms internes opaques, contrôle MIME/extension, taille maximale de **1 Go/fichier**, **5 fichiers et 2 Go/transfert** (choix MVP). Le lien public repose sur un token imprévisible ; erreurs 404/410 si invalide/expiré et téléchargement forcé en pièce jointe. |
+| Durée de vie | Expiration de **1 à 7 jours**, purge planifiée des fichiers et métadonnées ; démonstration de cinq minutes réservée au local. |
 
-## Scans à exécuter et documenter
+Les contrôles d'accès applicatifs et les parcours principaux sont également couverts par les [tests](TESTING.fr.md). Ces mesures ne prouvent pas à elles seules la sécurité en production.
 
-- [ ] `docker compose run --rm php sh -lc 'cd backend && composer audit'`
-- [ ] `docker compose run --rm node sh -lc 'cd frontend && npm audit'`
-- [ ] Optionnel : scan de conteneurs Trivy (ou équivalent).
-- [ ] Consigner outil, version, date, SHA, vulnérabilités (sévérité/dépendance), corrections ou acceptations motivées et nouveau scan. **Aucun résultat n'est présenté tant que la commande n'a pas été exécutée.**
-- [ ] Revoir permissions JWT, rate limits, uploads, ZIP, isolation et HTTPS avant livraison.
+## 3. Limites connues
 
-Ne jamais fournir `JWT_SECRET`, `APP_KEY`, mot de passe PostgreSQL, JWT ou fichier utilisateur privé.
+- **Déconnexion :** le JWT est retiré de la mémoire Angular mais demeure valide côté serveur jusqu'à son expiration (environ 30 minutes) ; aucune révocation immédiate.
+- **ZIP :** archives acceptées sans extraction, exécution ni analyse antivirus ; les destinataires doivent se méfier des fichiers non fiables.
+- **Déploiement :** HTTPS public, sauvegarde/restauration, durcissement et sécurité opérationnelle restent à définir avant toute mise en production.
+- **Portée des scans :** les audits de dépendances détectent des avis connus à la date du contrôle ; ils ne remplacent ni l'analyse du code, ni un audit des conteneurs, ni un test d'intrusion.
+
+**Conclusion QL-03 :** exigence de scan basique satisfaite, **aucune vulnérabilité signalée, aucune correction à appliquer**. Les limites ci-dessus sont documentées et ne constituent pas de nouvelles exigences pour ce lot.
