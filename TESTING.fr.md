@@ -1,101 +1,65 @@
-# DataShare — Plan de tests et preuves (OC P3)
+# DataShare — Plan de tests et résultats
 
-[English](TESTING.md) · [Documentation technique](docs/technical-documentation.fr.md)
+[English](TESTING.md) · [Documentation technique](docs/technical-documentation.fr.md) · [Suivi QL-02](https://github.com/jlbokass/datashare/issues/51)
 
-**Statut : plan évolutif actualisé le 22 novembre 2026.** Les résultats **déclarés verts par le développeur** sont distingués des rapports réellement archivés et des tests futurs. Cette révision documentaire ne constitue pas une nouvelle exécution des tests.
+**Bilan du 22 novembre 2026.** Les fonctionnalités obligatoires US01–US06 disposent de tests backend, frontend et de trois scénarios E2E critiques. Sur la [PR #52](https://github.com/jlbokass/datashare/pull/52), les trois workflows GitHub Actions sont **verts**. La fusion dans `develop` reste soumise à revue.
 
-## Périmètre et état
+## 1. Périmètre et critères d'acceptation
 
-| Lot | Critères d'acceptation | État des preuves |
+Les tests sont répartis au niveau le plus adapté : **PHPUnit** pour les règles backend et les API, **Vitest** pour Angular, **Playwright/Chromium** pour les parcours complets. Les tests E2E traversent Angular → Nginx → Laravel → PostgreSQL et le stockage privé, sans simuler l'API.
+
+| Parcours critique | Critères vérifiés | Tests |
 | --- | --- | --- |
-| US03 inscription | Email valide/unique ; mot de passe ≥8 caractères ; hash salé ; refus doublons et données invalides | Tests backend/frontend et recette navigateur déclarés verts ; message de doublon français corrigé ; pas de rapport joint |
-| US04 connexion | JWT signé si identifiants valides ; 401 si mauvais identifiants ou absence de token ; profil protégé | Tests/build et parcours connexion-déconnexion/401 annoncés verts ; captures absentes |
-| US01 upload | JWT obligatoire ; 1 à 5 fichiers, 1 Go/fichier, plafond choisi 2 Go cumulés ; stockage privé ; un lien ; expiration 1–7 jours | Docker, migration PostgreSQL, PHPUnit, tests/build Angular, PDF et multifichier, expiration un jour déclarés verts |
-| US01 démo locale | Expiration optionnelle à 5 minutes uniquement en local, retour accueil et planificateur à la minute | Tests, correction navigation et démo cinq minutes annoncés verts ; purge physique à la minute non documentée indépendamment |
-| US02 | Téléchargement public et expiration | Voir les [preuves US02](docs/us02-public-sharing.fr.md) |
-| US05 | Historique propriétaire, JWT, multifichiers et expiration | [Recette locale T01–T04 et multifichiers déclarée OK ; GitHub CI backend 39 tests/255 assertions + Pint, frontend 34 tests + build verts ; restrictions du sandbox Codex documentées séparément](docs/us05-personal-history.fr.md) |
-| US06 | Suppression individuelle, propriété, échecs de stockage et coordination purge | [T01–T05 et `qa.sh all` déclarés verts sur le Mac du développeur ; 13 tests Laravel de suppression ajoutés ; CI PR #46 backend 52 tests/364 assertions et Pint verts, frontend 44 tests et build verts ; contention réelle PostgreSQL reportée à la phase qualité](docs/us06-file-deletion.fr.md) |
-| UI-01 | Comparaison au Figma à 393 et 1440 px, et largeurs intermédiaires | **Écarts visuels ouverts** : [issue #37](https://github.com/jlbokass/datashare/issues/37) |
+| **E2E-01 · US03–US04** — inscription, connexion, espace personnel | Inscription HTTP 201 ; connexion et identité HTTP 200 ; accès API sans JWT refusé (401) ; accès anonyme redirigé ; déconnexion effective | Laravel + Angular ; `registration.spec.ts`, `login.spec.ts`, `session.spec.ts` |
+| **E2E-02 · US01–US02** — envoi et partage | Téléversement authentifié HTTP 201 ; lien public ouvert sans session ; nom et **octets du fichier téléchargé identiques** | Laravel + Angular ; `upload-download.spec.ts` |
+| **E2E-03 · US05–US06** — historique et suppression | Fichiers visibles par leur propriétaire ; suppressions HTTP 204 ; second fichier encore téléchargeable ; dernier fichier supprimé → lien révoqué (404) | Laravel + Angular ; `history-deletion.spec.ts` |
 
-**Limite :** les tests PHPUnit utilisent notamment SQLite en mémoire et un stockage factice. La migration PostgreSQL et le vrai transfert navigateur ont été contrôlés séparément par le développeur. Aucun rapport de charge réelle à 1 Go. Les preuves CI QL-01 sont accessibles via les liens ci-dessous et conservées 14 jours.
+Un sixième test, `smoke.spec.ts`, vérifie l'affichage de l'application. **Les six tests correspondent à trois scénarios métier et un smoke test**, pas à six scénarios supplémentaires. La continuité SPA inscription → connexion a été vérifiée manuellement ; son automatisation dans un test unique n'est pas un critère de recette.
 
-## Plan QL-02 — trois scénarios métier
+Les validations fines (formats, taille, expiration, JWT, propriété et erreurs) sont principalement couvertes par les tests Laravel et Angular ; elles ne sont pas toutes répétées en E2E. Les règles fonctionnelles figurent dans les [spécifications du projet](README.fr.md#périmètre-mvp) et le [contrat API](docs/api/openapi.yaml).
 
-### Stratégie et sources
+## 2. Résultats et preuves
 
-**Principe de proportionnalité :** vérifier les critères métier au niveau le moins coûteux qui apporte une confiance suffisante ; ne pas multiplier les tests E2E, les investigations ou l'infrastructure au-delà du besoin documenté.
+**Référence vérifiée :** commit `9810a88`, PR #52, GitHub Actions du **22/11/2026**.
 
-Le périmètre couvre les parcours critiques US01–US06 du MVP, selon la [transcription du sujet OC P3](README.fr.md#périmètre-mvp), le [contrat API](docs/api/openapi.yaml) et l'[issue #51](https://github.com/jlbokass/datashare/issues/51) consultée le 21 novembre 2026. Le sujet OC P3 original n'est pas versionné dans le dépôt inspecté par Codex, mais a été fourni à l'assistant pour relecture. Son absence du dépôt ne constitue pas une non-conformité du plan.
+| Niveau | Résultat CI | Couverture des lignes | Preuve |
+| --- | --- | --- | --- |
+| **Laravel / PHPUnit + Pint** | **52 tests PASS**, 364 assertions ; formatage PASS | **96,36 %** (318/330) | [Run backend](https://github.com/jlbokass/datashare/actions/runs/45076254553) |
+| **Angular / Vitest + build** | **44 tests PASS** ; build de production PASS | **79,58 %** | [Run frontend](https://github.com/jlbokass/datashare/actions/runs/45076254559) |
+| **Playwright / Chromium** | **6 tests PASS**, un worker, 5,8 s | Sans objet | [Run E2E](https://github.com/jlbokass/datashare/actions/runs/45076254577) |
 
-- **Unitaires/composants :** PHPUnit et Vitest/Angular TestBed vérifient les comportements ciblés ; les doubles HTTP Angular sont permis à ce niveau, pas en E2E.
-- **Intégration :** les tests Laravel Feature vérifient routes, JWT, validation, propriété et stockage. Leur SQLite en mémoire et `Storage::fake` ne prouvent pas le fonctionnement PostgreSQL ni les octets réellement transférés.
-- **E2E :** Playwright 1.63.0, navigateur Chromium réel, un worker, aucun retry, reporter standard `list`. Angular → Nginx → Laravel → PostgreSQL et stockage privé réels ; aucun mock/interception API, aucun délai arbitraire. Les attentes réseau précèdent les actions ; les sélecteurs utilisent les rôles/libellés accessibles. QL-01, PHPUnit, Vitest, Pint et le build restent complémentaires.
+L'objectif de couverture **70 %**, indicatif dans le sujet OC, est atteint sur les deux bases de code ; **ne pas additionner ni moyenner les deux pourcentages**. Détails et périmètre de mesure : [rapport QL-01](docs/coverage.fr.md). Le développeur a également indiqué **6/6 E2E PASS en local** le 22/11/2026 ; les runs GitHub Actions constituent la preuve indépendante archivée.
 
-`compose.test.yaml` définit le projet `datashare-ql02-test`, un réseau dédié et aucun port hôte publié. PostgreSQL est en tmpfs ; les sources Laravel sont en lecture seule, avec stockage privé et cache bootstrap en tmpfs distincts des données de développement. Les dépendances frontend/Playwright utilisent des volumes npm séparés, propres au projet de test. La cible navigateur est `http://web` et le runner appartient au profil `e2e`. Ne jamais lancer les E2E mutateurs sur `compose.yaml`. Cette isolation protège le développement ; une stack distincte par scénario n'est pas requise dans la reconstruction `quality/ql-02-clean`.
+Les rapports de couverture CI sont conservés **14 jours** et la synthèse E2E **7 jours** ; leur téléchargement dépend de la rétention GitHub. **Une capture durable d'un rapport de couverture reste à joindre au dossier de soutenance**, comme demandé dans les spécifications.
 
-Préconditions communes : services prêts, migrations appliquées uniquement à la base isolée, dépendances verrouillées et versions package/image Playwright identiques. Chaque parcours utilise un compte unique et uniquement de petits fichiers synthétiques ; une préparation par la vraie API est autorisée et doit être distinguée des actions UI testées. Le JWT reste en mémoire Angular ; un nouveau contexte est anonyme. Aucun mot de passe, JWT, corps HTTP, en-tête d'authentification ou fichier privé dans les preuves ; captures, vidéos et traces désactivées. Rapports/résultats sont ignorés par Git.
+## 3. Exécuter les tests
 
-### Matrice de traçabilité
-
-Les trois lignes suivantes sont les **trois scénarios métier**, indépendamment du nombre de fichiers ou de sous-tests. Le smoke test est un contrôle technique hors de cette matrice.
-
-| Scénario / US | Préconditions | Principales actions | Résultats attendus | Critères d'acceptation | État réel au 22 novembre 2026 |
-| --- | --- | --- | --- | --- | --- |
-| **E2E-01 — US03/04 : inscription, connexion et protection du compte** | Comptes synthétiques indépendants ; contexte anonyme séparé ; infrastructure prête | Inscription via l'UI et confirmation ; connexion via l'UI et identité dans `/account` ; accès anonyme et déconnexion | Inscription 201 ; login/me 200 ; titre « Mon espace » et email ; accès sans session redirigé vers `/login`, API sans JWT en 401 ; déconnexion locale effective | 01a, 01b et 01c sont des tests indépendants ; aucun enchaînement SPA unique inscription → connexion n'est imposé | **PASS local déclaré par le développeur (22/11/2026)** pour 01a, 01b et 01c ; **CI E2E PASS (PR #52)** |
-| **E2E-02 — US01/02 : upload authentifié et téléchargement public** | Utilisateur connecté ; petit TXT synthétique aux octets connus ; nouveau contexte sans session | Téléverser via l'UI, récupérer le lien unique, l'ouvrir anonymement, vérifier les métadonnées, télécharger | Upload 201 ; partage accessible sans JWT ; métadonnées cohérentes ; téléchargement abouti | Vérifier effectivement le nom et les octets du fichier reçu, pas seulement la présence du lien ; aucun vrai document ni authentification du destinataire | **PASS local déclaré par le développeur (22/11/2026)** : `upload-download.spec.ts`, téléchargement et octets vérifiés ; **CI E2E PASS (PR #52)** |
-| **E2E-03 — US05/06 : historique, suppression et révocation** | Utilisateur propriétaire connecté ; transfert de deux fichiers synthétiques ; partage ouvert dans un contexte anonyme | Confirmer la suppression du premier fichier ; vérifier le second ; supprimer le dernier | Suppressions 204 ; premier fichier retiré ; second toujours téléchargeable via le même lien ; transfert vide retiré ; ancien partage 404 et erreur UI | Contrôler les deux fichiers de l'historique, les octets du fichier restant et la révocation finale ; annulation de dialogue facultative | **PASS local déclaré par le développeur (22/11/2026)** : `history-deletion.spec.ts` ; **CI E2E PASS (PR #52)** |
-
-**Preuve GitHub Actions QL-02 (22/11/2026) :** [PR #52](https://github.com/jlbokass/datashare/pull/52), [run E2E](https://github.com/jlbokass/datashare/actions/runs/45075924438) sur commit `8231134` : **6 PASS / 0 FAIL** dans Chromium, Playwright 1.63.0, un worker, 7,3 s. [Backend CI](https://github.com/jlbokass/datashare/actions/runs/45075924441) et [Frontend CI](https://github.com/jlbokass/datashare/actions/runs/45075924444) : **PASS**. L'artefact `e2e-summary-8231134fde834ca853067a24226b5398b78ae8ad` conserve une synthèse assainie sept jours ; les noms des tests et leur résultat sont dans les logs du run. Ce résultat CI est vérifié séparément des succès locaux déclarés par le développeur.
-
-### État d'E2E-01 et preuves disponibles
-
-- **Smoke** (`e2e/smoke.spec.ts`, commit `2ac0379`) : accueil Angular affiché ; validé localement selon le développeur. Ne compte ni comme scénario métier ni comme preuve d'authentification.
-- **E2E-01a** (`e2e/registration.spec.ts`, `459344e`) : inscription UI, POST 201 et confirmation visible ; validé localement selon le développeur.
-- **E2E-01b** (`e2e/login.spec.ts`, `6d5c25b`) : création préalable via `APIRequestContext`, connexion UI, POST login/GET me 200, identité affichée et document SPA conservé ; validé localement selon le développeur. Le test ne lit ni ne persiste le JWT.
-- **E2E-01c** (`e2e/session.spec.ts`, commit `eec7a4a`) : accès anonyme au compte redirigé vers `/login`, `/api/auth/me` et `/api/transfers` sans JWT en 401, puis déconnexion UI et refus d'accès protégé via retour navigateur dans la même session SPA. Déclaré vert localement par le développeur ; aucune preuve CI QL-02.
-- **Parcours continu inscription → connexion : non bloquant**. Les deux opérations sont couvertes par des tests indépendants ; le développeur a aussi vérifié manuellement leur enchaînement. Un test supplémentaire de transition SPA a été tenté puis retiré pour coût de maintenance disproportionné. Il ne constitue ni une exigence OC supplémentaire ni une anomalie applicative démontrée.
-
-Ces validations locales sont des déclarations du développeur, pas des exécutions effectuées lors de cette revue ni des preuves GitHub Actions. Les SHA identifient le code, pas un résultat d'exécution. Les essais Docker précédents de Codex étaient bloqués par le socket ; ils ne sont pas des succès Chromium. Les six fichiers actuels couvrent le smoke et les trois scénarios métier (E2E-01 à E2E-03). **Exécution globale locale du 22 novembre 2026 : 6/6 PASS, 0 échec**, selon le développeur, sur la branche `quality/ql-02-clean` ; aucune sortie console ni preuve CI n'a été fournie. Le SHA exact du checkout local n'est pas indépendantement confirmé.
-
-Commande existante à utiliser après préparation de la stack isolée (non exécutée pour cette mise à jour) :
+Depuis la racine du dépôt, après installation des dépendances selon le [README](README.fr.md) :
 
 ```bash
-docker compose -f compose.test.yaml --profile e2e run --no-deps playwright \
-  sh -ec 'npm ci --no-audit --no-fund && npm test'
+# Tests Laravel, Pint, tests Angular et build
+bash scripts/qa.sh all
 ```
 
-### Critères de sortie QL-02 et écarts ouverts
-
-- [x] **Six tests Playwright verts en local**, couvrant le smoke et les trois scénarios métier (E2E-01 par 01a/01b/01c). Résultat déclaré par le développeur le 22/11/2026 ; aucune sortie de test n'est archivée ici.
-- [x] **CI E2E éphémère PASS sur PR #52** : [6/6 tests Chromium](https://github.com/jlbokass/datashare/actions/runs/45075924438), migrations uniquement sur PostgreSQL de test, contrôles de disponibilité, un worker, timeout borné ; artefact de synthèse assainie conservé sept jours, sans captures ni traces.
-- [x] **Absence de régression vérifiée par les CI existantes** sur PR #52 : [Backend (PHPUnit/Pint)](https://github.com/jlbokass/datashare/actions/runs/45075924441) et [Frontend (Angular tests/build)](https://github.com/jlbokass/datashare/actions/runs/45075924444) PASS. Pas de nouveau `qa.sh all` exécuté localement pour ce seul changement documentaire ; couverture QL-01 inchangée.
-- [x] **Preuves :** date, commit, commande, environnement et résultats disponibles dans le [run E2E GitHub Actions](https://github.com/jlbokass/datashare/actions/runs/45075924438) et son artefact de synthèse assainie ; détails par test dans les logs, sans secret ni fichiers réels.
-- **Historique de l'issue #51 :** l'ancien runner décrit dans l'addendum du 19 novembre (`scripts/e2e.sh`, empreintes d'images, découverte par scénario, diagnostics automatiques et stack distincte par scénario) a été abandonné lors de la reconstruction de `quality/ql-02-clean`. Sa réimplémentation n'est pas un critère de sortie. L'isolation des données, les preuves d'exécution assainies et archivées, les trois parcours métier et leur réussite en CI restent requis. Les traces brutes restent exclues malgré leur mention dans le texte initial de l'issue.
-- [x] **Traçabilité CI documentée** en FR/EN, journal IA et [issue #51](https://github.com/jlbokass/datashare/issues/51) ; l'exécution locale et la preuve GitHub Actions sont distinctes.
-
-**Hors périmètre QL-02 :** charge et transferts à taille maximale, audit de sécurité/dépendances, concurrence PostgreSQL, tests visuels Figma/UI-01, multi-navigateur/mobile, badges supplémentaires, US07–US10 et scénarios optionnels. Les vérifications fonctionnelles JWT/propriété restent dans le périmètre ; elles ne constituent pas un audit de sécurité. L'expiration/purge reste obligatoire au niveau fonctionnel, mais aucune attente E2E de cinq minutes ni quatrième scénario d'expiration n'est ajoutée.
-
-## Exécution locale hors E2E
-
-Les commandes suivantes concernent les contrôles existants de développement ; les E2E mutateurs utilisent exclusivement `compose.test.yaml` comme décrit ci-dessus.
+Pour les E2E, utiliser **exclusivement** `compose.test.yaml` : PostgreSQL et stockage y sont temporaires et isolés des données de développement.
 
 ```bash
-docker compose config --quiet
-docker compose up -d --build
-docker compose exec -T app php artisan migrate --force
-docker compose exec -T app php artisan schedule:list
-docker compose run --rm php sh -lc 'cd backend && php artisan test'
-docker compose run --rm node sh -lc 'cd frontend && npm run build && npm test -- --watch=false'
+docker compose -f compose.test.yaml up -d --build db app frontend web
+docker compose -f compose.test.yaml exec -T app sh -ec '
+  export APP_KEY="base64:$(php -r "echo base64_encode(random_bytes(32));")"
+  export JWT_SECRET="$(php -r "echo bin2hex(random_bytes(32));")"
+  php artisan migrate --force
+'
+# Quand Angular et l'API sont disponibles :
+docker compose -f compose.test.yaml --profile e2e run --rm --no-deps playwright
 ```
 
-Les recettes détaillées sont dans [US03](docs/us03-registration.fr.md), [US04](docs/us04-jwt-login.fr.md) et [US01](docs/us01-upload.fr.md). Ne pas versionner d'identifiants, JWT, documents d'utilisateurs ou captures contenant des secrets.
+Le [workflow E2E CI](.github/workflows/e2e-ci.yml) détaille l'installation propre et les contrôles de disponibilité. **Ne jamais lancer les tests E2E mutateurs sur `compose.yaml` ni supprimer les volumes de développement.**
 
-## Preuves restant à produire
+## 4. Limites et suites
 
-- [x] **QL-02 : trois scénarios métier**, six tests locaux déclarés verts (22/11/2026), **six tests CI PASS sur [PR #52](https://github.com/jlbokass/datashare/pull/52)**, preuves liées dans ce fichier. Fusion soumise à revue humaine.
-- [x] QL-01 : [preuves de couverture](docs/coverage.fr.md). **GitHub Actions : Laravel PCOV 96,36 % des lignes (318/330), 52 tests/364 assertions/Pint ; Angular V8 79,58 % des lignes, 44 tests et build de production**. [Run et artefact backend](https://github.com/jlbokass/datashare/actions/runs/44536846489), [run et artefact frontend](https://github.com/jlbokass/datashare/actions/runs/44536846492). Les artefacts expirent le 3 décembre 2026. **70 % reste un objectif indicatif, aucun seuil CI imposé et aucun badge tiers.**
-- [x] Workflows GitHub Actions CI-01 intégrés dans `develop` et `main`. Les tests PHP/Angular et la vérification Pint/build sont réellement verts sur [PR #50](https://github.com/jlbokass/datashare/pull/50) ; voir [guide CI](docs/ci.fr.md).
-- [ ] Tests réels de taille/limites, 413, purge planifiée, extensions interdites et fichiers corrompus.
-- [ ] Accessibilité, vérification Figma desktop/mobile et retours externes si disponibles.
+- Les tests PHPUnit/Feature utilisent notamment **SQLite en mémoire et un stockage simulé**. Les E2E valident en complément le vrai flux HTTP avec **PostgreSQL et stockage privé isolés**, mais seulement avec de petits fichiers fictifs ; ils ne mesurent pas une charge à 1 Go.
+- La couverture de lignes ne garantit pas l'absence de défauts. Les captures, vidéos et traces Playwright restent désactivées pour éviter de diffuser des identifiants et des fichiers.
+- **Hors de ce plan de tests :** [scan de sécurité](SECURITY.fr.md) et [test de performance](PERF.fr.md) encore à réaliser ; [conformité Figma et accessibilité](https://github.com/jlbokass/datashare/issues/37) à vérifier. Les procédures de mises à jour figurent dans [MAINTENANCE.fr.md](MAINTENANCE.fr.md).
 
-**Traçabilité :** consigner date, SHA, commande, nombre de tests, succès/échec, emplacement des preuves. Ne jamais afficher un badge de qualité avant exécution.
+**Décision QL-02 :** les trois parcours métier et les contrôles CI sont validés. Aucun scénario E2E supplémentaire n'est requis pour ce lot.
