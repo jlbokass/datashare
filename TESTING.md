@@ -2,7 +2,7 @@
 
 [Français](TESTING.fr.md) · [Technical documentation](docs/technical-documentation.md)
 
-**Status: evolving plan updated 21 November 2026.** This file distinguishes **developer-reported local success** from captured evidence and future tests. This documentation revision does not constitute a new test execution.
+**Status: evolving plan updated 22 November 2026.** This file distinguishes **developer-reported local success** from captured evidence and future tests. This documentation revision does not constitute a new test execution.
 
 ## Scope, checks and current evidence
 
@@ -39,11 +39,11 @@ Shared preconditions: ready services, migrations applied only to the isolated da
 
 The following three rows are the **three business scenarios**, regardless of file or subtest count. The smoke test is a technical check outside this matrix.
 
-| Scenario / US | Preconditions | Main actions | Expected results | Acceptance criteria | Actual status on 21 November 2026 |
+| Scenario / US | Preconditions | Main actions | Expected results | Acceptance criteria | Actual status on 22 November 2026 |
 | --- | --- | --- | --- | --- | --- |
-| **E2E-01 — US03/04: registration, login and account protection** | Independent synthetic accounts; separate anonymous context; ready infrastructure | Register through UI and verify confirmation; sign in through UI and verify account identity; reject anonymous access; log out | Registration 201; login/me 200; “Mon espace” and expected email; guest redirected to `/login`, protected APIs without JWT return 401; local logout effective | 01a, 01b and 01c run as independent tests; no single registration → login SPA transition is required | **Developer-reported local PASS** for 01a, 01b and 01c; consolidated suite must be rerun after restoring 01a; no QL-02 CI evidence referenced |
-| **E2E-02 — US01/02: authenticated upload and public download** | Signed-in user; small synthetic TXT with known bytes; new context without session | Upload through UI, obtain the unique link, open it anonymously, verify metadata and download | Upload 201; share accessible without JWT; consistent metadata; completed download | Check the actual received filename and bytes, not merely link visibility; no real document or recipient authentication | **Planned**: no corresponding test in this branch; no local or CI evidence for this QL-02 journey |
-| **E2E-03 — US05/06: history, deletion and revocation** | Signed-in owner; transfer with two synthetic files; share open in an anonymous context | Check history; if possible, cancel deletion (optional); confirm first-file deletion; check remaining file; delete last file | If cancellation is tested: no DELETE and no changes; deletions return 204; first file removed; second still downloadable through the same share; empty transfer removed; old share returns 404 and UI error | Check both history files, remaining file bytes and final revocation; one business journey; cancellation check is optional and does not block closure | **Planned**: no corresponding test; cancellation check is optional as requested by the issue (“if possible”); no local or CI QL-02 evidence |
+| **E2E-01 — US03/04: registration, login and account protection** | Independent synthetic accounts; separate anonymous context; ready infrastructure | Register through UI and verify confirmation; sign in through UI and verify account identity; reject anonymous access; log out | Registration 201; login/me 200; “Mon espace” and expected email; guest redirected to `/login`, protected APIs without JWT return 401; local logout effective | 01a, 01b and 01c run as independent tests; no single registration → login SPA transition is required | **Developer-reported local PASS (22 November 2026)** for 01a, 01b and 01c; CI pending |
+| **E2E-02 — US01/02: authenticated upload and public download** | Signed-in user; synthetic TXT with known bytes; new anonymous browser context | Upload via UI, obtain public link, open anonymously, verify metadata and download | Upload 201; share available without JWT; consistent metadata; completed download | Check actual received filename and bytes; no real files or recipient login | **Developer-reported local PASS (22 November 2026)** for `upload-download.spec.ts`; CI pending |
+| **E2E-03 — US05/06: history, deletion and revocation** | Signed-in owner; two synthetic files; anonymous share page | Confirm first-file deletion, verify second file, delete last file | DELETE 204; first file gone, second remains downloadable with same link; empty transfer removed; old share responds 404 and UI shows error | Check history, actual remaining file bytes and final revocation; optional cancellation is not required | **Developer-reported local PASS (22 November 2026)** for `history-deletion.spec.ts`; CI pending |
 
 ### E2E-01 status and available evidence
 
@@ -53,7 +53,7 @@ The following three rows are the **three business scenarios**, regardless of fil
 - **E2E-01c** (`e2e/session.spec.ts`, commit `eec7a4a`): anonymous `/account` access redirects to `/login`; `/api/auth/me` and `/api/transfers` without JWT return 401; UI logout and browser-back access remain protected without a hard reload. Developer-reported local PASS; no QL-02 CI evidence.
 - **Continuous registration → login journey: non-blocking**. Registration and login have independent automated coverage and the developer separately checked the full journey manually. An additional SPA-transition test was attempted and removed due to disproportionate maintenance cost. It is neither an extra OC requirement nor evidence of an application defect.
 
-These local validations are developer reports, not executions performed during this review or GitHub Actions evidence. SHAs identify code, not execution results. Earlier Codex Docker attempts were blocked by socket permissions; they are not Chromium successes. The four current files (smoke, registration, login, session) cover technical smoke and E2E-01, **not E2E-02 or E2E-03**.
+These local validations are developer reports, not executions performed during this review or GitHub Actions evidence. SHAs identify code, not execution results. Earlier Codex Docker attempts were blocked by socket permissions; they are not Chromium successes. The six current test files cover technical smoke and all three business scenarios (E2E-01 through E2E-03). **Full local suite on 22 November 2026: 6/6 PASS, 0 failed**, developer-reported on `quality/ql-02-clean`; no terminal output or CI result is archived here. The exact local checkout SHA was not independently confirmed.
 
 Existing command to use after preparing the isolated stack (not executed for this update):
 
@@ -64,12 +64,12 @@ docker compose -f compose.test.yaml --profile e2e run --no-deps playwright \
 
 ### QL-02 exit criteria and open gaps
 
-- [ ] All **three complete business scenarios** in the matrix pass locally against the isolated stack; E2E-01 is covered by the independent checks 01a, 01b and 01c. Discovery alone is not browser execution.
-- [ ] The same journeys pass in ephemeral CI, in a separate E2E workflow for PRs targeting `develop`/`main` and pushes, with non-destructive migrations, readiness checks, bounded timeout and one worker. A green PR run is linked as evidence. **Only backend/frontend workflows currently exist.**
+- [x] **Six local Playwright checks passed**, covering smoke and the three business scenarios (E2E-01 through independent checks 01a/01b/01c). Developer-reported on 22 November 2026; raw test output is not archived.
+- [ ] The same journeys pass in ephemeral CI, in a separate E2E workflow for PRs targeting `develop`/`main` and pushes, with non-destructive migrations, readiness checks, bounded timeout and one worker. A green PR run is linked as evidence. **`e2e-ci.yml` is now created on `quality/ql-02-clean`, but no E2E CI execution has been verified.** Its sanitized summary artifact is retained seven days, with no screenshots or traces.
 - [ ] No regressions, verified through Laravel/Pint/Angular/build (`bash scripts/qa.sh all`) and existing CI. Preserve QL-01 measurements without artificial exclusions; the 52 Laravel/44 Angular counts and QL-01 percentages are historical references, not freshly executed results on this branch.
 - [ ] Record each scenario's date, SHA, command, environment/Chromium version, test count, PASS/FAIL/SKIPPED, limitations and sanitized report; for CI, include the run/job URL and short-retention artifact. Regenerate expired evidence. Reports must contain no secrets or user files.
 - **Issue #51 history:** the old runner described in the 19 November addendum (`scripts/e2e.sh`, image fingerprints, per-scenario discovery, automatic diagnostics and a separate stack per scenario) was abandoned when rebuilding `quality/ql-02-clean`. Reimplementing it is not an exit criterion. Data isolation, sanitized and archived execution evidence, the three business journeys and their success in CI remain required. Raw traces remain excluded despite their mention in the issue's initial wording.
-- [ ] Update FR/EN traceability and the AI journal with future actual evidence before closure; this documentation review does not modify the journal or issue.
+- [ ] Link a passing E2E PR CI run in FR/EN traceability and issue #51, then finish reviewing the AI journal. Local validation is documented separately.
 
 **Outside QL-02 scope:** load and maximum-size transfers, security/dependency audits, PostgreSQL concurrency, Figma/UI-01 visual tests, multi-browser/mobile, additional badges, US07–US10 and optional scenarios. Functional JWT/ownership checks remain in scope; they are not a security audit. Expiration/purge remains a functional requirement, but no five-minute E2E wait or fourth expiration scenario is added.
 
@@ -92,7 +92,7 @@ Manual acceptance scripts are versioned in [US03](docs/us03-registration.md), [U
 
 ## Required remaining evidence before OC delivery
 
-- [ ] **QL-02: exactly three Playwright/Chromium business scenarios**, as defined in the matrix above, passing locally and in CI. Smoke and partial 01a/01b validation do not close this work package.
+- [ ] **QL-02: three Playwright/Chromium business scenarios**; developer reports 6/6 passing locally on 22 November 2026. **Remaining: passing E2E PR CI and archived evidence** before closure.
 - [x] QL-01 [measured coverage and limitations](docs/coverage.md): **GitHub Actions Laravel/PCOV 96.36% of lines (318/330), 52 tests/364 assertions/Pint; Angular/V8 79.58% of lines, 44 tests and production build**. [Backend CI run/artifact](https://github.com/jlbokass/datashare/actions/runs/44536846489), [frontend CI run/artifact](https://github.com/jlbokass/datashare/actions/runs/44536846492), expiring 3 December 2026. **70% was indicative, not imposed as a CI threshold**; no third-party coverage badge.
 - [x] GitHub Actions backend (PHPUnit/Pint) and frontend (Angular tests/build) workflows are integrated into `develop` and `main`. Tests and build are verified green on [QL-01 PR #50](https://github.com/jlbokass/datashare/pull/50); see the [CI guide](docs/ci.md).
 - [ ] Real-size upload behavior, multipart 413 handling, scheduler purge and corrupted/unsafe file cases.
