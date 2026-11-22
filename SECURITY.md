@@ -1,37 +1,33 @@
-# DataShare — Security and access-control record (OC P3)
+# DataShare — Security and dependency audit
 
-[Français](SECURITY.fr.md) · [Technical documentation](docs/technical-documentation.md)
+[Français](SECURITY.fr.md) · [Technical documentation](docs/technical-documentation.md) · [QL-03 tracking](https://github.com/jlbokass/datashare/issues/53)
 
-**Status: design/implementation review, not a completed security audit. No dependency vulnerability scan has been recorded.**
+**Security audits — 23 November 2026.** Checks executed in the project's local Docker environment on `quality/ql-03-security` (branched from `develop` at commit `36291cd`). **Results: Composer reported no security advisories and npm reported zero vulnerabilities.** Terminal output was provided as a screenshot; the exact local checkout SHA and audit tool versions were not recorded.
 
-## Implemented controls as of US01
+## 1. Dependency audits and decisions
 
-| Surface | Implemented | Remaining limit |
+| Ecosystem | Command run from repository root | Result |
 | --- | --- | --- |
-| Accounts | Email uniqueness, server validation, Laravel salted password hash | No confirmation email by OC MVP design |
-| JWT | HS256 via `firebase/php-jwt` v7.2.2, issuer/expiry validation, dedicated `JWT_SECRET`, 30-minute expiry | No server-side revocation or refresh; frontend JWT memory-only, refresh requires login |
-| Endpoints | JWT middleware for private `POST /api/transfers` and `GET /api/auth/me`; generic 401 | Other owner-restricted routes (US05/US06) remain to implement |
-| Private files | `storage/app/private/transfers` outside public web root; randomized filename, validated MIME and filename extension | ZIP archives are accepted opaque, **not unpacked or antivirus-scanned** |
-| Upload limits | 1,000,000,000 bytes per file, chosen 5-file / 2GB aggregate caps, PHP/Nginx caps; errors 413/422 | No real 1GB load-test evidence; ZIP may contain executables/bombs |
-| Expiry | 1–7 days, daily purge of bytes and metadata; optional 5-minute local demo gated by server config | Verify scheduler execution/retention in a deployed environment |
-| Transport | Local Nginx binds `127.0.0.1:8080` | **No production HTTPS/TLS deployment** yet |
+| PHP / Composer (`backend/composer.lock`) | `docker compose run --rm php sh -lc 'cd backend && composer audit --locked --format=summary'` | **0 security advisories** |
+| Angular / npm (`frontend/package-lock.json`) | `docker compose run --rm node sh -lc 'cd frontend && npm audit'` | **0 vulnerabilities** |
 
-User-provided Figma handoff includes a password-protected sharing variant. That belongs to optional **US09**, not an implemented security control. Direct folder-tree uploads are unsupported; users may package folders into ZIP as single files.
+The checks cover declared dependencies, including development dependencies, as reported at scan time. **Decision: no security-driven update is needed** based on these results. npm's notice that version 12.2.3 is available is a version announcement, **not a security finding**; no automatic upgrades were made. No repeat scan is needed for this work package while dependencies remain unchanged.
 
-## Important open risks
+## 2. Implemented MVP controls
 
-- **Public download not yet implemented (US02)**. Before enabling: require unguessable token, validate expiry, stream through PHP as `Content-Disposition: attachment`, `X-Content-Type-Options: nosniff`, no direct storage URL, safe filenames and correct 404/410 behavior.
-- **ZIP policy:** server does not extract or execute, but it cannot guarantee downloaded content is harmless. [Decision tracked in US02 #5](https://github.com/jlbokass/datashare/issues/5). Decide whether to allow archives without scanning, impose additional restrictions or add scanning.
-- Logout clears browser memory only; issued JWT is valid until its expiration. Document and revisit revocation for production.
-- No deployment TLS, CSP review, backup/incident-response evidence, dependency scan or penetration testing. Do not call the application production-secure yet.
-- Dozzle, if added later, requires an explicit review of privileged Docker API/socket access.
+| Area | Implemented measures |
+| --- | --- |
+| Accounts and JWT | Unique email, server validation, hashed passwords, signed JWT verified in Laravel. Public registration/login have rate limits; JWT is required to access an account, upload, view owner history or delete owned files. |
+| Files and sharing | Private storage outside the public web root, opaque internal filenames, MIME/extension validation, **1 GB per file**, chosen **5-file / 2 GB transfer** limits. Public links use unpredictable tokens; invalid/expired links return 404/410 and downloads are forced as attachments. |
+| Retention | **1–7-day** expiry and scheduled removal of bytes and metadata; five-minute demonstration is restricted to local use. |
 
-## Required future scans and results
+Application access checks and critical journeys are also exercised in [TESTING](TESTING.md). These controls do not establish production-grade security on their own.
 
-- [ ] Run `docker compose run --rm php sh -lc 'cd backend && composer audit'`.
-- [ ] Run `docker compose run --rm node sh -lc 'cd frontend && npm audit'`.
-- [ ] Optionally run Trivy or an equivalent container/dependency scan.
-- [ ] Record tool/version/date/SHA, findings (severity, affected dependency), remediation or justified acceptance and **re-scan results**. **Currently: no findings reported because no scan evidence exists.**
-- [ ] Review JWT permissions, invalid tokens, rate limiting, upload types, archive risks, access isolation and secure production HTTPS before delivery.
+## 3. Known limitations
 
-Never paste `JWT_SECRET`, `APP_KEY`, PostgreSQL password, access tokens or uploaded private files into issues or reports.
+- **Logout:** Angular clears the JWT from memory, but a previously issued JWT remains valid server-side until expiry (approximately 30 minutes); there is no immediate revocation.
+- **ZIP archives:** accepted without extraction, execution or antivirus scanning; recipients should treat untrusted content cautiously.
+- **Deployment:** public HTTPS, backup/restore, hardening and operational security must be addressed before production use.
+- **Audit scope:** dependency scanners report known advisories at scan time; they do not replace code review, container scanning or penetration testing.
+
+**QL-03 conclusion:** the basic dependency-scan requirement is met, **no vulnerabilities reported, no corrective change needed**. Known limitations are recorded without adding further requirements to this work package.
