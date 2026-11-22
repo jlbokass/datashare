@@ -2,7 +2,7 @@
 
 [English](SECURITY.md) · [Documentation technique](docs/technical-documentation.fr.md) · [Lot QL-03](https://github.com/jlbokass/datashare/issues/53)
 
-**Bilan du 23 novembre 2026 : aucun avis de vulnérabilité détecté par Composer, aucune vulnérabilité détectée par npm.** Contrôles réalisés en local par le développeur sur la branche `quality/ql-03-security`, créée depuis `develop` (`36291cd`). Les sorties ont été communiquées sous forme de capture ; le SHA exact du poste et les versions des outils d'audit n'ont pas été relevés.
+**Audits de sécurité — 23 novembre 2026.** Contrôles effectués dans l'environnement Docker local du projet, sur `quality/ql-03-security` (branche issue de `develop` au commit `36291cd`). **Résultats : aucun avis de vulnérabilité détecté par Composer et aucune vulnérabilité détectée par npm.** Les sorties ont été communiquées sous forme de capture ; le SHA exact du poste et les versions des outils d'audit n'ont pas été relevés.
 
 ## 1. Audits et décisions
 
