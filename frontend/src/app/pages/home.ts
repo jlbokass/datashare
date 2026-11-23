@@ -32,6 +32,7 @@ export class Home implements OnInit {
   private readonly navigation = inject(HomeNavigation);
 
   readonly files = signal<File[]>([]);
+  readonly uploadPanelOpen = signal(false);
   readonly rejectedFiles = signal<File[]>([]);
   readonly expiresInDays = signal(7);
   readonly demoEnabled = signal(false);
@@ -80,7 +81,14 @@ export class Home implements OnInit {
     }
   }
 
+  openUploadPanel(): void {
+    if (this.auth.signedIn() && !this.busy()) {
+      this.uploadPanelOpen.set(true);
+    }
+  }
+
   setFiles(files: File[]): void {
+    this.uploadPanelOpen.set(true);
     this.transfer.set(null);
     this.shareUrl.set(null);
     this.copied.set(false);
@@ -228,6 +236,7 @@ export class Home implements OnInit {
 
     this.files.set([]);
     this.rejectedFiles.set([]);
+    this.uploadPanelOpen.set(false);
     this.transfer.set(null);
     this.shareUrl.set(null);
     this.errorMessage.set(null);
