@@ -93,10 +93,15 @@ export class Share {
     const todayDay = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
     const days = Math.max(0, Math.round((expiryDay - todayDay) / 86_400_000));
     const subject = fileCount === 1 ? 'Ce fichier expirera' : 'Ces fichiers expireront';
+    const time = new Intl.DateTimeFormat('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).format(expiry);
 
-    if (days === 0) return `${subject} aujourd’hui.`;
-    if (days === 1) return `${subject} demain.`;
-    return `${subject} dans ${days} jours.`;
+    if (days === 0) return `${subject} aujourd’hui à ${time}.`;
+    if (days === 1) return `${subject} demain à ${time}.`;
+    return `${subject} dans ${days} jours à ${time}.`;
   }
 
   formatDate(iso: string): string {
