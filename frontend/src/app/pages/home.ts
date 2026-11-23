@@ -74,7 +74,7 @@ export class Home implements OnInit {
   onDrop(event: DragEvent): void {
     event.preventDefault();
 
-    if (!this.busy()) {
+    if (this.auth.signedIn() && !this.busy()) {
       this.setFiles(Array.from(event.dataTransfer?.files ?? []));
     }
   }
