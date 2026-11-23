@@ -103,7 +103,7 @@ Line coverage exceeds the indicative 70% target. A durable coverage report scree
 
 **Conventions visible in the repository:**
 
-- **PHP/Laravel:** PSR-4 autoloading (`App\\` to `backend/app/`), API controllers, Eloquent models, services and server-side validation; formatting checked with **Laravel Pint**; **PHPUnit** tests under `backend/tests/`.
+- **PHP/Laravel:** PSR-4 autoloading (`App\` to `backend/app/`), API controllers, Eloquent models, services and server-side validation; formatting checked with **Laravel Pint**; **PHPUnit** tests under `backend/tests/`.
 - **Angular/TypeScript:** page components and templates, centralized routes, authentication guard, colocated `*.spec.ts` tests; frontend `.editorconfig` uses **2-space indentation** and **single quotes** in TypeScript. Angular tests run with **Vitest**.
 - **E2E:** **Playwright/Chromium** against `compose.test.yaml` with isolated PostgreSQL and file storage. GitHub Actions runs backend, frontend and E2E checks on PRs/pushes targeting `develop` or `main`.
 
