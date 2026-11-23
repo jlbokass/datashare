@@ -1,69 +1,123 @@
-<section class="account-card">
-  <h1>Mon espace</h1>
-  @if (loading()) {
-    <p role="status">Vérification de la session...</p>
-  } @else if (auth.user(); as user) {
-    <p>Connecté avec l'adresse <strong>{{ user.email }}</strong>.</p>
-    <button type="button" (click)="logout()">Déconnexion</button>
+<section class="account-layout" aria-labelledby="account-title">
+  <aside class="account-sidebar" id="account-sidebar" [class.is-open]="menuOpen()">
+    <a class="sidebar-brand" routerLink="/" aria-label="DataShare, accueil">DataShare</a>
+    <nav aria-label="Navigation de l'espace personnel">
+      <a class="sidebar-link current" routerLink="/account" aria-current="page" (click)="menuOpen.set(false)">Mes fichiers</a>
+      <a class="sidebar-link" routerLink="/" (click)="menuOpen.set(false)">Envoyer des fichiers</a>
+    </nav>
+    <span class="sidebar-footer">Copyright DataShare© {{ year }}</span>
+  </aside>
+
+  @if (menuOpen()) {
+    <button type="button" class="menu-backdrop" (click)="menuOpen.set(false)" aria-label="Fermer le menu"></button>
+  }
+
+  <div class="account-content">
+    <header class="account-topbar">
+      <button class="menu-toggle" type="button" aria-label="Ouvrir le menu"
+        aria-controls="account-sidebar" [attr.aria-expanded]="menuOpen()"
+        (click)="menuOpen.set(!menuOpen())">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+      <h1 id="account-title">Mon espace</h1>
+      @if (auth.user(); as user) {
+        <div class="account-identity">
+          <span class="account-email">{{ user.email }}</span>
+          <button class="logout-action" type="button" (click)="logout()">Déconnexion</button>
+        </div>
+      }
+    </header>
 
     <section class="history" aria-labelledby="history-title" [attr.aria-busy]="historyLoading()">
-      <h2 id="history-title">Mes fichiers envoyés</h2>
-      <label class="expiry-switch">
-        <input type="checkbox" [checked]="includeExpired()" [disabled]="historyLoading() || deletingFileId() !== null"
-          (change)="toggleExpired($event)" aria-describedby="expiry-help">
-        Inclure les transferts expirés
-      </label>
-      <p id="expiry-help" class="hint">Les transferts déjà purgés n'apparaissent plus dans l'historique.</p>
+      <h2 id="history-title">Mes fichiers</h2>
 
-      @if (deletionSuccess(); as message) {
-        <p role="status">{{ message }}</p>
-      }
-      @if (deletionError(); as message) {
-        <p role="alert">{{ message }}</p>
-        <button type="button" (click)="refreshHistory()" [disabled]="historyLoading() || deletingFileId() !== null">Actualiser l’historique</button>
-      }
+      @if (loading()) {
+        <p role="status">Vérification de la session...</p>
+      } @else if (auth.user()) {
+        <div class="history-filters" role="group" aria-label="Filtrer les transferts">
+          <button type="button" [class.selected]="historyFilter() === 'all'"
+            [attr.aria-pressed]="historyFilter() === 'all'"
+            [disabled]="historyLoading() || deletingFileId() !== null"
+            (click)="setHistoryFilter('all')">Tous</button>
+          <button type="button" [class.selected]="historyFilter() === 'active'"
+            [attr.aria-pressed]="historyFilter() === 'active'"
+            [disabled]="historyLoading() || deletingFileId() !== null"
+            (click)="setHistoryFilter('active')">Actifs</button>
+          <button type="button" [class.selected]="historyFilter() === 'expired'"
+            [attr.aria-pressed]="historyFilter() === 'expired'"
+            [disabled]="historyLoading() || deletingFileId() !== null"
+            (click)="setHistoryFilter('expired')">Expiré</button>
+        </div>
+        <p class="hint">Les transferts déjà purgés n'apparaissent plus dans l'historique.</p>
 
-      @if (historyLoading()) {
-        <p role="status">Chargement de ton historique...</p>
-      } @else if (errorMessage(); as message) {
-        <p role="alert">{{ message }}</p>
-        <button type="button" (click)="loadHistory()">Réessayer</button>
-      } @else if (transfers().length === 0) {
-        <p role="status">{{ includeExpired() ? 'Aucun transfert dans ton historique.' : 'Aucun transfert actif dans ton historique.' }}</p>
-        <a routerLink="/">Envoyer des fichiers</a>
-      } @else {
-        <ul class="transfer-list">
-          @for (transfer of transfers(); track transfer.id) {
-            <li class="transfer">
-              <div class="transfer-heading">
-                <span class="link-status" [class.expired]="transfer.status === 'expired'">
-                  Lien : {{ transfer.status === 'valid' ? 'Valide' : 'Expiré' }}
-                </span>
-                @if (transfer.status === 'valid') {
-                  <a [routerLink]="transfer.share_url">Ouvrir le lien de partage</a>
-                }
-              </div>
-              <p>Expiration : <time [attr.datetime]="transfer.expires_at">{{ formatDate(transfer.expires_at) }}</time></p>
-              <ul class="file-list">
-                @for (file of transfer.files; track file.id) {
-                  <li>
-                    <h3>{{ file.original_name }}</h3>
-                    <dl>
-                      <div><dt>Taille</dt><dd>{{ formatSize(file.size_bytes) }}</dd></div>
-                      <div><dt>Date d'envoi</dt><dd><time [attr.datetime]="file.uploaded_at">{{ formatDate(file.uploaded_at) }}</time></dd></div>
-                    </dl>
-                    <button class="delete-file" type="button" (click)="deleteFile(transfer, file)"
-                      [attr.aria-label]="'Supprimer ' + file.original_name"
-                      [disabled]="deletingFileId() !== null">
-                      {{ deletingFileId() === file.id ? 'Suppression en cours…' : 'Supprimer' }}
-                    </button>
-                  </li>
-                }
-              </ul>
-            </li>
-          }
-        </ul>
+        @if (deletionSuccess(); as message) {
+          <p class="feedback success" role="status">{{ message }}</p>
+        }
+        @if (deletionError(); as message) {
+          <p class="feedback error" role="alert">{{ message }}</p>
+          <button class="inline-action" type="button" (click)="refreshHistory()"
+            [disabled]="historyLoading() || deletingFileId() !== null">Actualiser l’historique</button>
+        }
+
+        @if (historyLoading()) {
+          <p role="status">Chargement de ton historique...</p>
+        } @else if (errorMessage(); as message) {
+          <p class="feedback error" role="alert">{{ message }}</p>
+          <button class="inline-action" type="button" (click)="loadHistory()">Réessayer</button>
+        } @else if (visibleTransfers().length === 0) {
+          <p role="status">
+            {{ historyFilter() === 'active' ? 'Aucun transfert actif dans ton historique.' :
+              historyFilter() === 'expired' ? 'Aucun transfert expiré dans ton historique.' :
+              'Aucun transfert dans ton historique.' }}
+          </p>
+          <a class="upload-link" routerLink="/">Envoyer des fichiers</a>
+        } @else {
+          <ul class="transfer-list">
+            @for (transfer of visibleTransfers(); track transfer.id) {
+              <li class="transfer">
+                <div class="transfer-heading">
+                  <span class="link-status" [class.expired]="transfer.status === 'expired'">
+                    Lien : {{ transfer.status === 'valid' ? 'Valide' : 'Expiré' }}
+                  </span>
+                  <span>Expiration :
+                    <time [attr.datetime]="transfer.expires_at">{{ formatDate(transfer.expires_at) }}</time>
+                  </span>
+                  @if (transfer.status === 'valid') {
+                    <a [routerLink]="transfer.share_url">Ouvrir le lien de partage</a>
+                  }
+                </div>
+                <ul class="file-list">
+                  @for (file of transfer.files; track file.id) {
+                    <li class="file-row">
+                      <svg class="file-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/>
+                        <path d="M14 2v6h6M8 13h8"/>
+                      </svg>
+                      <div class="file-details">
+                        <h3>{{ file.original_name }}</h3>
+                        <dl>
+                          <div><dt>Taille</dt><dd>{{ formatSize(file.size_bytes) }}</dd></div>
+                          <div><dt>Date d'envoi</dt><dd><time [attr.datetime]="file.uploaded_at">{{ formatDate(file.uploaded_at) }}</time></dd></div>
+                        </dl>
+                      </div>
+                      <button class="delete-file" type="button" (click)="deleteFile(transfer, file)"
+                        [attr.aria-label]="'Supprimer ' + file.original_name"
+                        [disabled]="deletingFileId() !== null">
+                        {{ deletingFileId() === file.id ? 'Suppression en cours…' : 'Supprimer' }}
+                      </button>
+                    </li>
+                  }
+                </ul>
+              </li>
+            }
+          </ul>
+        }
       }
     </section>
-  }
+  </div>
 </section>
