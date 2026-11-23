@@ -11,7 +11,7 @@
     </div>
     <nav aria-label="Navigation de l'espace personnel">
       <a class="sidebar-link current" routerLink="/account" aria-current="page" (click)="menuOpen.set(false)">Mes fichiers</a>
-      <a class="sidebar-link" routerLink="/" (click)="menuOpen.set(false)">Envoyer des fichiers</a>
+      <a class="sidebar-link" routerLink="/upload" (click)="menuOpen.set(false)">Envoyer des fichiers</a>
     </nav>
     <span class="sidebar-footer">Copyright DataShare© {{ year }}</span>
   </aside>
@@ -33,7 +33,7 @@
       <h1 id="account-title">Mon espace</h1>
       @if (auth.user(); as user) {
         <div class="account-identity">
-          <a class="upload-action" routerLink="/">Ajouter des fichiers</a>
+          <a class="upload-action" routerLink="/upload">Ajouter des fichiers</a>
           <span class="account-email">{{ user.email }}</span>
           <button class="logout-action" type="button" (click)="logout()">Déconnexion</button>
         </div>
@@ -84,7 +84,7 @@
               historyFilter() === 'expired' ? 'Aucun transfert expiré dans ton historique.' :
               'Aucun transfert dans ton historique.' }}
           </p>
-          <a class="upload-link" routerLink="/">Envoyer des fichiers</a>
+          <a class="upload-link" routerLink="/upload">Envoyer des fichiers</a>
         } @else {
           <ul class="transfer-list">
             @for (transfer of visibleTransfers(); track transfer.id) {
