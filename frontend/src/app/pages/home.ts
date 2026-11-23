@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { HomeNavigation } from './home-navigation';
 
@@ -30,9 +30,10 @@ export class Home implements OnInit {
   readonly auth = inject(AuthService);
   private readonly http = inject(HttpClient);
   private readonly navigation = inject(HomeNavigation);
+  private readonly route = inject(ActivatedRoute);
 
   readonly files = signal<File[]>([]);
-  readonly uploadPanelOpen = signal(false);
+  readonly uploadPanelOpen = signal(this.route.snapshot.routeConfig?.path === 'upload');
   readonly rejectedFiles = signal<File[]>([]);
   readonly expiresInDays = signal(7);
   readonly demoEnabled = signal(false);
@@ -236,7 +237,7 @@ export class Home implements OnInit {
 
     this.files.set([]);
     this.rejectedFiles.set([]);
-    this.uploadPanelOpen.set(false);
+    this.uploadPanelOpen.set(this.route.snapshot.routeConfig?.path === 'upload');
     this.transfer.set(null);
     this.shareUrl.set(null);
     this.errorMessage.set(null);
