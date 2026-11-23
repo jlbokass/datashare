@@ -121,8 +121,19 @@ describe('Share — public file access', () => {
         status: 410, statusText: 'Gone',
       });
 
-    expect(component.errorMessage()).toContain('expiré');
+    expect(component.errorMessage())
+      .toBe("Ce fichier n'est plus disponible en téléchargement car il a expiré.");
+    expect(component.expired()).toBe(true);
     expect(component.loading()).toBe(false);
+    fixture.detectChanges();
+
+    const card = fixture.nativeElement.querySelector('.share-card') as HTMLElement;
+    expect(Array.from(card.children).map(child => child.tagName)).toEqual(['H1', 'P']);
+    expect(card.querySelector('.expired-notice[role="alert"]')?.textContent)
+      .toContain("Ce fichier n'est plus disponible en téléchargement car il a expiré.");
+    expect(card.querySelector('.expired-notice svg')).not.toBeNull();
+    expect(card.querySelector('.download-link')).toBeNull();
+    expect(card.querySelector('.home-link')).toBeNull();
   });
 
   it('shows not found for HTTP 404', () => {
@@ -134,6 +145,10 @@ describe('Share — public file access', () => {
       });
 
     expect(component.errorMessage()).toContain('introuvable');
+    expect(component.expired()).toBe(false);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('h2')?.textContent).toContain('Lien indisponible');
+    expect(fixture.nativeElement.querySelector('.home-link')).not.toBeNull();
   });
 
   it('rejects a malformed token without contacting Laravel', () => {
