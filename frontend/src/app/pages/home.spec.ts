@@ -92,6 +92,74 @@ describe('Home upload', () => {
     expect(fixture.componentInstance.errorMessage()).toContain('1 Go');
   });
 
+  it('keeps the anonymous upload icon decorative and links the login prompt', () => {
+    const fixture = TestBed.createComponent(Home);
+    fixture.detectChanges();
+    http.expectOne('/api/demo/capabilities').flush({ five_minute_expiry: false });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.hero-action--decorative')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('a.hero-action')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.hero-hint a[href="/login"]')?.textContent)
+      .toContain('Connecte-toi');
+  });
+
+  it('shows oversized selection inside the panel, disables upload, and allows replacement', () => {
+    signIn();
+    const fixture = TestBed.createComponent(Home);
+    fixture.detectChanges();
+    http.expectOne('/api/demo/capabilities').flush({ five_minute_expiry: false });
+
+    const tooLarge = new File(['content'], 'oversized.zip', { type: 'application/zip' });
+    Object.defineProperty(tooLarge, 'size', { value: 3_100_000_000 });
+    fixture.componentInstance.setFiles([tooLarge]);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.files()).toHaveLength(0);
+    expect(fixture.nativeElement.querySelector('.upload-panel .file-name')?.textContent)
+      .toContain('oversized.zip');
+    expect(fixture.nativeElement.querySelector('.upload-panel [role="alert"]')?.textContent)
+      .toContain('1 Go');
+    expect((fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement).disabled)
+      .toBe(true);
+    http.expectNone('/api/transfers');
+
+    fixture.componentInstance.setFiles([new File(['PDF'], 'valid.pdf', { type: 'application/pdf' })]);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.rejectedFiles()).toHaveLength(0);
+    expect(fixture.nativeElement.querySelector('.upload-panel [role="alert"]')).toBeNull();
+    expect((fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement).disabled)
+      .toBe(false);
+  });
+
+  it('displays uploaded file details and a copy action in the confirmation panel', () => {
+    signIn();
+    const fixture = TestBed.createComponent(Home);
+    fixture.detectChanges();
+    http.expectOne('/api/demo/capabilities').flush({ five_minute_expiry: false });
+
+    fixture.componentInstance.transfer.set({
+      id: 'transfer-id',
+      share_url: '/share/generated',
+      expires_at: '2026-11-25T10:00:00Z',
+      files: [{
+        id: 'uploaded-id',
+        original_name: 'report.pdf',
+        mime_type: 'application/pdf',
+        size_bytes: 1_500_000,
+        uploaded_at: '2026-11-23T10:00:00Z',
+      }],
+    });
+    fixture.componentInstance.shareUrl.set('http://127.0.0.1:8080/share/generated');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.upload-panel--success .file-name')?.textContent)
+      .toContain('report.pdf');
+    expect(fixture.nativeElement.querySelector('.upload-panel--success .primary-action')?.textContent)
+      .toContain('Copier le lien');
+  });
+
   it('starts a fresh transfer when the header brand is clicked on the current home route', () => {
     const fixture = TestBed.createComponent(Home);
     const home = fixture.componentInstance;
