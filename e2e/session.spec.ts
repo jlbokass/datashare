@@ -58,7 +58,7 @@ test('Anonymous access is refused and logout clears the local session', async ({
     expect(loggedIn.status()).toBe(200);
     expect(identity.status()).toBe(200);
     await expect(page).toHaveURL('http://web/account');
-    await expect(main.getByRole('heading', { name: 'Mon espace', exact: true })).toBeVisible();
+    await expect(main.getByRole('heading', { name: 'Mes fichiers', exact: true })).toBeVisible();
     await expect(main.getByText(email, { exact: true })).toBeVisible();
     expect(await page.evaluate(() => performance.timeOrigin)).toBe(documentTimeOrigin);
   });
@@ -72,7 +72,7 @@ test('Anonymous access is refused and logout clears the local session', async ({
 
     await page.goBack();
     await expect(page).toHaveURL('http://web/login');
-    await expect(main.getByRole('heading', { name: 'Mon espace', exact: true })).toHaveCount(0);
+    await expect(main.getByRole('heading', { name: 'Mes fichiers', exact: true })).toHaveCount(0);
     await expect(main.getByText(email, { exact: true })).toHaveCount(0);
     // A reload would hide a broken logout by discarding the in-memory JWT.
     expect(await page.evaluate(() => performance.timeOrigin)).toBe(documentTimeOrigin);

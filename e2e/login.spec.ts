@@ -40,7 +40,7 @@ test('User signs in through Angular and sees their account', async ({ page, requ
   expect(identity.status()).toBe(200);
   await expect(page).toHaveURL('http://web/account');
   const main = page.getByRole('main');
-  await expect(main.getByRole('heading', { name: 'Mon espace', exact: true })).toBeVisible();
+  await expect(main.getByRole('heading', { name: 'Mes fichiers', exact: true })).toBeVisible();
   await expect(main.getByText(email, { exact: true })).toBeVisible();
   // A SPA transition keeps the same document; never reload the in-memory session.
   expect(await page.evaluate(() => performance.timeOrigin)).toBe(documentTimeOrigin);

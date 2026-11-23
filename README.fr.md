@@ -12,7 +12,7 @@
 
 **MVP fonctionnel US01–US06 implémenté et fusionné dans `develop` (19 novembre 2026)** : téléversement privé, lien de téléchargement public, inscription, JWT, historique personnel et suppression individuelle. Les recettes navigateur ont été déclarées réussies par le développeur. La [PR #46](https://github.com/jlbokass/datashare/pull/46) a validé sur GitHub Actions **52 tests Laravel / 364 assertions et Pint**, ainsi que **44 tests Angular et le build de production**. Le projet n'est **pas déployé en production**.
 
-**Restent à traiter avant la livraison OC :** conformité Figma/responsive/accessibilité ([UI-01 #37](https://github.com/jlbokass/datashare/issues/37)), couverture mesurée, tests E2E, vérifications de sécurité, performance et concurrence PostgreSQL. Les fichiers ZIP ne sont pas analysés par antivirus. Les fonctions facultatives US07–US10 ne sont pas annoncées comme disponibles.
+**État au 23 novembre 2026 :** les lots qualité QL-01 à QL-04 sont intégrés dans `develop`. La **recette visuelle UI-01** est déclarée verte par le développeur ([bilan](docs/design-handoff.fr.md) ; [issue #37](https://github.com/jlbokass/datashare/issues/37)) ; la CI de sa PR et la vérification clavier restent à confirmer. Les autres contrôles avant livraison OC (notamment sécurité, performance et concurrence PostgreSQL) sont suivis séparément dans les livrables qualité. Les fichiers ZIP ne sont pas analysés par antivirus. Les fonctions facultatives US07–US10 ne sont pas annoncées comme disponibles.
 
 Ce dépôt est public afin que l'évaluateur OpenClassrooms puisse consulter code, documentation, issues, PR et historique des commits.
 
@@ -110,4 +110,4 @@ Les badges en haut du README suivent **les workflows GitHub Actions sur `develop
 
 ## Référence pédagogique
 
-La mission OC, les spécifications et le modèle de documentation fournis restent en français dans leur version originale. Nos fichiers Markdown sont bilingues. Les [maquettes Figma](https://www.figma.com/design/i4HHiGsL7Kc3kVBo41m7F6), le [PDF handoff original de 23 pages](docs/design/DataShare_UI_Design_Handoff_v1.pdf) et la [synthèse bilingue](docs/design-handoff.fr.md) servent de référence visuelle. **US01 est fonctionnelle mais son écran n'est pas encore conforme à Figma** : voir [UI-01 #37](https://github.com/jlbokass/datashare/issues/37).
+La mission OC, les spécifications et le modèle de documentation fournis restent en français dans leur version originale. Nos fichiers Markdown sont bilingues. Les [maquettes Figma](https://www.figma.com/design/i4HHiGsL7Kc3kVBo41m7F6), le [PDF handoff original de 23 pages](docs/design/DataShare_UI_Design_Handoff_v1.pdf) et la [synthèse bilingue](docs/design-handoff.fr.md) servent de référence visuelle. **La recette visuelle de UI-01 a été acceptée sur la branche de travail** ; sa PR vers `develop` reste à vérifier : voir [UI-01 #37](https://github.com/jlbokass/datashare/issues/37).

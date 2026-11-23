@@ -8,6 +8,7 @@ import { Share } from './pages/share/share';
 
 export const routes: Routes = [
   { path: '', component: Home, pathMatch: 'full' },
+  { path: 'upload', component: Home, canActivate: [authGuard] },
   { path: 'register', component: Register },
   { path: 'login', component: Login },
   { path: 'account', component: Account, canActivate: [authGuard] },

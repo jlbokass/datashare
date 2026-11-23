@@ -1,8 +1,10 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
+
+type HistoryFilter = 'all' | 'active' | 'expired';
 
 interface HistoryFile {
   id: string;
@@ -36,7 +38,15 @@ export class Account implements OnInit {
   readonly loading = signal(true);
   readonly historyLoading = signal(false);
   readonly transfers = signal<HistoryTransfer[]>([]);
-  readonly includeExpired = signal(false);
+  readonly historyFilter = signal<HistoryFilter>('active');
+  readonly includeExpired = computed(() => this.historyFilter() !== 'active');
+  readonly visibleTransfers = computed(() => this.historyFilter() === 'expired'
+    ? this.transfers().filter((transfer) => transfer.status === 'expired')
+    : this.historyFilter() === 'active'
+      ? this.transfers().filter((transfer) => transfer.status === 'valid')
+      : this.transfers());
+  readonly menuOpen = signal(false);
+  readonly year = new Date().getFullYear();
   readonly errorMessage = signal<string | null>(null);
   readonly deletingFileId = signal<string | null>(null);
   readonly deletionError = signal<string | null>(null);
@@ -126,9 +136,12 @@ export class Account implements OnInit {
     this.loadHistory();
   }
 
-  toggleExpired(event: Event): void {
-    this.includeExpired.set((event.target as HTMLInputElement).checked);
-    this.loadHistory();
+  setHistoryFilter(filter: HistoryFilter): void {
+    if (this.historyLoading() || this.deletingFileId()) return;
+
+    const wasIncludingExpired = this.includeExpired();
+    this.historyFilter.set(filter);
+    if (wasIncludingExpired !== this.includeExpired()) this.loadHistory();
   }
 
   formatSize(bytes: number): string {
@@ -139,6 +152,23 @@ export class Account implements OnInit {
 
   formatDate(iso: string): string {
     return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
+  }
+
+  formatExpiry(iso: string, status: HistoryTransfer['status']): string {
+    const expiry = new Date(iso);
+    if (status === 'expired' || expiry.getTime() <= Date.now()) {
+      return `Expiré le ${this.formatDate(iso)}`;
+    }
+
+    const today = new Date();
+    const expiryDay = Date.UTC(expiry.getFullYear(), expiry.getMonth(), expiry.getDate());
+    const todayDay = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+    const days = Math.round((expiryDay - todayDay) / 86_400_000);
+    const hour = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(expiry);
+
+    return days === 0
+      ? `Expire aujourd’hui à ${hour}`
+      : `Expire dans ${days} jour${days > 1 ? 's' : ''} à ${hour}`;
   }
 
   logout(): void {

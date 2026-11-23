@@ -71,17 +71,18 @@ describe('Account — personal history', () => {
     openHistory().flush({ transfers: [] });
 
     expect(text()).toContain('Aucun transfert actif');
-    expect(fixture.nativeElement.querySelector('a[href="/"]')).not.toBeNull();
+    const uploadLinks = fixture.nativeElement.querySelectorAll('a[href="/upload"]');
+    expect(uploadLinks).toHaveLength(3); // Sidebar, header action and empty-history action.
     expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeNull();
   });
 
   it('opts into expired history and renders an expired link without an active share anchor', () => {
     openHistory().flush({ transfers: [] });
     fixture.detectChanges();
-    const checkbox = fixture.nativeElement.querySelector('input[type="checkbox"]') as HTMLInputElement;
-    expect(checkbox.checked).toBe(false);
-    checkbox.checked = true;
-    checkbox.dispatchEvent(new Event('change'));
+    const allFilter = fixture.nativeElement.querySelector('.history-filters button:first-child') as HTMLButtonElement;
+    const activeFilter = fixture.nativeElement.querySelector('.history-filters button:nth-child(2)') as HTMLButtonElement;
+    expect(activeFilter.getAttribute('aria-pressed')).toBe('true');
+    allFilter.click();
 
     const request = http.expectOne('/api/transfers?include_expired=true');
     expect(request.request.headers.get('Authorization')).toBe('Bearer memory.jwt.signature');
@@ -89,10 +90,27 @@ describe('Account — personal history', () => {
     expect(text()).toContain('Expiré');
     expect(fixture.nativeElement.querySelector('a[href="' + transfer.share_url + '"]')).toBeNull();
 
-    checkbox.checked = false;
-    checkbox.dispatchEvent(new Event('change'));
+    activeFilter.click();
     http.expectOne('/api/transfers').flush({ transfers: [] });
     expect(text()).toContain('Aucun transfert actif');
+  });
+
+  it('filters expired transfers locally after loading all statuses', () => {
+    openHistory().flush({ transfers: [transfer] });
+    fixture.detectChanges();
+
+    const allFilter = fixture.nativeElement.querySelector('.history-filters button:first-child') as HTMLButtonElement;
+    const expiredFilter = fixture.nativeElement.querySelector('.history-filters button:nth-child(3)') as HTMLButtonElement;
+    allFilter.click();
+    http.expectOne('/api/transfers?include_expired=true').flush({
+      transfers: [transfer, { ...transfer, id: 'expired-transfer', status: 'expired' }],
+    });
+
+    expiredFilter.click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('.transfer')).toHaveLength(1);
+    expect(fixture.nativeElement.textContent).toContain('Expiré');
+    http.expectNone('/api/transfers?include_expired=true');
   });
 
   it('shows a safe error and retries without clearing the session on server failure', () => {
@@ -201,7 +219,7 @@ describe('Account — personal history', () => {
       expect(window.confirm).toHaveBeenCalledTimes(1);
       fixture.detectChanges();
       expect(deleteButton().disabled).toBe(true);
-      expect(fixture.nativeElement.querySelector('input[type="checkbox"]').disabled).toBe(true);
+      expect(fixture.nativeElement.querySelector('.history-filters button').disabled).toBe(true);
       request.flush(null, { status: 204, statusText: 'No Content' });
       http.expectOne('/api/transfers').flush({ transfers: [] });
     });
@@ -241,9 +259,8 @@ describe('Account — personal history', () => {
     });
 
     it('shows empty history after the last file is deleted and preserves the expiry filter', () => {
-      const checkbox = fixture.nativeElement.querySelector('input[type="checkbox"]') as HTMLInputElement;
-      checkbox.checked = true;
-      checkbox.dispatchEvent(new Event('change'));
+      const allFilter = fixture.nativeElement.querySelector('.history-filters button:first-child') as HTMLButtonElement;
+      allFilter.click();
       http.expectOne('/api/transfers?include_expired=true')
         .flush({ transfers: [{ ...transfer, status: 'expired', files: [transfer.files[0]] }] });
       fixture.detectChanges();

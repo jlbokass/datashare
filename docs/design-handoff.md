@@ -51,8 +51,19 @@ Do **not** invent exact status colors where the PDF only shows approximations (P
 
 **Historical label caution:** handoff page 23 mentions “PR #32 / FRONT-FINAL”, an original document reference; it is **not** the current GitHub issue #32 (TECH-04) nor a confirmed PR number.
 
-## UI acceptance later — not yet executed
+## Acceptance summary — UI-01 (#37), 23 November 2026
 
-At the actual frontend implementation/review stage, capture DevTools screenshots at 393px and 1440px, check 320/768/1024 widths, typography, color, layout, loading, error, success and expired states. Validate registration, upload limits, multifile handling, public links, deletion, responsive navigation and tests/build before marking anything **conformant**.
+**Outcome: visual conformity accepted by the developer.** Angular screens were compared against Figma at **393 × 852** (mobile) and **1440 × 1024** (desktop). Additional visual checks at **320, 768 and 1024 px** were reported green. Screenshots were shared during review but are not stored in the repository.
 
-The PDF's sign-off section is **blank by design**, not evidence of completed QA.
+**Screens reviewed:** home, login, registration, upload selection and over-1-GB error, link confirmation, personal history (list, filters, mobile menu), direct public download and expired-link state.
+
+**Approved functional deviations:**
+
+- From **My space**, “Send files” opens `/upload` directly; the signed-in home icon opens the same form. Before login, the icon is decorative and the “Sign in” text is a link.
+- Transfers support **multiple files** even though Figma usually shows one.
+- Optional **US09 share passwords are not implemented**: direct download follows the unprotected Figma variant, without a nonfunctional password input.
+- File names, dates and contents come from the API; **“Copy link”** remains the mobile confirmation action rather than the ambiguous “Upload” label. The copyright year is current.
+
+**Separate decision:** the local five-minute demo enables frequent cleanup, deleting expired file bytes **and** database metadata; the “Expired” history tab can therefore be empty. Retention policy is tracked in [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57), **outside UI-01**.
+
+**Evidence and limits:** developer-reported visual acceptance; detailed results for the most recent tests/build and keyboard/accessibility checks are **not recorded here**. Review PR CI results before merging. The original PDF sign-off remains blank historical source material, not proof of completed acceptance.

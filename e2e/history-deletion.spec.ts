@@ -39,8 +39,8 @@ test('The owner deletes files individually and the last deletion revokes the sha
   await expect(page).toHaveURL('http://web/account');
 
   // Create a two-file transfer through the real Angular upload form.
-  await page.getByRole('link', { name: 'DataShare, accueil' }).click();
-  await expect(page).toHaveURL('http://web/');
+  await page.getByRole('link', { name: 'Ajouter des fichiers' }).click();
+  await expect(page).toHaveURL('http://web/upload');
   await page.locator('input[type="file"]').setInputFiles([
     { name: firstName, mimeType: 'text/plain', buffer: firstBytes },
     { name: secondName, mimeType: 'text/plain', buffer: secondBytes },
@@ -50,7 +50,7 @@ test('The owner deletes files individually and the last deletion revokes the sha
     page.getByRole('button', { name: 'Téléverser', exact: true }).click(),
   ]);
   expect(uploaded.status()).toBe(201);
-  await expect(page.getByRole('heading', { name: 'Ton lien est prêt !' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Ajouter des fichiers', exact: true })).toBeVisible();
   const shareUrl = await page.getByLabel('Lien unique de partage').inputValue();
   const sharePath = new URL(shareUrl).pathname;
   expect(sharePath).toMatch(/^\/share\/[a-f0-9]{64}$/);
