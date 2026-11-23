@@ -200,6 +200,29 @@ describe('Home upload', () => {
       .toContain('report.pdf');
     expect(fixture.nativeElement.querySelector('.upload-panel--success .primary-action')?.textContent)
       .toContain('Copier le lien');
+
+    const panel = fixture.nativeElement.querySelector('.upload-panel--success') as HTMLElement;
+    const childOrder = Array.from(panel.children).map((child) => child.classList.item(0));
+    expect(childOrder).toEqual([
+      'panel-title', 'selected-files', 'success-message', 'field-label',
+      'share-link', 'primary-action', 'secondary-action',
+    ]);
+    expect(panel.querySelector('.panel-title')?.textContent).toContain('Ajouter un fichier');
+    expect(panel.querySelector('.success-message')?.textContent)
+      .toContain('Félicitations, ton fichier sera conservé chez nous pendant une semaine !');
+    expect(panel.querySelector('label[for="share-link"]')?.classList.contains('sr-only')).toBe(true);
+    expect(panel.querySelector<HTMLInputElement>('#share-link')?.value)
+      .toBe('http://127.0.0.1:8080/share/generated');
+
+    expect(fixture.componentInstance.formatSize(512)).toBe('512 octets');
+    expect(fixture.componentInstance.formatSize(5400)).toBe('5,4 Ko');
+    fixture.componentInstance.expiresInDays.set(2);
+    expect(fixture.componentInstance.confirmationMessage())
+      .toContain('pendant 2 jours !');
+    fixture.componentInstance.demoEnabled.set(true);
+    fixture.componentInstance.demoSelected.set(true);
+    expect(fixture.componentInstance.confirmationMessage())
+      .toContain('pendant 5 minutes !');
   });
 
   it('starts a fresh transfer when the header brand is clicked on the current home route', () => {
