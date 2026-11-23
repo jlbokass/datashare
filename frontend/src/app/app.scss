@@ -89,6 +89,11 @@
     background: linear-gradient(165deg, #ffb88c 0%, #de6262 100%);
   }
 
+  /* Fill the viewport so the upload and confirmation panels sit at the bottom. */
+  .site-main:has(> app-home) {
+    align-items: stretch;
+  }
+
   .site-header {
     padding: 12px 16px;
     flex-wrap: wrap;
