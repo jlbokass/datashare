@@ -18,7 +18,7 @@
 
   @if (shareUrl(); as link) {
     <div class="upload-panel upload-panel--success" role="status">
-      <h1 class="panel-title">Ajouter des fichiers</h1>
+      <h1 class="panel-title">{{ (transfer()?.files?.length ?? 0) === 1 ? 'Ajouter un fichier' : 'Ajouter des fichiers' }}</h1>
 
       <ul class="selected-files" aria-label="Fichiers téléversés">
         @for (file of transfer()?.files ?? []; track file.id) {
@@ -37,13 +37,9 @@
         }
       </ul>
 
-      <p class="success-message">Ton transfert est prêt !
-        @if (transfer()?.expires_at; as expiry) {
-          Les fichiers seront disponibles jusqu'au {{ newDateLabel(expiry) }}.
-        }
-      </p>
-      <label class="field-label" for="share-link">Lien unique de partage</label>
-      <input id="share-link" class="share-link" type="text" [value]="link" readonly />
+      <p class="success-message">{{ confirmationMessage() }}</p>
+      <label class="field-label sr-only" for="share-link">Lien unique de partage</label>
+      <input id="share-link" class="share-link" type="text" [value]="link" readonly [title]="link" />
       <button class="primary-action" type="button" (click)="copyLink()">
         {{ copied() ? 'Lien copié !' : 'Copier le lien' }}
       </button>
@@ -54,7 +50,7 @@
     </div>
   } @else if (uploadPanelOpen() || files().length > 0 || rejectedFiles().length > 0) {
     <div class="upload-panel" aria-labelledby="upload-heading">
-      <h1 class="panel-title" id="upload-heading">Ajouter des fichiers</h1>
+      <h1 class="panel-title" id="upload-heading">{{ files().length === 1 || rejectedFiles().length === 1 ? 'Ajouter un fichier' : 'Ajouter des fichiers' }}</h1>
 
       <form (submit)="onSubmit($event)">
         @if (files().length === 0 && rejectedFiles().length === 0) {
