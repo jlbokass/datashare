@@ -1,35 +1,43 @@
-# DataShare — Performance plan and evidence (OC P3)
+# DataShare — Performance results (QL-04)
 
-[Français](PERF.fr.md) · [Technical documentation](docs/technical-documentation.md)
+[Français](PERF.fr.md) · [Technical documentation](docs/technical-documentation.md) · [Issue #55](https://github.com/jlbokass/datashare/issues/55)
 
-**Status: plan only. There is no measured k6 run, frontend bundle measurement or production metric yet.**
+**Status as of 23 November 2026:** one business endpoint was timed, and frontend performance was examined through a production build and a Lighthouse observation. **These are not production measurements or a load test.**
 
-## Backend critical-endpoint benchmark — planned
+## 1. Measurements and results
 
-**Candidate:** `POST /api/transfers` (US01) authenticated multipart upload. Later add `GET /api/shares/{token}/files/{fileId}` (US02) for download streaming.
+| Check | Conditions | Result |
+| --- | --- | --- |
+| **Backend — US02 public download** `GET /api/shares/{token}/files/{fileId}` | Isolated Docker stack (`compose.test.yaml`), temporary PostgreSQL and private storage, **1,048,576-byte** synthetic TXT; one warm-up then **12 sequential downloads** with byte verification | **12 HTTP 200, 0 errors**; p50 **13.3 ms**, p95 **15.4 ms**, mean **13.3 ms**; effective sequential throughput **78.88 MB/s** |
+| **Angular — production build** | `npm run build`, `production` configuration, Node 24 container | Raw initial bundle **325.46 kB**; estimated transfer **84.50 kB**; successful build with no budget warning |
+| **Chrome Lighthouse — homepage** | Chrome at `http://127.0.0.1:8080/`, using the **Angular development server** (unoptimized Vite modules); network/CPU settings not recorded | Performance **58/100**; FCP **3.4 s**, LCP **6.2 s**, TBT **0 ms**, CLS **0**, Speed Index **3.4 s** |
 
-Test conditions to record: code SHA, Mac/CPU/RAM, Docker image versions, file size/content, number of files, database state, JWT setup, HTTP success/failure rate, throughput and response-duration percentiles (p50/p95/p99). Use only disposable fixture files and local development credentials.
+**Dates and traceability:** backend run **22 November 2026 at 23:59 UTC**; Angular build **22 November 2026 at 23:50 UTC**; Lighthouse observations **23 November 2026** local time. Branch `quality/ql-04-performance`, issue #55; the exact Mac checkout SHA at measurement time was not recorded. Evidence comes from local console outputs and screenshots, not CI or a deployed service.
 
-Proposed initial small smoke load: 1 user for 1 minute using a 1–10 MB harmless fixture, then limited concurrency (e.g. 5 virtual users) **after** monitoring storage use and cleanup. Use k6 or an equivalent tool. Never load-test public infrastructure without authorization. Delete temporary transfers and verify expiry/cleanup after the benchmark.
+## 2. Interpretation
 
-| Run | Date, SHA and conditions | p50/p95, failure rate and throughput | Interpretation / decision |
-| --- | --- | --- | --- |
-| Initial upload run | **Not executed** | **No measurements** | Pending k6 script and reproducible fixture |
-| Download run (US02) | **Not implemented** | **No measurements** | Deferred until public endpoint exists |
+- **Backend:** no errors in this small sample. Latencies and throughput represent transfers **within the local Docker network**, without Internet latency or concurrent users; they do not predict production capacity.
+- **Angular bundle:** **325.46 kB < 500 kB**, the warning threshold in `frontend/angular.json`; the error threshold is **1 MB**. Component-style budgets are 4 kB warning and 8 kB error.
+- **Lighthouse:** slow FCP/LCP were observed **on the development server**, which loads non-minified Vite/Angular modules. The capture indicates about **6.45 MiB of transferred resources** and unoptimized JavaScript. The **58 score is not a production-build score**. TBT and CLS at zero are favorable within this observation.
+- **Decision:** these results do not justify optimization or a monitoring stack. Before a public release, assess the actual production-served build under representative conditions.
 
-## Frontend performance budget
+## 3. Reproduce
 
-The generated `frontend/angular.json` currently defines **configuration thresholds**, not observed values:
+From repository root:
 
-- Initial bundle warning at **500 kB**, error at **1 MB**.
-- Any component-style warning at **4 kB**, error at **8 kB**.
+```bash
+# Production bundle size
+docker compose run --rm node sh -lc 'cd frontend && npm run build'
 
-A successful developer-reported `npm run build` alone is **not** a recorded bundle-size audit. For final evidence, capture the build output and sizes, browser network metrics and a DevTools/Lighthouse comparison at mobile and desktop sizes. Verify images, fonts and third-party scripts do not exceed the budget.
+# Public-download probe (after the isolated stack starts and its DB is migrated)
+docker compose -f compose.test.yaml --profile e2e run --rm --no-deps \
+  --entrypoint node playwright perf-download.mjs
+```
 
-## Monitoring / metrics to collect
+Isolated-stack setup and database migration are documented in [TESTING.md](TESTING.md). `e2e/perf-download.mjs` requires only Node and uses synthetic credentials/files; **do not run it against `compose.yaml`**. For the browser observation, open the local page in Chrome DevTools → Lighthouse → Navigation and record metrics plus test conditions.
 
-- Backend: HTTP request count, status, response duration, throughput, storage failures, scheduler completion/error, PostgreSQL query latency when instrumented.
-- Frontend: bundle bytes, initial loading and interaction timing, browser console errors, viewport/network conditions.
-- Attach screenshots or sanitized logs showing actual numbers. No monitoring stack or structured-metrics pipeline is claimed as running.
+**Evidence:** build and benchmark outputs and Lighthouse screenshots were supplied during acceptance on 23 November 2026. The original images are **not stored in the repository**; only the values above are retained.
 
-This file will be completed after the MVP and OC quality-testing stage, not backfilled with invented benchmarks.
+## 4. Limitations
+
+No concurrent load, 1 GB transfer, real-user metric, or production-served Lighthouse result was measured. Results are point-in-time and local-hardware dependent. The benchmark is a **focused transfer/latency check**, not a capacity guarantee or production-performance certification.
