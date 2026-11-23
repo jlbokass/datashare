@@ -8,7 +8,7 @@
 .account-layout {
   display: flex;
   min-height: 100dvh;
-  background: #fff;
+  background: #fff6f2;
   color: #1e1e1e;
   font-family: 'Inter', sans-serif;
 }
@@ -19,8 +19,7 @@
   flex-direction: column;
   width: 259px;
   min-height: 100dvh;
-  border-right: 1px solid #d9d9d9;
-  background: #fff;
+  background: linear-gradient(175deg, #ffb88c 0%, #de6262 100%);
 }
 
 .sidebar-heading {
@@ -33,7 +32,7 @@
 
 .sidebar-brand {
   font: 700 2rem/2.5rem 'DM Sans', sans-serif;
-  color: #1e1e1e;
+  color: #fff;
   text-decoration: none;
 }
 
@@ -42,7 +41,7 @@
   flex: none;
   border: none;
   background: transparent;
-  color: #1e1e1e;
+  color: #fff;
   padding: 0;
 }
 
@@ -65,13 +64,17 @@
 
 .sidebar-link.current,
 .sidebar-link:hover {
-  background: #ffeadb;
+  background: rgb(255 255 255 / 38%);
+}
+
+.account-sidebar nav .sidebar-link:not(.current) {
+  display: none;
 }
 
 .sidebar-footer {
   padding: 16px 24px;
   font-size: 0.875rem;
-  color: #595959;
+  color: #fff;
 }
 
 .account-content {
@@ -79,6 +82,7 @@
   flex: 1;
   flex-direction: column;
   min-width: 0;
+  background: #fff6f2;
 }
 
 .account-topbar {
@@ -88,7 +92,8 @@
   gap: 16px;
   min-height: 64px;
   padding: 12px 24px;
-  border-bottom: 1px solid #d9d9d9;
+  border-bottom: 1px solid #f5d9ca;
+  background: #ffebdf;
 }
 
 .account-topbar h1 {
@@ -109,6 +114,24 @@
   justify-content: flex-end;
   gap: 16px;
   min-width: 0;
+  margin-left: auto;
+}
+
+.upload-action {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  min-height: 32px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #2c2c2c;
+  color: #fff;
+  font: 400 0.875rem/1rem 'DM Sans', sans-serif;
+  text-decoration: none;
+}
+
+.upload-action:hover {
+  background: #444;
 }
 
 .account-email {
@@ -127,9 +150,9 @@ button,
 
 .logout-action {
   flex: none;
-  border: 1px solid #2c2c2c;
-  background: #2c2c2c;
-  color: white;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #ba681f;
   padding: 8px 12px;
 }
 
@@ -159,8 +182,9 @@ button,
 
 .history-filters {
   display: flex;
-  max-width: 345px;
-  margin-bottom: 16px;
+  width: 220px;
+  max-width: 100%;
+  margin-bottom: 24px;
   overflow: hidden;
   border: 1px solid #d9d9d9;
   border-radius: 8px;
@@ -204,7 +228,7 @@ button,
 }
 
 .transfer {
-  border-top: 1px solid #d9d9d9;
+  margin-bottom: 12px;
 }
 
 .link-status {
@@ -226,11 +250,15 @@ a:not(.sidebar-brand):not(.sidebar-link) {
   align-items: center;
   gap: 12px;
   min-width: 0;
-  padding: 8px 16px;
+  min-height: 56px;
+  padding: 8px 12px;
+  border: 1px solid #fbe5dc;
+  border-radius: 8px;
+  background: #fff3ed;
 }
 
 .file-row + .file-row {
-  border-top: 1px solid #eee;
+  margin-top: 8px;
 }
 
 .file-icon {
@@ -362,6 +390,10 @@ a:not(.sidebar-brand):not(.sidebar-link) {
     padding: 16px 24px;
   }
 
+  .account-sidebar nav .sidebar-link:not(.current) {
+    display: block;
+  }
+
   .sidebar-close {
     display: inline-flex;
   }
@@ -386,6 +418,21 @@ a:not(.sidebar-brand):not(.sidebar-link) {
   .account-topbar {
     min-height: 72px;
     padding: 12px 24px;
+    background: #fff6f2;
+  }
+
+  .upload-action {
+    display: none;
+  }
+
+  .logout-action {
+    border-color: #2c2c2c;
+    background: #2c2c2c;
+    color: #fff;
+  }
+
+  .history-filters {
+    width: 345px;
   }
 
   .account-email {
@@ -398,7 +445,7 @@ a:not(.sidebar-brand):not(.sidebar-link) {
 
   .file-row {
     gap: 10px;
-    padding: 8px 0;
+    padding: 8px 12px;
   }
 
   .file-meta .link-status,
