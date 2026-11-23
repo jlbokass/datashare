@@ -118,6 +118,23 @@ h2 {
   background: rgb(255 129 45 / 22%);
 }
 
+.expired-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  margin: 0;
+  border: 1px solid #edc2c0;
+  border-radius: 8px;
+  background: #ffefed;
+  color: #a82727;
+  font: 400 0.875rem/1.5rem 'DM Sans', sans-serif;
+}
+
+.expired-notice svg {
+  flex: none;
+}
+
 .error-message {
   padding: 12px;
   border-radius: 8px;
