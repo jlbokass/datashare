@@ -9,7 +9,7 @@ lang: fr
 
 [**English**](technical-documentation.md) · [Accueil](index.fr.md) · [Dépôt GitHub](https://github.com/jlbokass/datashare)
 
-**État au 22 novembre 2026.** Le MVP **US01–US06** est implémenté sur `develop`. Les tests E2E et les trois CI sont verts sur la [PR #52](https://github.com/jlbokass/datashare/pull/52), **encore en brouillon et non fusionnée**. Aucune mise en production n'est annoncée.
+**État au 23 novembre 2026.** Les US01–US06, les lots qualité QL-01 à QL-04 et UI-01 sont intégrés à `develop`. Les trois contrôles CI de la [PR #58](https://github.com/jlbokass/datashare/pull/58) sont verts ; le README a été simplifié dans la [PR #60](https://github.com/jlbokass/datashare/pull/60). Aucune mise en production n'est annoncée.
 
 ## 1. Architecture de l'application
 
@@ -18,6 +18,33 @@ lang: fr
 [Description](architecture.fr.md) · [Source draw.io](diagrams/architecture.drawio)
 
 **Navigateur Angular → Nginx → API Laravel → PostgreSQL et stockage privé.** Nginx fournit une origine HTTP unique en développement ; Docker Compose orchestre l'application, la base et le planificateur d'expiration. Le téléchargement public utilise un lien unique, distinct du JWT requis pour les actions du propriétaire. Le trafic local en HTTP ne constitue pas une preuve d'HTTPS en production.
+
+### Organisation du dépôt
+
+```text
+frontend/src/app/    Pages Angular, authentification et routes
+backend/app/         Contrôleurs API, modèles, services et middleware Laravel
+backend/database/    Migrations et factories PostgreSQL
+backend/tests/       Tests Laravel / PHPUnit
+e2e/                 Scénarios Playwright et mesure ponctuelle
+docker/              Configuration PHP et Nginx
+.github/workflows/   CI backend, frontend et E2E
+scripts/             Commandes de vérification
+docs/                Livrables techniques, API et maquettes
+```
+
+### Navigation de l'application
+
+```text
+/                 Accueil public
+├── /register     Inscription
+├── /login        Connexion
+├── /upload       Téléversement (connexion requise)
+├── /account      Historique et suppression (connexion requise)
+└── /share/:token Lien de téléchargement public
+```
+
+Les chemins sont déclarés dans `frontend/src/app/app.routes.ts`. `/upload` réutilise le composant d'accueil et affiche directement le formulaire ; les pages `/upload` et `/account` sont protégées par `authGuard`. Les URLs non reconnues redirigent vers `/`.
 
 ## 2. Choix technologiques justifiés
 
@@ -57,24 +84,40 @@ Ces routes sont implémentées ; les statuts et schémas de requêtes/réponses 
 - **Comptes :** mots de passe hashés/salés, email unique. JWT signé, vérifié côté Laravel et conservé uniquement en mémoire Angular ; la déconnexion efface la session locale mais **ne révoque pas** un JWT déjà émis (durée d'environ 30 minutes).
 - **Fichiers :** stockage hors racine publique, nom interne opaque ; contrôles du type MIME et de l'extension, limite de 1 Go par fichier (5 fichiers et 2 Go par transfert choisis pour le MVP). Le téléchargement est forcé en pièce jointe.
 - **Partages :** token non prédictible, expiration entre 1 et 7 jours, refus des liens invalides/expirés ; purge planifiée des fichiers et métadonnées. Les ZIP ne sont **pas analysés par antivirus**.
-- **Limites :** aucun hébergement public HTTPS, sauvegarde/restauration testée ou audit de sécurité complet n'est démontré. Le **scan basique des dépendances reste à réaliser** dans [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.fr.md).
+- **Limites :** aucun hébergement public HTTPS, sauvegarde/restauration testée ou audit de sécurité complet n'est démontré. Les audits de dépendances **Composer et npm ont été réalisés** dans [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.fr.md), sans vulnérabilité signalée à la date du contrôle ; ils ne remplacent pas un audit complet.
 
 ## 6. Qualité, tests et maintenance
 
 | Livrable demandé | État et renvoi |
 | --- | --- |
-| **TESTING.md** | [Plan, critères et résultats](https://github.com/jlbokass/datashare/blob/quality/ql-02-clean/TESTING.fr.md) : **52 tests Laravel**, **44 tests Angular**, **6 tests Playwright** PASS ; couverture **96,36 %** backend et **79,58 %** frontend ; trois workflows CI verts sur [PR #52](https://github.com/jlbokass/datashare/pull/52) |
-| **SECURITY.md** | [Mesures et risques](https://github.com/jlbokass/datashare/blob/develop/SECURITY.fr.md) documentés ; **scan de vulnérabilités non exécuté** |
-| **PERF.md** | [Plan de performance](https://github.com/jlbokass/datashare/blob/develop/PERF.fr.md) présent ; **mesure d'un endpoint et budget frontend à renseigner** |
-| **MAINTENANCE.md** | [Procédures locales](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.fr.md), mises à jour, fréquence et risques décrits ; aucune reprise de production testée |
+| **TESTING.md** | [Tests et preuves](https://github.com/jlbokass/datashare/blob/develop/TESTING.fr.md) : couverture mesurée **96,36 %** Laravel et **79,58 %** Angular (QL-01), **6 tests E2E** (QL-02) ; trois CI vertes sur [PR #58](https://github.com/jlbokass/datashare/pull/58) |
+| **SECURITY.md** | [Audits Composer et npm](https://github.com/jlbokass/datashare/blob/develop/SECURITY.fr.md) réalisés le 23/11/2026 : **aucune vulnérabilité signalée** (QL-03) |
+| **PERF.md** | [Mesures QL-04](https://github.com/jlbokass/datashare/blob/develop/PERF.fr.md) : téléchargement local, bundle Angular et relevé Lighthouse sur serveur de développement ; **aucune garantie de performance en production** |
+| **MAINTENANCE.md** | [Procédures locales](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.fr.md), mises à jour et risques ; aucune reprise de production testée |
 
-La couverture atteint l'objectif indicatif de 70 %. Une capture de rapport de couverture durable reste à préparer pour la soutenance. Les détails de tests sont dans **TESTING**, sans les dupliquer ici.
+La couverture atteint l'objectif indicatif de 70 %. Une capture durable du rapport reste à préparer pour la soutenance. Les méthodes, dates et limites des mesures figurent dans les documents liés ci-dessus.
+
+### Workflow et conventions de développement
+
+**Cycle de travail :** issue ciblée → branche dédiée (`feat/`, `fix/`, `quality/` ou `docs/`) → commits → PR vers `develop` → CI et revue humaine → fusion. Une livraison vers `main` protégée passe par une PR distincte. Le [journal IA](ai-journal.fr.md) sépare les contributions de l'IA des décisions et validations du développeur.
+
+**Conventions effectivement observables :**
+
+- **PHP/Laravel :** chargement PSR-4 (`App\` vers `backend/app/`), contrôleurs API, modèles Eloquent, services et validation côté serveur ; mise en forme vérifiée par **Laravel Pint** ; tests **PHPUnit** dans `backend/tests/`.
+- **Angular/TypeScript :** composants et templates par écran, routes centralisées, garde d'authentification, tests `*.spec.ts` proches du code ; `.editorconfig` frontend : **2 espaces** et **guillemets simples** en TypeScript. Tests Angular via **Vitest**.
+- **E2E :** **Playwright/Chromium** sur `compose.test.yaml`, avec PostgreSQL et stockage isolés. La CI GitHub Actions lance les contrôles backend, frontend et E2E sur PR/push vers `develop` ou `main`.
+
+**Langue de suivi :** pour les prochains lots, rédiger les issues et descriptions de PR en **français**, tout en conservant les termes techniques usuels et les documents de référence **FR/EN**. Les anciennes issues bilingues restent inchangées.
+
+**Conventions de commits :** de nombreux messages suivent déjà `type(scope): description` (`feat`, `fix`, `test`, `docs`, `ci`). Certains commits anciens ou de fusion sont moins homogènes : **l'historique n'est pas réécrit**. Pour la suite, retenir ce format, un changement cohérent par commit et une PR par lot.
+
+**Progression attestée :** [conception/API — PR #16](https://github.com/jlbokass/datashare/pull/16) → [US06 — PR #46](https://github.com/jlbokass/datashare/pull/46) → [couverture — PR #50](https://github.com/jlbokass/datashare/pull/50) → [E2E — PR #52](https://github.com/jlbokass/datashare/pull/52) → [sécurité/performance — PR #54](https://github.com/jlbokass/datashare/pull/54) et [#56](https://github.com/jlbokass/datashare/pull/56) → [UI — PR #58](https://github.com/jlbokass/datashare/pull/58). Les [commits](https://github.com/jlbokass/datashare/commits/develop/) et PR montrent les étapes et corrections ; ils ne prouvent pas une cadence calendaire uniforme.
 
 ## 7. Installation et exécution
 
-[README complet](https://github.com/jlbokass/datashare/blob/develop/README.fr.md) · [Guide Docker](docker-setup.fr.md)
+[README](https://github.com/jlbokass/datashare/blob/develop/README.fr.md) · [Installation pas à pas](installation.fr.md)
 
-**Prérequis :** Git, Docker et Compose. Initialiser les fichiers `.env` privés selon le README, notamment les secrets PostgreSQL, Laravel et JWT ; ne jamais les commiter.
+**Prérequis :** Git, Docker et Compose. Pour une installation neuve, initialiser les fichiers `.env` privés selon le [guide d'installation](installation.fr.md) (secrets PostgreSQL, Laravel et JWT) ; ne jamais les commiter.
 
 Depuis la racine, une fois les dépendances initialisées :
 
@@ -96,4 +139,4 @@ L'IA a aidé à préparer certaines implémentations, tests et documentations ; 
 
 ## Travaux restant avant la remise
 
-**Obligatoires encore ouverts :** scan basique de sécurité, test mesuré d'un endpoint critique et budget frontend, preuve visuelle durable de couverture, et revue [Figma / responsive / accessibilité](https://github.com/jlbokass/datashare/issues/37). Préparer également le support de soutenance et la fiche d'autoévaluation. Aucun de ces éléments n'impose de nouveaux tests E2E.
+**À finaliser avant la soutenance :** conserver une capture durable du rapport de couverture, préparer le support de présentation et la fiche d'autoévaluation ; clarifier la règle OC applicable à l'usage de l'IA (section 8). Les audits QL-03, mesures QL-04 et la recette UI-01 sont terminés. [HIST-01 — purge/historique](https://github.com/jlbokass/datashare/issues/57) reste un arbitrage séparé ; la pagination est [facultative](https://github.com/jlbokass/datashare/issues/59).
