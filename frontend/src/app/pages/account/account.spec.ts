@@ -71,7 +71,8 @@ describe('Account — personal history', () => {
     openHistory().flush({ transfers: [] });
 
     expect(text()).toContain('Aucun transfert actif');
-    expect(fixture.nativeElement.querySelector('a[href="/"]')).not.toBeNull();
+    const uploadLinks = fixture.nativeElement.querySelectorAll('a[href="/upload"]');
+    expect(uploadLinks).toHaveLength(3); // Sidebar, header action and empty-history action.
     expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeNull();
   });
 
