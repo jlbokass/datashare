@@ -79,7 +79,7 @@ describe('Share — public file access', () => {
     expect(card.querySelector('h1')?.textContent).toContain('Télécharger un fichier');
     expect(card.querySelector('.file-details strong')?.textContent).toContain('report.pdf');
     expect(card.querySelector('.file-details small')?.textContent).toContain('2,6 Mo');
-    expect(card.querySelector('.expiry-notice')?.textContent).toContain('Ce fichier expirera demain.');
+    expect(card.querySelector('.expiry-notice')?.textContent).toContain('Ce fichier expirera demain à 12:00.');
     expect(card.querySelector('.share-summary')).toBeNull();
     expect(card.querySelector('.home-link')).toBeNull();
     const download = card.querySelector('a.download-link') as HTMLAnchorElement;
@@ -109,8 +109,11 @@ describe('Share — public file access', () => {
     expect(links.map(link => link.getAttribute('aria-label'))).toEqual([
       'Télécharger one.pdf', 'Télécharger two.pdf',
     ]);
+    const localTime = new Intl.DateTimeFormat('fr-FR', {
+      hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+    }).format(expiry);
     expect(fixture.nativeElement.querySelector('.expiry-notice')?.textContent)
-      .toContain('Ces fichiers expireront dans 3 jours.');
+      .toContain(`Ces fichiers expireront dans 3 jours à ${localTime}.`);
   });
 
   it('shows expiration error for HTTP 410', () => {
