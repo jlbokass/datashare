@@ -51,8 +51,18 @@
   background: #100218;
 }
 
-.hero-action:hover .hero-action-inner {
+.hero-action:not(.hero-action--decorative):hover .hero-action-inner {
   background: #2c2c2c;
+}
+
+.hero-action--decorative {
+  cursor: default;
+}
+
+.hero-hint a {
+  color: #412016;
+  font-weight: 600;
+  text-underline-offset: 3px;
 }
 
 .hero-hint {
@@ -175,7 +185,12 @@ select:focus-visible,
 }
 
 .change-files {
+  align-self: center;
+}
+
+.change-files--multiple {
   align-self: flex-start;
+  margin-top: -8px;
 }
 
 .remove-action:hover:not(:disabled),
@@ -224,6 +239,16 @@ select,
   background: rgb(255 129 45 / 22%);
 }
 
+.upload-panel form > .primary-action {
+  width: auto;
+  min-width: 124px;
+  align-self: center;
+}
+
+.upload-panel:has(.error-message) form > .primary-action {
+  width: 100%;
+}
+
 .primary-action:disabled,
 .remove-action:disabled {
   opacity: 0.55;
@@ -241,9 +266,19 @@ select,
   cursor: pointer;
 }
 
-.upload-panel--success p {
-  margin: 0 0 16px;
+.upload-panel--success .success-message {
+  margin: 16px 0;
   font: 400 1rem/1.5 'Inter', sans-serif;
+}
+
+.upload-panel--success .selected-files {
+  margin-bottom: 8px;
+}
+
+.upload-panel--success > .primary-action {
+  width: fit-content;
+  min-width: 145px;
+  margin-inline: auto;
 }
 
 .upload-panel--success .field-label {
@@ -257,6 +292,16 @@ select,
 
 .upload-panel--success .secondary-action {
   margin-top: 8px;
+}
+
+.upload-panel .error-message {
+  padding: 0;
+  background: transparent;
+  color: #c63e35;
+}
+
+.invalid-size {
+  color: #c63e35 !important;
 }
 
 .panel-note {
@@ -316,6 +361,10 @@ select,
     width: 100%;
     padding: 24px;
     border-radius: 16px 16px 0 0;
+  }
+
+  .upload-panel--success > .primary-action {
+    width: 100%;
   }
 
   .selected-files li {
