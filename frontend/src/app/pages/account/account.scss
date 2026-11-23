@@ -1,28 +1,382 @@
-:host { display: block; width: min(100%, 48rem); margin: auto; }
-.account-card { padding: clamp(1rem, 4vw, 2rem); background: white; border-radius: 8px;
-  border: 1px solid #d9d9d9; }
-h1 { font: 700 2rem/1.25 'DM Sans', sans-serif; }
-h2 { font-size: 1.4rem; }
-h3 { margin: 0 0 .6rem; font-size: 1rem; overflow-wrap: anywhere; }
-p { line-height: 1.5; overflow-wrap: anywhere; }
-button { padding: .7rem 1rem; border-radius: 8px; border: 1px solid #2c2c2c;
-  background: #2c2c2c; color: white; cursor: pointer; }
-a { color: #47377e; text-underline-offset: .2em; }
-a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid #6750a4; outline-offset: 3px; }
-.history { margin-top: 2rem; border-top: 1px solid #d9d9d9; padding-top: 1rem; }
-.expiry-switch { display: flex; align-items: center; gap: .6rem; line-height: 1.5; cursor: pointer; }
-.expiry-switch input { width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
-.hint { color: #555; font-size: .9rem; }
-.transfer-list, .file-list { list-style: none; padding: 0; margin: 0; }
-.transfer { border-top: 1px solid #d9d9d9; padding: 1.5rem 0; }
-.transfer-heading { display: flex; gap: .75rem 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between; }
-.link-status { color: #24563e; font-weight: 700; }
-.link-status.expired { color: #8a362b; }
-.file-list li { padding: 1rem 0; }
-.file-list li + li { border-top: 1px solid #eee; }
-dl { display: flex; flex-wrap: wrap; gap: .75rem 2rem; margin: 0; }
-dt { font-size: .85rem; color: #555; }
-dd { margin: .25rem 0 0; }
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 100dvh;
+}
 
-.delete-file { margin-top: 1rem; background: white; color: #8a362b; border-color: #8a362b; }
-button:disabled { opacity: .6; cursor: wait; }
+.account-layout {
+  display: flex;
+  min-height: 100dvh;
+  background: #fff;
+  color: #1e1e1e;
+  font-family: 'Inter', sans-serif;
+}
+
+.account-sidebar {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  width: 259px;
+  min-height: 100dvh;
+  border-right: 1px solid #d9d9d9;
+  background: #fff;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  min-height: 72px;
+  padding: 16px 32px;
+  font: 700 2rem/2.5rem 'DM Sans', sans-serif;
+  color: #1e1e1e;
+  text-decoration: none;
+}
+
+.account-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 8px;
+  padding: 24px;
+}
+
+.sidebar-link {
+  display: block;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: #1e1e1e;
+  text-decoration: none;
+  font: 400 1rem/1.5rem 'DM Sans', sans-serif;
+}
+
+.sidebar-link.current,
+.sidebar-link:hover {
+  background: #ffeadb;
+}
+
+.sidebar-footer {
+  padding: 16px 24px;
+  font-size: 0.875rem;
+  color: #595959;
+}
+
+.account-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.account-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 72px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #d9d9d9;
+}
+
+.account-topbar h1 {
+  margin: 0;
+  font: 700 1.25rem/1.5rem 'DM Sans', sans-serif;
+}
+
+.account-identity {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  min-width: 0;
+}
+
+.account-email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 400 0.875rem/1.5rem 'Inter', sans-serif;
+}
+
+button,
+.inline-action {
+  border-radius: 8px;
+  cursor: pointer;
+  font: 400 0.875rem/1rem 'DM Sans', sans-serif;
+}
+
+.logout-action {
+  flex: none;
+  border: 1px solid #2c2c2c;
+  background: #2c2c2c;
+  color: white;
+  padding: 8px 12px;
+}
+
+.menu-toggle {
+  display: none;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: #1e1e1e;
+}
+
+.menu-backdrop {
+  display: none;
+}
+
+.history {
+  width: 100%;
+  max-width: 1280px;
+  padding: 24px;
+  margin: 0 auto;
+}
+
+.history h2 {
+  margin: 0 0 24px;
+  font: 700 1.75rem/2.5rem 'DM Sans', sans-serif;
+}
+
+.history-filters {
+  display: flex;
+  max-width: 345px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+}
+
+.history-filters button {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 8px;
+  background: #fff;
+  color: #1e1e1e;
+}
+
+.history-filters button + button {
+  border-left: 1px solid #d9d9d9;
+}
+
+.history-filters button.selected {
+  background: #2c2c2c;
+  color: #fff;
+}
+
+.history-filters button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.hint {
+  margin: 0 0 24px;
+  color: #595959;
+  font: 400 0.875rem/1.5rem 'Inter', sans-serif;
+}
+
+.transfer-list,
+.file-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.transfer {
+  padding: 16px 0;
+  border-top: 1px solid #d9d9d9;
+}
+
+.transfer-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+  margin-bottom: 8px;
+  color: #595959;
+  font: 400 0.875rem/1.5rem 'Inter', sans-serif;
+}
+
+.link-status {
+  color: #24563e;
+  font-weight: 600;
+}
+
+.link-status.expired {
+  color: #8a362b;
+}
+
+a:not(.sidebar-brand):not(.sidebar-link) {
+  color: #9b4b13;
+  text-underline-offset: 3px;
+}
+
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  padding: 12px 16px;
+}
+
+.file-row + .file-row {
+  border-top: 1px solid #eee;
+}
+
+.file-icon {
+  flex: none;
+  color: #2c2c2c;
+}
+
+.file-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-details h3 {
+  margin: 0 0 4px;
+  overflow-wrap: anywhere;
+  font: 400 1rem/1.5rem 'Inter', sans-serif;
+}
+
+.file-details dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  font: 400 0.75rem/1.5rem 'DM Sans', sans-serif;
+  color: #595959;
+}
+
+.file-details dl > div {
+  display: flex;
+  gap: 4px;
+}
+
+.file-details dd {
+  margin: 0;
+}
+
+.delete-file,
+.inline-action {
+  flex: none;
+  padding: 8px 12px;
+  border: 1px solid #ffa569;
+  background: #fff;
+  color: #9b4b13;
+}
+
+.delete-file:disabled,
+.inline-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.feedback {
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.feedback.success { background: #e6f6e9; }
+.feedback.error { background: #ffefed; color: #8f2626; }
+
+.upload-link {
+  display: inline-block;
+  margin-top: 8px;
+}
+
+:focus-visible {
+  outline: 3px solid #e27f29;
+  outline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  .account-sidebar {
+    position: fixed;
+    z-index: 30;
+    top: 0;
+    left: 0;
+    width: min(295px, calc(100vw - 48px));
+    height: 100dvh;
+    transform: translateX(-100%);
+    transition: transform 180ms ease;
+    box-shadow: 4px 0 12px rgb(0 0 0 / 12%);
+  }
+
+  .account-sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  .menu-backdrop {
+    display: block;
+    position: fixed;
+    z-index: 20;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    background: rgb(0 0 0 / 35%);
+    cursor: pointer;
+  }
+
+  .menu-toggle { display: inline-flex; }
+
+  .account-topbar {
+    min-height: 72px;
+    padding: 12px 24px;
+  }
+
+  .account-topbar h1 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .account-email {
+    max-width: 170px;
+  }
+
+  .history {
+    padding: 24px;
+  }
+
+  .file-row {
+    gap: 12px;
+    padding: 12px 0;
+  }
+
+  .file-details dl {
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+@media (max-width: 380px) {
+  .account-topbar,
+  .history {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .account-email {
+    max-width: 120px;
+  }
+
+  .file-row {
+    flex-wrap: wrap;
+  }
+
+  .delete-file {
+    margin-left: 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-sidebar { transition: none; }
+}
