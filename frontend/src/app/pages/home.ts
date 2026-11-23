@@ -32,6 +32,7 @@ export class Home implements OnInit {
   private readonly navigation = inject(HomeNavigation);
 
   readonly files = signal<File[]>([]);
+  readonly rejectedFiles = signal<File[]>([]);
   readonly expiresInDays = signal(7);
   readonly demoEnabled = signal(false);
   readonly demoSelected = signal(false);
@@ -84,28 +85,32 @@ export class Home implements OnInit {
     this.shareUrl.set(null);
     this.copied.set(false);
     this.errorMessage.set(null);
+    this.rejectedFiles.set([]);
+
+    // Keep invalid files visible in the panel so they can be replaced immediately.
+    const reject = (message: string): void => {
+      this.files.set([]);
+      this.rejectedFiles.set(files);
+      this.errorMessage.set(message);
+    };
 
     if (files.length > 5) {
-      this.files.set([]);
-      this.errorMessage.set('Tu peux envoyer jusqu’à 5 fichiers par transfert.');
+      reject('Tu peux envoyer jusqu’à 5 fichiers par transfert.');
       return;
     }
 
     if (files.some((file) => file.size > this.maxFileBytes)) {
-      this.files.set([]);
-      this.errorMessage.set('La taille de chaque fichier est limitée à 1 Go.');
+      reject('La taille de chaque fichier est limitée à 1 Go.');
       return;
     }
 
     if (files.reduce((total, file) => total + file.size, 0) > this.maxTotalBytes) {
-      this.files.set([]);
-      this.errorMessage.set('La taille totale est limitée à 2 Go.');
+      reject('La taille totale est limitée à 2 Go.');
       return;
     }
 
     if (files.some((file) => !this.allowedExtensions.has(file.name.split('.').pop()?.toLowerCase() ?? ''))) {
-      this.files.set([]);
-      this.errorMessage.set('Type de fichier non autorisé. Consulte les formats acceptés.');
+      reject('Type de fichier non autorisé. Consulte les formats acceptés.');
       return;
     }
 
@@ -138,7 +143,9 @@ export class Home implements OnInit {
   }
 
   formatSize(bytes: number): string {
-    return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(bytes / 1_000_000) + ' Mo';
+    const unit = bytes >= 1_000_000_000 ? 'Go' : 'Mo';
+    const divisor = unit === 'Go' ? 1_000_000_000 : 1_000_000;
+    return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(bytes / divisor) + ' ' + unit;
   }
 
   onSubmit(event: SubmitEvent): void {
@@ -220,6 +227,7 @@ export class Home implements OnInit {
     }
 
     this.files.set([]);
+    this.rejectedFiles.set([]);
     this.transfer.set(null);
     this.shareUrl.set(null);
     this.errorMessage.set(null);
