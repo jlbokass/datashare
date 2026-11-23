@@ -106,8 +106,9 @@
                             {{ transfer.status === 'valid' ? 'Valide' : 'Expiré' }}
                           </span>
                           <span>
-                            {{ transfer.status === 'valid' ? 'Expire le' : 'Expiré le' }}
-                            <time [attr.datetime]="transfer.expires_at">{{ formatDate(transfer.expires_at) }}</time>
+                            <time [attr.datetime]="transfer.expires_at" [attr.title]="formatDate(transfer.expires_at)">
+                              {{ formatExpiry(transfer.expires_at, transfer.status) }}
+                            </time>
                           </span>
                           <span>{{ formatSize(file.size_bytes) }}</span>
                           <span class="sent-date">Envoyé le
