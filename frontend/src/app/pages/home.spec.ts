@@ -173,6 +173,12 @@ describe('Home upload', () => {
     expect(fixture.nativeElement.querySelector('.upload-panel [role="alert"]')).toBeNull();
     expect((fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement).disabled)
       .toBe(false);
+
+    const form = fixture.nativeElement.querySelector('.upload-panel form') as HTMLFormElement;
+    expect(Array.from(form.children).map(child => child.className)).toEqual([
+      'selected-files', 'field', 'primary-action',
+    ]);
+    expect(form.querySelector('button[type="submit"] svg.button-icon')).not.toBeNull();
   });
 
   it('displays uploaded file details and a copy action in the confirmation panel', () => {
