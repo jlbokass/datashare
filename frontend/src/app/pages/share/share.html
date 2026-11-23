@@ -1,22 +1,23 @@
 <section class="share-card" aria-labelledby="share-title">
-  <h1 id="share-title">Un fichier à récupérer ?</h1>
+  <h1 id="share-title">Télécharger un fichier</h1>
 
   @if (loading()) {
-    <p role="status">Chargement du transfert...</p>
+    <p class="loading-message" role="status">Chargement du transfert...</p>
   } @else if (errorMessage(); as error) {
     <div class="error-message" role="alert">
       <h2>Lien indisponible</h2>
       <p>{{ error }}</p>
     </div>
   } @else if (share(); as details) {
-    <div class="share-summary">
-      <p>Ce transfert contient {{ details.files.length }} fichier(s).</p>
-      <p>Disponible jusqu'au <strong>{{ formatDate(details.expires_at) }}</strong>.</p>
-    </div>
-
     <ul class="share-files" aria-label="Fichiers disponibles">
       @for (file of details.files; track file.id) {
         <li>
+          <svg class="file-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/>
+            <path d="M14 2v6h6M8 13h8"/>
+          </svg>
           <div class="file-details">
             <strong>{{ file.original_name }}</strong>
             <small>{{ formatSize(file.size_bytes) }} · {{ file.mime_type }}</small>
@@ -26,6 +27,11 @@
         </li>
       }
     </ul>
+
+    <div class="share-summary" role="note">
+      <p>Ce transfert contient {{ details.files.length }} fichier(s).</p>
+      <p>Disponible jusqu'au <strong>{{ formatDate(details.expires_at) }}</strong>.</p>
+    </div>
 
     @if (hasZip(details.files)) {
       <p class="zip-note">
