@@ -119,3 +119,18 @@
     flex-basis: 100%;
   }
 }
+
+/* The authenticated space uses the Figma sidebar instead of the public shell. */
+.site-shell:has(.site-main > app-account) {
+  background: #fff;
+}
+
+.site-shell:has(.site-main > app-account) > .site-header,
+.site-shell:has(.site-main > app-account) > .site-footer {
+  display: none;
+}
+
+.site-main:has(> app-account) {
+  display: block;
+  padding: 0;
+}
