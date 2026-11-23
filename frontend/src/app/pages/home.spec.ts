@@ -2,7 +2,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { AuthService } from '../auth/auth.service';
+import { authGuard } from '../auth/auth.guard';
 import { Home } from './home';
 import { HomeNavigation } from './home-navigation';
 
@@ -13,7 +15,11 @@ describe('Home upload', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Home],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideRouter([{ path: 'upload', component: Home, canActivate: [authGuard] }]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
     }).compileComponents();
 
     http = TestBed.inject(HttpTestingController);
@@ -104,37 +110,40 @@ describe('Home upload', () => {
       .toContain('Connecte-toi');
   });
 
-  it('opens the upload screen before choosing files and returns home on reset', () => {
+  it('links the authenticated home icon to the dedicated upload route', () => {
     signIn();
     const fixture = TestBed.createComponent(Home);
     fixture.detectChanges();
     http.expectOne('/api/demo/capabilities').flush({ five_minute_expiry: false });
 
+    expect(fixture.nativeElement.querySelector('a.hero-action')?.getAttribute('href')).toBe('/upload');
     expect(fixture.nativeElement.querySelector('.upload-panel')).toBeNull();
-    const open = fixture.nativeElement.querySelector('button.hero-action') as HTMLButtonElement;
-    expect(open).not.toBeNull();
-    open.click();
-    fixture.detectChanges();
+  });
 
-    expect(fixture.nativeElement.querySelector('.upload-panel .empty-selection')).not.toBeNull();
-    expect(fixture.nativeElement.querySelector('.upload-panel .panel-title')?.textContent)
-      .toContain('Ajouter des fichiers');
-    expect((fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement).disabled)
-      .toBe(true);
+  it('displays the upload panel immediately on /upload without clicking the icon', async () => {
+    signIn();
+    const harness = await RouterTestingHarness.create();
+    const home = await harness.navigateByUrl('/upload', Home);
+    http.expectOne('/api/demo/capabilities').flush({ five_minute_expiry: false });
+    harness.detectChanges();
 
-    fixture.componentInstance.setFiles([new File(['content'], 'report.pdf', { type: 'application/pdf' })]);
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.selected-files .file-name')?.textContent)
+    expect(home.uploadPanelOpen()).toBe(true);
+    expect(harness.routeNativeElement?.querySelector('.upload-panel .empty-selection')).not.toBeNull();
+    expect(harness.routeNativeElement?.querySelector('.upload-hero')).toBeNull();
+    expect((harness.routeNativeElement?.querySelector('button[type="submit"]') as HTMLButtonElement).disabled).toBe(true);
+
+    home.setFiles([new File(['content'], 'report.pdf', { type: 'application/pdf' })]);
+    harness.detectChanges();
+    expect(harness.routeNativeElement?.querySelector('.selected-files .file-name')?.textContent)
       .toContain('report.pdf');
 
-    fixture.componentInstance.removeFile(0);
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.upload-panel .empty-selection')).not.toBeNull();
+    home.removeFile(0);
+    harness.detectChanges();
+    expect(harness.routeNativeElement?.querySelector('.upload-panel .empty-selection')).not.toBeNull();
 
-    fixture.componentInstance.reset();
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.upload-panel')).toBeNull();
-    expect(fixture.nativeElement.querySelector('button.hero-action')).not.toBeNull();
+    home.reset();
+    harness.detectChanges();
+    expect(harness.routeNativeElement?.querySelector('.upload-panel .empty-selection')).not.toBeNull();
   });
 
   it('shows oversized selection inside the panel, disables upload, and allows replacement', () => {
