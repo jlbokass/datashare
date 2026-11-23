@@ -33,6 +33,7 @@
       <h1 id="account-title">Mon espace</h1>
       @if (auth.user(); as user) {
         <div class="account-identity">
+          <a class="upload-action" routerLink="/">Ajouter des fichiers</a>
           <span class="account-email">{{ user.email }}</span>
           <button class="logout-action" type="button" (click)="logout()">Déconnexion</button>
         </div>
@@ -116,18 +117,6 @@
                       </div>
 
                       <div class="file-actions">
-                        @if (transfer.status === 'valid') {
-                          <a class="share-action" [routerLink]="transfer.share_url"
-                            aria-label="Ouvrir le lien de partage" title="Ouvrir le lien de partage">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                              stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                              stroke-linejoin="round" aria-hidden="true">
-                              <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7.1-7.1l-1.7 1.7"/>
-                              <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7.1 7.1l1.7-1.7"/>
-                            </svg>
-                            <span class="action-label">Partager</span>
-                          </a>
-                        }
                         <button class="delete-file" type="button" (click)="deleteFile(transfer, file)"
                           [attr.aria-label]="'Supprimer ' + file.original_name"
                           [disabled]="deletingFileId() !== null">
@@ -140,6 +129,18 @@
                             {{ deletingFileId() === file.id ? 'Suppression en cours…' : 'Supprimer' }}
                           </span>
                         </button>
+                        @if (transfer.status === 'valid') {
+                          <a class="share-action" [routerLink]="transfer.share_url"
+                            aria-label="Ouvrir le lien de partage" title="Ouvrir le lien de partage">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                              stroke-linejoin="round" aria-hidden="true">
+                              <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7.1-7.1l-1.7 1.7"/>
+                              <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7.1 7.1l1.7-1.7"/>
+                            </svg>
+                            <span class="action-label">Accéder</span>
+                          </a>
+                        }
                       </div>
                     </li>
                   }
