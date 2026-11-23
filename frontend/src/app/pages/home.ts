@@ -146,9 +146,31 @@ export class Home implements OnInit {
   }
 
   formatSize(bytes: number): string {
-    const unit = bytes >= 1_000_000_000 ? 'Go' : 'Mo';
-    const divisor = unit === 'Go' ? 1_000_000_000 : 1_000_000;
+    const divisor = bytes >= 1_000_000_000 ? 1_000_000_000
+      : bytes >= 1_000_000 ? 1_000_000
+      : bytes >= 1_000 ? 1_000 : 1;
+    const unit = divisor === 1_000_000_000 ? 'Go'
+      : divisor === 1_000_000 ? 'Mo'
+      : divisor === 1_000 ? 'Ko' : 'octet' + (bytes > 1 ? 's' : '');
     return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(bytes / divisor) + ' ' + unit;
+  }
+
+  confirmationMessage(): string {
+    const transfer = this.transfer();
+    if (!transfer) return '';
+
+    const subject = transfer.files.length === 1
+      ? 'ton fichier sera conservé'
+      : 'tes fichiers seront conservés';
+
+    // Use the chosen retention period; the exact server expiry remains available on the link.
+    const duration = this.demoEnabled() && this.demoSelected()
+      ? '5 minutes'
+      : this.expiresInDays() === 7 ? 'une semaine'
+      : this.expiresInDays() === 1 ? 'une journée'
+      : this.expiresInDays() + ' jours';
+
+    return `Félicitations, ${subject} chez nous pendant ${duration} !`;
   }
 
   onSubmit(event: SubmitEvent): void {
