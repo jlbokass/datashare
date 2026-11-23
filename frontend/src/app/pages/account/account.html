@@ -1,6 +1,14 @@
 <section class="account-layout" aria-labelledby="account-title">
   <aside class="account-sidebar" id="account-sidebar" [class.is-open]="menuOpen()">
-    <a class="sidebar-brand" routerLink="/" aria-label="DataShare, accueil">DataShare</a>
+    <div class="sidebar-heading">
+      <button class="sidebar-close" type="button" (click)="menuOpen.set(false)" aria-label="Fermer le menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18"/>
+        </svg>
+      </button>
+      <a class="sidebar-brand" routerLink="/" aria-label="DataShare, accueil">DataShare</a>
+    </div>
     <nav aria-label="Navigation de l'espace personnel">
       <a class="sidebar-link current" routerLink="/account" aria-current="page" (click)="menuOpen.set(false)">Mes fichiers</a>
       <a class="sidebar-link" routerLink="/" (click)="menuOpen.set(false)">Envoyer des fichiers</a>
@@ -51,7 +59,9 @@
             [disabled]="historyLoading() || deletingFileId() !== null"
             (click)="setHistoryFilter('expired')">Expiré</button>
         </div>
-        <p class="hint">Les transferts déjà purgés n'apparaissent plus dans l'historique.</p>
+        @if (historyFilter() !== 'active') {
+          <p class="hint">Les transferts déjà purgés n'apparaissent plus dans l'historique.</p>
+        }
 
         @if (deletionSuccess(); as message) {
           <p class="feedback success" role="status">{{ message }}</p>
@@ -78,17 +88,6 @@
           <ul class="transfer-list">
             @for (transfer of visibleTransfers(); track transfer.id) {
               <li class="transfer">
-                <div class="transfer-heading">
-                  <span class="link-status" [class.expired]="transfer.status === 'expired'">
-                    Lien : {{ transfer.status === 'valid' ? 'Valide' : 'Expiré' }}
-                  </span>
-                  <span>Expiration :
-                    <time [attr.datetime]="transfer.expires_at">{{ formatDate(transfer.expires_at) }}</time>
-                  </span>
-                  @if (transfer.status === 'valid') {
-                    <a [routerLink]="transfer.share_url">Ouvrir le lien de partage</a>
-                  }
-                </div>
                 <ul class="file-list">
                   @for (file of transfer.files; track file.id) {
                     <li class="file-row">
@@ -98,18 +97,50 @@
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/>
                         <path d="M14 2v6h6M8 13h8"/>
                       </svg>
+
                       <div class="file-details">
                         <h3>{{ file.original_name }}</h3>
-                        <dl>
-                          <div><dt>Taille</dt><dd>{{ formatSize(file.size_bytes) }}</dd></div>
-                          <div><dt>Date d'envoi</dt><dd><time [attr.datetime]="file.uploaded_at">{{ formatDate(file.uploaded_at) }}</time></dd></div>
-                        </dl>
+                        <div class="file-meta">
+                          <span class="link-status" [class.expired]="transfer.status === 'expired'">
+                            {{ transfer.status === 'valid' ? 'Valide' : 'Expiré' }}
+                          </span>
+                          <span>
+                            {{ transfer.status === 'valid' ? 'Expire le' : 'Expiré le' }}
+                            <time [attr.datetime]="transfer.expires_at">{{ formatDate(transfer.expires_at) }}</time>
+                          </span>
+                          <span>{{ formatSize(file.size_bytes) }}</span>
+                          <span class="sent-date">Envoyé le
+                            <time [attr.datetime]="file.uploaded_at">{{ formatDate(file.uploaded_at) }}</time>
+                          </span>
+                        </div>
                       </div>
-                      <button class="delete-file" type="button" (click)="deleteFile(transfer, file)"
-                        [attr.aria-label]="'Supprimer ' + file.original_name"
-                        [disabled]="deletingFileId() !== null">
-                        {{ deletingFileId() === file.id ? 'Suppression en cours…' : 'Supprimer' }}
-                      </button>
+
+                      <div class="file-actions">
+                        @if (transfer.status === 'valid') {
+                          <a class="share-action" [routerLink]="transfer.share_url"
+                            aria-label="Ouvrir le lien de partage" title="Ouvrir le lien de partage">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                              stroke-linejoin="round" aria-hidden="true">
+                              <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7.1-7.1l-1.7 1.7"/>
+                              <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7.1 7.1l1.7-1.7"/>
+                            </svg>
+                            <span class="action-label">Partager</span>
+                          </a>
+                        }
+                        <button class="delete-file" type="button" (click)="deleteFile(transfer, file)"
+                          [attr.aria-label]="'Supprimer ' + file.original_name"
+                          [disabled]="deletingFileId() !== null">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 6h18M8 6V4h8v2M5 6l1 14h12l1-14M10 10v7M14 10v7"/>
+                          </svg>
+                          <span class="action-label">
+                            {{ deletingFileId() === file.id ? 'Suppression en cours…' : 'Supprimer' }}
+                          </span>
+                        </button>
+                      </div>
                     </li>
                   }
                 </ul>
