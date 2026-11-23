@@ -240,7 +240,7 @@ button,
   color: #8a362b;
 }
 
-a:not(.sidebar-brand):not(.sidebar-link) {
+a:not(.sidebar-brand):not(.sidebar-link):not(.upload-action):not(.share-action) {
   color: #9b4b13;
   text-underline-offset: 3px;
 }
