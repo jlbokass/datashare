@@ -29,6 +29,7 @@ export class Share {
   readonly loading = signal(true);
   readonly share = signal<PublicShare | null>(null);
   readonly errorMessage = signal<string | null>(null);
+  readonly expired = signal(false);
 
   private readonly token = signal<string | null>(null);
 
@@ -38,6 +39,7 @@ export class Share {
 
       this.share.set(null);
       this.errorMessage.set(null);
+      this.expired.set(false);
       this.loading.set(true);
       this.token.set(token);
 
@@ -55,7 +57,8 @@ export class Share {
         },
         error: (error: HttpErrorResponse) => {
           if (error.status === 410) {
-            this.errorMessage.set('Ce lien de partage a expiré.');
+            this.expired.set(true);
+            this.errorMessage.set("Ce fichier n'est plus disponible en téléchargement car il a expiré.");
           } else if (error.status === 404) {
             this.errorMessage.set('Ce lien de partage est introuvable.');
           } else {
