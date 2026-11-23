@@ -31,3 +31,10 @@ Les contrôles d'accès applicatifs et les parcours principaux sont également c
 - **Portée des scans :** les audits de dépendances détectent des avis connus à la date du contrôle ; ils ne remplacent ni l'analyse du code, ni un audit des conteneurs, ni un test d'intrusion.
 
 **Conclusion QL-03 :** exigence de scan basique satisfaite, **aucune vulnérabilité signalée, aucune correction à appliquer**. Les limites ci-dessus sont documentées et ne constituent pas de nouvelles exigences pour ce lot.
+
+## 4. Règles de validation et d'authentification
+
+- Formats autorisés (extension et MIME côté serveur) : PDF, PNG, JPEG, GIF, WEBP, TXT, MP3, MP4 et ZIP. Le filtre du sélecteur Angular est une aide à la saisie, pas un contrôle de sécurité. Pas d'envoi direct de dossier ; le ZIP reste opaque. Limites décimales : 1 000 000 000 octets par fichier, 2 000 000 000 octets par transfert et cinq fichiers au maximum. Les deux dernières sont des choix locaux, pas des exigences OC.
+- Inscription : email normalisé en minuscules, unicité en base, mot de passe de huit caractères minimum, aucun JWT délivré à l'inscription. Dix inscriptions par minute et par client.
+- Connexion : bibliothèque `firebase/php-jwt`, signature HS256, clé `JWT_SECRET` distincte de `APP_KEY`, contrôle de signature, expiration, émetteur et utilisateur. Durée de vie : 1 800 secondes ; cinq tentatives par minute et par client. Aucun refresh token ni révocation immédiate. Le garde Angular ne remplace pas les contrôles Laravel.
+- Les tokens de partage publics sont distincts des JWT (64 caractères hexadécimaux). Les chemins privés et données du propriétaire ne sont pas exposés ; téléchargement forcé, `nosniff` et absence de cache partagé.

@@ -2,7 +2,7 @@
 
 [English](TESTING.md) · [Documentation technique](docs/technical-documentation.fr.md) · [Suivi QL-02](https://github.com/jlbokass/datashare/issues/51)
 
-**Bilan du 22 novembre 2026.** Les fonctionnalités obligatoires US01–US06 disposent de tests backend, frontend et de trois scénarios E2E critiques. Sur la [PR #52](https://github.com/jlbokass/datashare/pull/52), les trois workflows GitHub Actions sont **verts**. La fusion dans `develop` reste soumise à revue.
+**Bilan du 22 novembre 2026.** Les fonctionnalités obligatoires US01–US06 disposent de tests backend, frontend et de trois scénarios E2E critiques. Sur la [PR #52](https://github.com/jlbokass/datashare/pull/52), les trois workflows GitHub Actions sont **verts**. La PR a été fusionnée dans `develop` le 22 novembre 2026.
 
 ## 1. Périmètre et critères d'acceptation
 
@@ -16,7 +16,7 @@ Les tests sont répartis au niveau le plus adapté : **PHPUnit** pour les règle
 
 Un sixième test, `smoke.spec.ts`, vérifie l'affichage de l'application. **Les six tests correspondent à trois scénarios métier et un smoke test**, pas à six scénarios supplémentaires. La continuité SPA inscription → connexion a été vérifiée manuellement ; son automatisation dans un test unique n'est pas un critère de recette.
 
-Les validations fines (formats, taille, expiration, JWT, propriété et erreurs) sont principalement couvertes par les tests Laravel et Angular ; elles ne sont pas toutes répétées en E2E. Les règles fonctionnelles figurent dans les [spécifications du projet](README.fr.md#périmètre-mvp) et le [contrat API](docs/api/openapi.yaml).
+Les validations fines (formats, taille, expiration, JWT, propriété et erreurs) sont principalement couvertes par les tests Laravel et Angular ; elles ne sont pas toutes répétées en E2E. Les règles fonctionnelles figurent dans les [périmètre fonctionnel](README.fr.md#le-projet) et le [contrat API](docs/api/openapi.yaml).
 
 ## 2. Résultats et preuves
 
@@ -30,7 +30,7 @@ Les validations fines (formats, taille, expiration, JWT, propriété et erreurs)
 
 L'objectif de couverture **70 %**, indicatif dans le sujet OC, est atteint sur les deux bases de code ; **ne pas additionner ni moyenner les deux pourcentages**. Détails et périmètre de mesure : [rapport QL-01](docs/coverage.fr.md). Le développeur a également indiqué **6/6 E2E PASS en local** le 22/11/2026 ; les runs GitHub Actions constituent la preuve indépendante archivée.
 
-Les rapports de couverture CI sont conservés **14 jours** et la synthèse E2E **7 jours** ; leur téléchargement dépend de la rétention GitHub. **Une capture durable d'un rapport de couverture reste à joindre au dossier de soutenance**, comme demandé dans les spécifications.
+Les rapports de couverture CI sont conservés **14 jours** et la synthèse E2E **7 jours** ; leur téléchargement dépend de la rétention GitHub. **Une capture du rapport de couverture reste à joindre au dossier de soutenance**, comme demandé dans les spécifications.
 
 ## 3. Exécuter les tests
 
@@ -54,12 +54,26 @@ docker compose -f compose.test.yaml exec -T app sh -ec '
 docker compose -f compose.test.yaml --profile e2e run --rm --no-deps playwright
 ```
 
-Le [workflow E2E CI](.github/workflows/e2e-ci.yml) détaille l'installation propre et les contrôles de disponibilité. **Ne jamais lancer les tests E2E mutateurs sur `compose.yaml` ni supprimer les volumes de développement.**
+Le [workflow E2E CI](.github/workflows/e2e-ci.yml) détaille l'installation propre et les contrôles de disponibilité. **Ne jamais lancer les tests E2E modifiant les données sur `compose.yaml` ni supprimer les volumes de développement.**
 
 ## 4. Limites et suites
 
 - Les tests PHPUnit/Feature utilisent notamment **SQLite en mémoire et un stockage simulé**. Les E2E valident en complément le vrai flux HTTP avec **PostgreSQL et stockage privé isolés**, mais seulement avec de petits fichiers fictifs ; ils ne mesurent pas une charge à 1 Go.
 - La couverture de lignes ne garantit pas l'absence de défauts. Les captures, vidéos et traces Playwright restent désactivées pour éviter de diffuser des identifiants et des fichiers.
-- **Hors de ce plan de tests :** [scan de sécurité](SECURITY.fr.md) et [test de performance](PERF.fr.md) encore à réaliser ; [conformité Figma et accessibilité](https://github.com/jlbokass/datashare/issues/37) à vérifier. Les procédures de mises à jour figurent dans [MAINTENANCE.fr.md](MAINTENANCE.fr.md).
+- **Lots complémentaires clôturés :** [audit de sécurité](SECURITY.fr.md), [mesures de performance](PERF.fr.md) et [recette visuelle Figma](docs/design-handoff.fr.md). La validation clavier/accessibilité n'est pas attestée par le compte rendu UI-01. Les procédures de mises à jour figurent dans [MAINTENANCE.fr.md](MAINTENANCE.fr.md).
 
 **Décision QL-02 :** les trois parcours métier et les contrôles CI sont validés. Aucun scénario E2E supplémentaire n'est requis pour ce lot.
+
+## 5. Intégration continue et recettes fonctionnelles
+
+Trois workflows GitHub Actions vérifient les PR vers `develop` et `main` : [backend](.github/workflows/backend-ci.yml) (PHP 8.4, Composer, PHPUnit, Pint, PCOV), [frontend](.github/workflows/frontend-ci.yml) (Node 24, npm, Vitest/V8, build) et [E2E](.github/workflows/e2e-ci.yml) (Playwright/Chromium, Docker isolé). Les rapports sont des artefacts temporaires. GitHub Pages publie uniquement la documentation, pas l'application.
+
+| US | Recette historique rapportée par le développeur |
+| --- | --- |
+| US01 | PDF et multifichiers, expiration d'un jour et démonstration cinq minutes ; [#4](https://github.com/jlbokass/datashare/issues/4). |
+| US02 | PDF anonyme, multifichiers, lien invalide, ZIP et expiration : cinq scénarios réussis ([PR #43](https://github.com/jlbokass/datashare/pull/43)). Codes 404/410 couverts automatiquement. |
+| US03–US04 | Inscription, doublon, mot de passe court, connexion/déconnexion, rejet 401 ; [#6](https://github.com/jlbokass/datashare/issues/6), [#7](https://github.com/jlbokass/datashare/issues/7). |
+| US05 | Historique propriétaire, cloisonnement, état vide, rejet 401, multifichiers ([PR #45](https://github.com/jlbokass/datashare/pull/45)). |
+| US06 | Suppression simple, multifichier, annulation, refus non-propriétaire, révocation du dernier lien : cinq scénarios réussis ([PR #46](https://github.com/jlbokass/datashare/pull/46)). |
+
+Ces recettes ne remplacent pas les preuves CI ci-dessus. La concurrence réelle PostgreSQL et la charge à 1 Go ne sont pas démontrées par la suite actuelle.

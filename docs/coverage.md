@@ -1,6 +1,6 @@
 # QL-01 — Coverage measurements and limits
 
-[Français](coverage.fr.md) · [Issue #49](https://github.com/jlbokass/datashare/issues/49) · [Testing](../TESTING.md)
+[Français](coverage.fr.md) · [Issue #49](https://github.com/jlbokass/datashare/issues/49) · [Testing](https://github.com/jlbokass/datashare/blob/develop/TESTING.md)
 
 ## Verified coverage measurements — 19 November 2026
 
@@ -95,7 +95,7 @@ Both GitHub Actions jobs for [PR #50](https://github.com/jlbokass/datashare/pull
 - [Backend CI #44536846489](https://github.com/jlbokass/datashare/actions/runs/44536846489): **PCOV 96.36% lines**, 318/330, 52 tests/364 assertions, Pint passed; [Clover/HTML/text](https://github.com/jlbokass/datashare/actions/runs/44536846489/artifacts/14535857372).
 - [Frontend CI #44536846492](https://github.com/jlbokass/datashare/actions/runs/44536846492): **V8 79.58% lines**, 81.08% statements, 77.54% branches, 76.92% functions, **44 tests and production build passed**; [HTML/LCOV/JSON](https://github.com/jlbokass/datashare/actions/runs/44536846492/artifacts/14537150369).
 
-Angular coverage includes `src/main.ts`, `src/app/app.routes.ts` and `src/app/auth/auth.guard.ts`, each still at **0% line coverage**. No combined backend/frontend metric is calculated. Earlier sandbox errors above are historical facts, **not the latest acceptance status**.
+Angular coverage includes `src/main.ts`, `src/app/app.routes.ts` and `src/app/auth/auth.guard.ts`, each at **0% line coverage** in this 19 November measurement. No combined backend/frontend metric is calculated. Earlier sandbox errors above are historical facts, **not the latest acceptance status**.
 
 ## Follow-up priorities, without expanding this change
 

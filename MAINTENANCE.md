@@ -35,7 +35,7 @@ docker compose run --rm php sh -lc 'cd backend && composer outdated'
 docker compose run --rm node sh -lc 'cd frontend && npm outdated'
 ```
 
-Run actual Composer/npm updates **in a dedicated branch**; commit both lockfiles, review diffs, run tests and CI when available.
+Run actual Composer/npm updates **in a dedicated branch**; commit both lockfiles, review diffs, run tests and review the existing CI checks.
 
 ## Data and recovery — not yet production-ready
 
@@ -48,3 +48,20 @@ Run actual Composer/npm updates **in a dedicated branch**; commit both lockfiles
 ## Maintenance record template
 
 Record **date, commit SHA, changed dependencies/images, migrations, commands/tests, observed issue, decision, person approving and recovery action**. Avoid pasting credentials or private upload data.
+
+## Expiry and purge demonstration
+
+Standard mode expires transfers after 1–7 days and purges them daily. The five-minute demo is local only: set `TRANSFER_DEMO_5_MIN_ENABLED=true` in `backend/.env`, then:
+
+```bash
+docker compose exec -T app php artisan config:clear
+docker compose restart app scheduler
+curl -fsS http://127.0.0.1:8080/api/demo/capabilities
+docker compose exec -T app php artisan schedule:list
+```
+
+The `five_minute_expiry` capability must be true and cleanup scheduled each minute. For the assessment, in accordance with [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57), temporarily stop the scheduler using `docker compose stop scheduler`, create a demo transfer and observe its expired status and public-link rejection after expiry. Always restart with `docker compose start scheduler` and observe metadata removal (`docker compose logs --tail=30 scheduler`). Keep the scheduler running in normal use. To return to standard mode, disable the flag, clear configuration and restart the services.
+
+## Deletion and recovery after failure
+
+`TransferDeletion` locks the parent transfer in a PostgreSQL transaction to serialize deletion and purge. File bytes are removed before metadata. The two stores do not form one atomic transaction: if the database fails after byte removal, the bytes cannot be restored. A retry can reconcile remaining metadata; storage failure retains metadata for recovery. Purge continues with other transfers and exits nonzero if one fails. Inspect logs and avoid recursively deleting storage. See [architecture](docs/architecture.md).

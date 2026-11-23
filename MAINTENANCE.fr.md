@@ -35,7 +35,7 @@ docker compose run --rm php sh -lc 'cd backend && composer outdated'
 docker compose run --rm node sh -lc 'cd frontend && npm outdated'
 ```
 
-Effectuer les vraies mises à jour **sur branche dédiée**, conserver les lockfiles, relire la différence et exécuter les tests/CI quand elle sera en place.
+Effectuer les mises à jour effectives **sur branche dédiée**, conserver les lockfiles, relire la différence et exécuter les tests et vérifier la CI existante.
 
 ## Données et reprise — travail restant
 
@@ -48,3 +48,20 @@ Effectuer les vraies mises à jour **sur branche dédiée**, conserver les lockf
 ## Fiche d'opération
 
 Consigner **date, SHA, dépendances/images touchées, migrations, commandes/tests, incident, décision, validation et possibilité de reprise**. Ne pas inclure de mots de passe ou de fichiers utilisateurs privés.
+
+## Démonstration de l'expiration et de la purge
+
+Le mode standard expire les transferts après 1 à 7 jours et les purge quotidiennement. La démonstration à cinq minutes est locale uniquement : définir `TRANSFER_DEMO_5_MIN_ENABLED=true` dans `backend/.env`, puis :
+
+```bash
+docker compose exec -T app php artisan config:clear
+docker compose restart app scheduler
+curl -fsS http://127.0.0.1:8080/api/demo/capabilities
+docker compose exec -T app php artisan schedule:list
+```
+
+La capacité `five_minute_expiry` doit être vraie et la purge planifiée chaque minute. Pour la soutenance, conformément à [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57), arrêter temporairement le scheduler avec `docker compose stop scheduler`, créer un transfert de démonstration et observer son statut expiré et le refus du lien public après expiration. Relancer impérativement `docker compose start scheduler` et observer la disparition des métadonnées (`docker compose logs --tail=30 scheduler`). En usage normal, le scheduler reste actif. Pour revenir au mode standard, désactiver le flag, vider le cache de configuration et redémarrer les services.
+
+## Suppression et reprise après incident
+
+`TransferDeletion` verrouille le transfert parent dans une transaction PostgreSQL pour sérialiser suppression et purge. Les octets sont supprimés avant les métadonnées. Les deux stockages ne forment pas une transaction atomique : si la BDD échoue après la suppression des octets, ils ne sont pas restaurés. Une nouvelle tentative peut réconcilier les métadonnées restantes ; une erreur de stockage conserve les métadonnées pour permettre cette reprise. La purge poursuit les autres transferts et retourne un code non nul si l'un échoue. Vérifier les journaux et ne pas supprimer récursivement le stockage. Voir [architecture](docs/architecture.fr.md).

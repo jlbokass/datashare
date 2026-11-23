@@ -139,4 +139,4 @@ L'IA a aidé à préparer certaines implémentations, tests et documentations ; 
 
 ## Travaux restant avant la remise
 
-**À finaliser avant la soutenance :** conserver une capture durable du rapport de couverture, préparer le support de présentation et la fiche d'autoévaluation ; clarifier la règle OC applicable à l'usage de l'IA (section 8). Les audits QL-03, mesures QL-04 et la recette UI-01 sont terminés. [HIST-01 — purge/historique](https://github.com/jlbokass/datashare/issues/57) reste un arbitrage séparé ; la pagination est [facultative](https://github.com/jlbokass/datashare/issues/59).
+**À finaliser avant la soutenance :** joindre une capture du rapport de couverture, préparer le support de présentation et la fiche d'autoévaluation ; clarifier la règle OC applicable à l'usage de l'IA (section 8). Les audits QL-03, mesures QL-04 et la recette UI-01 sont terminés. [HIST-01 — purge/historique](https://github.com/jlbokass/datashare/issues/57) est clôturé : purge actuelle maintenue sans changement de code ; la pagination est [facultative](https://github.com/jlbokass/datashare/issues/59).

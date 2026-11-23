@@ -1,6 +1,6 @@
 # QL-01 — Mesures de couverture et limites
 
-[English](coverage.md) · [Issue #49](https://github.com/jlbokass/datashare/issues/49) · [Tests](../TESTING.fr.md)
+[English](coverage.md) · [Issue #49](https://github.com/jlbokass/datashare/issues/49) · [Tests](https://github.com/jlbokass/datashare/blob/develop/TESTING.fr.md)
 
 ## Mesures de couverture vérifiées — 19 novembre 2026
 
@@ -96,7 +96,7 @@ Les deux jobs GitHub Actions de [PR #50](https://github.com/jlbokass/datashare/p
 - [Backend CI #44536846489](https://github.com/jlbokass/datashare/actions/runs/44536846489) : **PCOV 96,36 %**, 318/330 lignes, 52 tests/364 assertions, Pint vert ; [Clover/HTML/texte](https://github.com/jlbokass/datashare/actions/runs/44536846489/artifacts/14535857372).
 - [Frontend CI #44536846492](https://github.com/jlbokass/datashare/actions/runs/44536846492) : **V8 79,58 % de lignes**, 81,08 % d'instructions, 77,54 % de branches, 76,92 % de fonctions, **44 tests et build verts** ; [HTML/LCOV/JSON](https://github.com/jlbokass/datashare/actions/runs/44536846492/artifacts/14537150369).
 
-L'analyse Angular comprend `src/main.ts`, `src/app/app.routes.ts` et `src/app/auth/auth.guard.ts` : ces trois fichiers restent à **0 % de lignes**. Aucune fusion de pourcentages backend/frontend n'est effectuée. Les restrictions du sandbox mentionnées ci-dessus restent des faits historiques, **pas l'état de validation actuel**.
+L'analyse Angular comprend `src/main.ts`, `src/app/app.routes.ts` et `src/app/auth/auth.guard.ts` : ces trois fichiers étaient à **0 % de lignes** lors de cette mesure du 19 novembre. Aucune fusion de pourcentages backend/frontend n'est effectuée. Les restrictions du sandbox mentionnées ci-dessus restent des faits historiques, **pas l'état de validation actuel**.
 
 ## Suites prioritaires, hors de ce changement
 

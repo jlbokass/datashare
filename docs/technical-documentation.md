@@ -139,4 +139,4 @@ AI assisted with scoped implementations, tests and documentation; the developer 
 
 ## Outstanding assessment work
 
-**To finish before the assessment:** retain a durable coverage report screenshot, prepare the presentation and self-assessment, and clarify the applicable OpenClassrooms policy on AI assistance (section 8). QL-03 audits, QL-04 measurements and UI-01 visual review are complete. [HIST-01 — cleanup/history](https://github.com/jlbokass/datashare/issues/57) remains a separate decision; [pagination](https://github.com/jlbokass/datashare/issues/59) is optional.
+**To finish before the assessment:** include a coverage report screenshot, prepare the presentation and self-assessment, and clarify the applicable OpenClassrooms policy on AI assistance (section 8). QL-03 audits, QL-04 measurements and UI-01 visual review are complete. [HIST-01 — cleanup/history](https://github.com/jlbokass/datashare/issues/57) is closed: current purge retained without code changes; [pagination](https://github.com/jlbokass/datashare/issues/59) is optional.

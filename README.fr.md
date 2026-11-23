@@ -17,7 +17,7 @@ DataShare permet de téléverser des fichiers privés et de les partager tempora
 - inscription et connexion JWT ;
 - historique personnel et suppression individuelle des fichiers.
 
-**État au 23 novembre 2026 :** MVP, lots qualité QL-01 à QL-04 et conformité Figma UI-01 intégrés dans `develop`. Les contrôles backend, frontend et E2E de la [PR UI-01 #58](https://github.com/jlbokass/datashare/pull/58) sont verts. L'application est **exécutée en local**, pas déployée en production.
+**État au 23 novembre 2026 :** MVP, lots qualité QL-01 à QL-04 et conformité Figma UI-01 intégrés dans `develop`. Les contrôles backend, frontend et E2E de la [PR UI-01 #58](https://github.com/jlbokass/datashare/pull/58) ont réussi. L'application est **exécutée en local**, pas déployée en production.
 
 **Stack :** Angular 22, Laravel 13 / PHP, PostgreSQL 18, Nginx, Docker Compose et GitHub Actions.
 
@@ -63,7 +63,7 @@ docs/         Dossier technique et livrables OpenClassrooms
 scripts/      Commandes de contrôle qualité
 ```
 
-## Travail en équipe et traçabilité
+## Organisation du développement et traçabilité
 
 Le workflow suivi est **branche de travail → PR vers `develop` → revue/CI → PR de livraison vers `main`** (protégée). Les [issues](https://github.com/jlbokass/datashare/issues), [pull requests](https://github.com/jlbokass/datashare/pulls?q=is%3Apr) et [commits de `develop`](https://github.com/jlbokass/datashare/commits/develop/) montrent la progression de la conception aux US, puis aux lots qualité et à l'interface.
 
@@ -73,4 +73,4 @@ Pour les prochains commits, utiliser **`type(scope): action`** (par exemple `fea
 
 [Documentation OC](docs/technical-documentation.fr.md) · [Architecture](docs/architecture.fr.md) · [Contrat API](docs/api/openapi.yaml) · [Tests](TESTING.fr.md) · [Sécurité](SECURITY.fr.md) · [Performances](PERF.fr.md) · [Maintenance](MAINTENANCE.fr.md) · [Journal IA](docs/ai-journal.fr.md)
 
-En local, l'application utilise **HTTP sans TLS** et la session JWT est volontairement conservée en mémoire : **une actualisation impose une nouvelle connexion**. Les ZIP ne sont pas analysés par antivirus. La purge retire les fichiers expirés et leurs métadonnées ; l'évolution éventuelle de l'historique est suivie dans [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57). Les fonctions avancées US07–US10 restent facultatives.
+En local, l'application utilise **HTTP sans TLS** et la session JWT est volontairement conservée en mémoire : **une actualisation impose une nouvelle connexion**. Les ZIP ne sont pas analysés par antivirus. La purge retire les fichiers expirés et leurs métadonnées ; ce comportement est maintenu par la décision de clôture [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57). Les fonctions avancées US07–US10 restent facultatives.

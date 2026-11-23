@@ -31,3 +31,10 @@ Application access checks and critical journeys are also exercised in [TESTING](
 - **Audit scope:** dependency scanners report known advisories at scan time; they do not replace code review, container scanning or penetration testing.
 
 **QL-03 conclusion:** the basic dependency-scan requirement is met, **no vulnerabilities reported, no corrective change needed**. Known limitations are recorded without adding further requirements to this work package.
+
+## 4. Validation and authentication rules
+
+- Allowed formats (server-side extension and MIME checks): PDF, PNG, JPEG, GIF, WEBP, TXT, MP3, MP4 and ZIP. The Angular file-picker filter is a user-input aid, not a security control. No direct folder upload; ZIP remains opaque. Decimal limits: 1,000,000,000 bytes per file, 2,000,000,000 bytes per transfer and at most five files. The latter two are local choices, not OC requirements.
+- Registration: lowercase-normalized email, database uniqueness, password of at least eight characters, no JWT issued at registration. Ten registrations per minute per client.
+- Login: `firebase/php-jwt`, HS256 signature, separate `JWT_SECRET` and `APP_KEY`, signature, expiry, issuer and user checks. Lifetime: 1,800 seconds; five attempts per minute per client. No refresh token or immediate revocation. The Angular guard does not replace Laravel access checks.
+- Public share tokens differ from JWTs (64 hexadecimal characters). Private paths and owner data are not exposed; forced attachment downloads, `nosniff` and no shared caching.

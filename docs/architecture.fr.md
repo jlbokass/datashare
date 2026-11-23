@@ -7,7 +7,7 @@ lang: fr
 
 # DataShare — Architecture de l'application
 
-**État :** conception validée dans DESIGN-01. Ce document décrit l'**architecture proposée**, pas un déploiement déjà réalisé.
+**État :** conception validée dans DESIGN-01 et architecture du MVP implémentée en local. Le schéma initial reste un livrable conceptuel, pas un plan de déploiement de production.
 
 **Source :** mission OpenClassrooms, étape 1 (*Concevez l'architecture technique*), et *DataShare — Spécifications fonctionnelles*, MVP **US01 à US06**.
 
@@ -21,18 +21,18 @@ lang: fr
 
 Le schéma sépare la **zone publique du navigateur** de l'**environnement applicatif privé**. Les composants d'infrastructure inutiles à la compréhension du MVP sont volontairement exclus.
 
-## Composants et responsabilités proposés
+## Composants et responsabilités
 
 | Composant | Responsabilité | Décision d'architecture |
 | --- | --- | --- |
 | Navigateur + application Angular | Interface, navigation, formulaires, retours utilisateur et appels API protégés | Frontend **retenu**, exécuté dans le navigateur |
-| Nginx (passerelle HTTP) | Servir le build Angular en production et transmettre les requêtes `/api` à Laravel/PHP-FPM | Point d'entrée **proposé**, non imposé par OC |
+| Nginx (passerelle HTTP) | Relayer le serveur Angular de développement et transmettre les requêtes `/api` à Laravel/PHP-FPM | Point d'entrée **retenu**, non imposé par OC |
 | API REST Laravel | Authentification JWT, autorisations, validations serveur, règles métier, tokens de partage et streaming des fichiers | Backend **retenu** |
 | PostgreSQL | Persister les comptes, métadonnées, tokens et dates d'expiration | Base de données **retenue** |
-| Stockage privé des fichiers | Conserver les octets hors de la racine publique, uniquement accessibles depuis Laravel | **Proposition :** système de fichiers local, autorisé par le sujet ; alternative : AWS S3 |
-| Purge planifiée | Supprimer les fichiers expirés et les métadonnées associées | Comportement **déjà requis par US01** ; commande Laravel + scheduler/cron proposés |
+| Stockage privé des fichiers | Conserver les octets hors de la racine publique, uniquement accessibles depuis Laravel | **Retenu :** système de fichiers local, autorisé par le sujet ; alternative : AWS S3 |
+| Purge planifiée | Supprimer les fichiers expirés et les métadonnées associées | Comportement **déjà requis par US01** ; commande Laravel et scheduler actifs |
 
-Angular, Laravel, PostgreSQL et le stockage sont au cœur du design. Docker Compose est une commodité **proposée pour le développement**, pas une brique métier ni une obligation de déploiement.
+Angular, Laravel, PostgreSQL et le stockage sont au cœur du design. Docker Compose est l'environnement de développement retenu, pas une brique métier ni une obligation de déploiement.
 
 ## Principaux flux
 
@@ -50,7 +50,7 @@ Les routes, structures de réponse et statuts HTTP relèvent de **DESIGN-03**. L
 - Le JWT authentifie les opérations privées ; le token de partage ne permet qu'un téléchargement public limité dans le temps.
 - Les fichiers restent dans un **stockage privé**, sans URL d'accès direct aux octets.
 - Seul le propriétaire peut consulter son historique et supprimer ses fichiers.
-- La politique des formats de fichiers acceptés/refusés devra être documentée puis validée.
+- La politique des formats acceptés est documentée dans [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.fr.md).
 - HTTPS est requis pour toute exposition publique ; HTTP peut être utilisé en local sur `localhost`.
 - Les secrets et identifiants sont configurés hors du code source.
 
@@ -60,15 +60,12 @@ Les routes, structures de réponse et statuts HTTP relèvent de **DESIGN-03**. L
 
 **Backlog avancé, non supposé développé :** US07 upload anonyme, US08 tags, US09 protection par mot de passe, US10 gestion avancée de l'expiration. Attention : la suppression automatique à expiration figure **déjà dans US01** et fait partie du MVP.
 
-Le schéma devra rester cohérent avec le MCD et le contrat OpenAPI produits dans DESIGN-02 et DESIGN-03.
+Le schéma doit rester cohérent avec le MCD et le contrat OpenAPI produits dans DESIGN-02 et DESIGN-03.
 
-## Décisions à valider avant fusion
+## Cohérence du stockage et de la base
 
-- [ ] Confirmer le stockage privé local pour le MVP (ou choisir AWS S3 avec justification).
-- [ ] Confirmer Nginx et la distinction entre les flux développement/production.
-- [ ] Vérifier les flux JWT / upload / téléchargement public / suppression / purge avec l'énoncé.
-- [ ] Contrôler la lisibilité du schéma et les frontières de sécurité.
-- [ ] Recouper le schéma avec DESIGN-02 et DESIGN-03 dès leur production.
-- [ ] Maintenir cette version française et [la version anglaise](architecture.md) cohérentes.
+Les suppressions manuelles et la purge utilisent `TransferDeletion` : une transaction PostgreSQL verrouille le transfert parent (`FOR UPDATE`), puis relit ses fichiers et, pour la purge, son expiration. Les opérations sur le même transfert sont ainsi sérialisées. La suppression du dernier fichier révoque le lien ; un téléchargement ayant déjà ouvert le fichier peut se terminer.
 
-**Important :** ce schéma est un **livrable de conception**. Il ne prouve pas que l'infrastructure, les tests ou les contrôles de sécurité ont déjà été implémentés.
+Le stockage et la BDD ne forment pas une transaction atomique. Les octets déjà absents permettent une suppression des métadonnées ; si le stockage échoue, les métadonnées sont conservées pour une nouvelle tentative. Si la BDD échoue après suppression des octets, ceux-ci ne sont pas restaurés. Un échec partiel de purge conserve les métadonnées pour reprise. La purge continue pour les autres transferts et signale l'échec par un code non nul. Les tests SQLite ne prouvent pas la concurrence réelle PostgreSQL.
+
+Voir [maintenance](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.fr.md) et [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57) : purge actuelle conservée sans modification de code. Aucun déploiement de production n'est revendiqué.

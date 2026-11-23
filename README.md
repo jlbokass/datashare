@@ -73,4 +73,4 @@ For future commits, use **`type(scope): action`** (for example `feat(upload): ..
 
 [OC technical dossier](docs/technical-documentation.md) · [Architecture](docs/architecture.md) · [API contract](docs/api/openapi.yaml) · [Testing](TESTING.md) · [Security](SECURITY.md) · [Performance](PERF.md) · [Maintenance](MAINTENANCE.md) · [AI journal](docs/ai-journal.md)
 
-The local app uses **HTTP without TLS**. JWT session state is intentionally held in memory, so **refreshing requires signing in again**. ZIP archives are not antivirus-scanned. Scheduled cleanup removes expired file bytes and metadata; any history-retention change is tracked in [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57). Advanced US07–US10 features remain optional.
+The local app uses **HTTP without TLS**. JWT session state is intentionally held in memory, so **refreshing requires signing in again**. ZIP archives are not antivirus-scanned. Scheduled cleanup removes expired file bytes and metadata; this policy was retained by the closing decision in [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57). Advanced US07–US10 features remain optional.

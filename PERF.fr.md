@@ -8,8 +8,8 @@
 
 | Contrôle | Conditions | Résultat |
 | --- | --- | --- |
-| **Backend — téléchargement US02** `GET /api/shares/{token}/files/{fileId}` | Docker isolé (`compose.test.yaml`), PostgreSQL et stockage temporaires, TXT synthétique de **1 048 576 octets** ; 1 préchauffage puis **12 téléchargements séquentiels** vérifiés octet par octet | **12 HTTP 200, 0 erreur** ; p50 **13,3 ms**, p95 **15,4 ms**, moyenne **13,3 ms** ; débit séquentiel effectif **78,88 MB/s** |
-| **Angular — build de production** | `npm run build`, configuration `production`, conteneur Node 24 | Bundle initial brut **325,46 kB** ; transfert estimé **84,50 kB** ; build réussi sans avertissement de budget |
+| **Backend — téléchargement US02** `GET /api/shares/{token}/files/{fileId}` | Docker isolé (`compose.test.yaml`), PostgreSQL et stockage temporaires, TXT synthétique de **1 048 576 octets** ; 1 préchauffage puis **12 téléchargements séquentiels** vérifiés octet par octet | **12 HTTP 200, 0 erreur** ; p50 **13,3 ms**, p95 **15,4 ms**, moyenne **13,3 ms** ; débit séquentiel effectif **78,88 Mo/s** |
+| **Angular — build de production** | `npm run build`, configuration `production`, conteneur Node 24 | Bundle initial brut **325,46 ko** ; transfert estimé **84,50 ko** ; build réussi sans avertissement de budget |
 | **Chrome Lighthouse — page d'accueil** | Chrome sur `http://127.0.0.1:8080/`, **serveur Angular de développement** (modules Vite non optimisés) ; paramètres réseau/CPU non relevés | Performance **58/100** ; FCP **3,4 s**, LCP **6,2 s**, TBT **0 ms**, CLS **0**, Speed Index **3,4 s** |
 
 **Dates et traçabilité :** benchmark backend le **22/11/2026 à 23:59 UTC** ; build Angular le **22/11/2026 à 23:50 UTC** ; relevés Lighthouse le **23/11/2026** (heure locale). Branche `quality/ql-04-performance`, issue #55 ; SHA exact du checkout Mac au moment des mesures non consigné. Résultats tirés des sorties et captures locales, non d'une CI ou d'un serveur déployé.
@@ -17,7 +17,7 @@
 ## 2. Analyse
 
 - **Backend :** aucune erreur sur la courte série. Les durées et le débit décrivent des transferts **dans le réseau Docker local**, sans latence Internet ni concurrence. Ils ne permettent pas de prédire la capacité en production.
-- **Bundle Angular :** **325,46 kB < 500 kB**, seuil d'avertissement configuré dans `frontend/angular.json` ; seuil d'erreur à **1 MB**. Les budgets de styles de composants sont fixés à 4 kB (avertissement) et 8 kB (erreur).
+- **Bundle Angular :** **325,46 ko < 500 ko**, seuil d'avertissement configuré dans `frontend/angular.json` ; seuil d'erreur à **1 Mo**. Les budgets de styles de composants sont fixés à 4 ko (avertissement) et 8 ko (erreur).
 - **Lighthouse :** les FCP/LCP élevés sont observés **sur le serveur de développement**, qui charge des modules Vite/Angular non minifiés. La capture signale **6 454 Kio de ressources (environ 6,3 Mio)** et du JavaScript non optimisé. Le score **58 ne doit pas être présenté comme le score du build de production**. TBT et CLS à zéro sont favorables dans les conditions de cette mesure.
 - **Décision :** aucune optimisation ou nouvelle infrastructure de monitoring n'est justifiée par ces données. Pour connaître les performances réelles avant un déploiement public, il faudra mesurer le build servi en conditions de production.
 

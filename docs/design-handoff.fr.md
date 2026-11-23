@@ -15,7 +15,7 @@ lang: fr
 
 ## Rôle et périmètre
 
-Le handoff est la **référence visuelle et la grille de recette UI** des prochains écrans Angular ; les **spécifications OC et US01–US06** restent la source des exigences métier. TECH-04 a préparé l'environnement ; US01 comprend désormais un écran de téléversement fonctionnel, **mais le développeur a signalé des écarts visuels avec Figma**. Leur correction est suivie dans [UI-01 #37](https://github.com/jlbokass/datashare/issues/37), distincte de la validation métier.
+Ce document constitue la référence visuelle des écrans Angular et retrace les décisions initiales. Les spécifications OC et US01–US06 définissent les exigences métier. Les écarts constatés initialement ont été traités dans [UI-01 #37](https://github.com/jlbokass/datashare/issues/37), clôturé le 23 novembre 2026 ; voir le bilan ci-dessous.
 
 - Douze exports initiaux regroupés en téléversement, connexion/inscription, espace personnel, composants et variantes de téléchargement public (PDF p. 2–3).
 - Desktop **1440 × 1024**, mobile **393 × 852**. Vérifier aussi **320 / 768 / 1024 px** et la navigation mobile (PDF p. 1 et 21).
@@ -39,11 +39,11 @@ Le handoff est la **référence visuelle et la grille de recette UI** des procha
 
 **Ne pas inventer** des codes d'état précis lorsque le PDF indique seulement des teintes approximatives (p. 4–5).
 
-## Arbitrages avant la réalisation des écrans
+## Arbitrages initiaux de conception
 
 | Priorité | Écart maquette / spécifications | Décision MVP au stade TECH-04 |
 | --- | --- | --- |
-| **P0** | Champ mot de passe à l'envoi et téléchargement protégé | **US09 facultative** : ne pas afficher un champ faussement fonctionnel ni promettre cette API avant décision et implémentation distinctes. Variante UI à arbitrer explicitement. |
+| **P0** | Champ mot de passe à l'envoi et téléchargement protégé | **US09 facultative** : ne pas afficher un champ faussement fonctionnel ni promettre cette API avant décision et implémentation distinctes. Champ omis dans le MVP. |
 | **P1** | Maquettes illustrant souvent **un seul fichier** | Préserver **plusieurs fichiers par transfert**, exigence US01 et contrat API, et adapter la liste si nécessaire. |
 | **P1** | Nom et avatar fictifs (« Claire Marie ») | Afficher les **données réellement renvoyées** par l'API, jamais inventer un profil. |
 | **P1** | Erreurs de téléchargement / expiration | Respecter les statuts et comportements backend en harmonisant leur présentation Figma. |
@@ -64,6 +64,6 @@ Le handoff est la **référence visuelle et la grille de recette UI** des procha
 - Le **mot de passe de partage (US09)** n'est pas implémenté : téléchargement direct selon la variante Figma, sans champ fictif.
 - Les noms, dates et fichiers proviennent de l'API ; le bouton **« Copier le lien »** est conservé aussi sur mobile (plus explicite que « Téléverser » après succès). L'année du copyright est actualisée.
 
-**À distinguer de la recette UI :** avec la démo de cinq minutes, la purge planifiée supprime les fichiers expirés et leurs métadonnées. L'onglet « Expiré » peut donc être vide. L'arbitrage sur la conservation éventuelle de l'historique fait l'objet de [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57), **sans changement de la purge dans UI-01**.
+**À distinguer de la recette UI :** avec la démo de cinq minutes, la purge planifiée supprime les fichiers expirés et leurs métadonnées. L'onglet « Expiré » peut donc être vide. La décision de maintenir la purge actuelle est enregistrée dans [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57), **sans changement de la purge dans UI-01**.
 
-**Preuves et limites :** validation visuelle rapportée par le développeur ; résultats détaillés des derniers tests/build et vérification clavier/accessibilité **non consignés ici**. Les contrôles CI de la PR doivent être consultés avant fusion. Le procès-verbal vierge du PDF source reste une référence historique, pas une preuve d'exécution.
+**Preuves et limites :** validation visuelle rapportée par le développeur ; résultats détaillés des derniers tests/build et vérification clavier/accessibilité **non consignés ici**. Les trois workflows CI de la [PR #58](https://github.com/jlbokass/datashare/pull/58) ont réussi ; ils n'attestent pas la validation clavier. Le procès-verbal vierge du PDF source reste une référence historique, pas une preuve d'exécution.
