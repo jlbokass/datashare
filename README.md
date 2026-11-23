@@ -12,7 +12,7 @@
 
 **Functional MVP US01–US06 implemented and merged into `develop` (19 November 2026)**: private upload, public download links, registration, JWT login, personal history and individual file deletion. The developer reported successful browser acceptance. [PR #46](https://github.com/jlbokass/datashare/pull/46) passed GitHub Actions with **52 Laravel tests / 364 assertions and Pint**, plus **44 Angular tests and a production build**. The application is **not deployed to production**.
 
-**Still required before OpenClassrooms delivery:** Figma/responsive/accessibility acceptance ([UI-01 #37](https://github.com/jlbokass/datashare/issues/37)), measured coverage, E2E tests, security checks, performance and real PostgreSQL concurrency testing. ZIP archives are not antivirus-scanned. Optional US07–US10 features are not claimed to be implemented.
+**Status on 23 November 2026:** QL-01 through QL-04 are integrated into `develop`. The developer reports **UI-01 visual acceptance passed** ([summary](docs/design-handoff.md); [issue #37](https://github.com/jlbokass/datashare/issues/37)); its PR CI and keyboard accessibility review still need confirmation. Remaining OpenClassrooms delivery checks (including security, performance and PostgreSQL concurrency) are tracked in the quality reports. ZIP archives are not antivirus-scanned. Optional US07–US10 features are not claimed to be implemented.
 
 This public repository allows the OpenClassrooms assessor to review code, documentation, issues, pull requests and commits.
 
@@ -110,4 +110,4 @@ The badges at the top track **actual GitHub Actions runs on `develop`**: `Backen
 
 ## Reference
 
-The original OpenClassrooms mission, specifications and documentation template remain in their original French. The project's authored Markdown is bilingual. The [Figma designs](https://www.figma.com/design/i4HHiGsL7Kc3kVBo41m7F6), [original 23-page UI handoff PDF](docs/design/DataShare_UI_Design_Handoff_v1.pdf) and [bilingual handoff review](docs/design-handoff.md) are the visual references. **Functional US01 is not yet visually Figma-compliant**; see [UI-01 #37](https://github.com/jlbokass/datashare/issues/37).
+The original OpenClassrooms mission, specifications and documentation template remain in their original French. The project's authored Markdown is bilingual. The [Figma designs](https://www.figma.com/design/i4HHiGsL7Kc3kVBo41m7F6), [original 23-page UI handoff PDF](docs/design/DataShare_UI_Design_Handoff_v1.pdf) and [bilingual handoff review](docs/design-handoff.md) are the visual references. **UI-01 visual acceptance was reported green on the work branch**, pending review of its PR into `develop`; see [UI-01 #37](https://github.com/jlbokass/datashare/issues/37).
