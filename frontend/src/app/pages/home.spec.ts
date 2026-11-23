@@ -112,11 +112,11 @@ describe('Home upload', () => {
     fixture.detectChanges();
 
     http.expectOne('/api/demo/capabilities').flush({ five_minute_expiry: true });
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('option[value="demo5"]')).not.toBeNull();
 
     const home = fixture.componentInstance;
     home.setFiles([new File(['%PDF-1.4'], 'demo.pdf', { type: 'application/pdf' })]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('option[value="demo5"]')).not.toBeNull();
     home.changeExpiry({ target: { value: 'demo5' } } as unknown as Event);
     home.upload();
 
@@ -145,6 +145,8 @@ describe('Home upload', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.demoEnabled()).toBe(false);
+    fixture.componentInstance.setFiles([new File(['%PDF-1.4'], 'demo.pdf', { type: 'application/pdf' })]);
+    fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('option[value="demo5"]')).toBeNull();
   });
 
