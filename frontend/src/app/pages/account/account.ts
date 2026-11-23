@@ -154,6 +154,23 @@ export class Account implements OnInit {
     return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
   }
 
+  formatExpiry(iso: string, status: HistoryTransfer['status']): string {
+    const expiry = new Date(iso);
+    if (status === 'expired' || expiry.getTime() <= Date.now()) {
+      return `Expiré le ${this.formatDate(iso)}`;
+    }
+
+    const today = new Date();
+    const expiryDay = Date.UTC(expiry.getFullYear(), expiry.getMonth(), expiry.getDate());
+    const todayDay = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+    const days = Math.round((expiryDay - todayDay) / 86_400_000);
+    const hour = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(expiry);
+
+    return days === 0
+      ? `Expire aujourd’hui à ${hour}`
+      : `Expire dans ${days} jour${days > 1 ? 's' : ''} à ${hour}`;
+  }
+
   logout(): void {
     this.endSession('/');
   }
