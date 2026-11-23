@@ -33,7 +33,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px 0;
+  padding: 8px 0;
 }
 
 .share-files li + li {
@@ -50,7 +50,7 @@ h2 {
   flex: 1;
   flex-direction: column;
   min-width: 0;
-  gap: 4px;
+  gap: 2px;
 }
 
 .file-details strong {
@@ -61,15 +61,43 @@ h2 {
 .file-details small {
   color: #595959;
   font: 400 0.875rem/1rem 'DM Sans', sans-serif;
-  overflow-wrap: anywhere;
+}
+
+.expiry-notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 8px;
+  margin: 0;
+  border: 1px solid #f2c6ad;
+  border-radius: 8px;
+  background: #fff4ed;
+  color: #a5541e;
+  font: 400 0.875rem/1rem 'DM Sans', sans-serif;
+}
+
+.expiry-notice svg {
+  flex: none;
+}
+
+.download-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .download-link {
-  display: inline-block;
-  flex: none;
-  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  width: 100%;
+  padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid rgb(205 94 20 / 50%);
+  border: 1px solid #ffa569;
   background: rgb(255 129 45 / 13%);
   color: #ba681f;
   font: 400 1rem/1rem 'DM Sans', sans-serif;
@@ -77,25 +105,17 @@ h2 {
   text-align: center;
 }
 
+.download-link span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.download-link svg {
+  flex: none;
+}
+
 .download-link:hover {
   background: rgb(255 129 45 / 22%);
-}
-
-.share-summary {
-  padding: 12px;
-  border-radius: 8px;
-  background: #e2ecff;
-  border: 1px solid #b1c9f5;
-  color: #2a3f72;
-  font: 400 0.875rem/1.5rem 'DM Sans', sans-serif;
-}
-
-.share-summary p {
-  margin: 0;
-}
-
-.share-summary p + p {
-  margin-top: 4px;
 }
 
 .error-message {
@@ -139,23 +159,8 @@ a:focus-visible {
   outline-offset: 3px;
 }
 
-@media (max-width: 420px) {
-  .share-card {
-    padding: 24px;
-  }
-
-  .share-files li {
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 8px 12px;
-  }
-
-  .file-icon {
-    margin-top: 4px;
-  }
-
-  .download-link {
-    width: 100%;
-    margin-top: 4px;
+@media (max-width: 600px) {
+  :host {
+    width: min(100%, 345px);
   }
 }
