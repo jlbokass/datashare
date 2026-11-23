@@ -51,8 +51,19 @@ Le handoff est la **référence visuelle et la grille de recette UI** des procha
 
 **Attention à la référence historique :** la page 23 du handoff mentionne « PR #32 / FRONT-FINAL » ; ce n'est **pas** l'issue GitHub actuelle #32 (TECH-04) ni un numéro de PR confirmé pour ce projet.
 
-## Recette UI ultérieure — non exécutée
+## Bilan de recette — UI-01 (#37), 23 novembre 2026
 
-Lors des véritables développements Angular, faire les captures DevTools en 393 px et 1440 px, vérifier 320/768/1024 px, typographies, couleurs, espacements, états chargement/erreur/succès/expiration. Contrôler inscription, limite upload, multifichiers, lien public, suppression, navigation responsive et tests/build avant tout statut **conforme**.
+**Résultat : conformité visuelle acceptée par le développeur.** Comparaison des écrans Angular avec les maquettes Figma à **393 × 852** (mobile) et **1440 × 1024** (desktop). Les contrôles visuels complémentaires à **320, 768 et 1024 px** ont été déclarés verts. Les captures ont été partagées pendant la recette ; elles ne sont pas archivées dans le dépôt.
 
-Le procès-verbal du PDF est **vierge** ; ce n'est pas une preuve de recette déjà faite.
+**Écrans revus :** accueil, connexion, inscription, sélection et erreur de téléversement (> 1 Go), confirmation du lien, espace personnel (liste, filtres, menu mobile), téléchargement public direct et lien expiré.
+
+**Écarts fonctionnels acceptés :**
+
+- Depuis **Mon espace**, « Envoyer des fichiers » ouvre directement `/upload` ; depuis l'accueil connecté, l'icône permet d'ouvrir ce formulaire. Avant connexion, l'icône reste décorative et le texte « Connecte-toi » est un lien.
+- Un transfert peut contenir **plusieurs fichiers**, même si Figma illustre généralement un seul fichier.
+- Le **mot de passe de partage (US09)** n'est pas implémenté : téléchargement direct selon la variante Figma, sans champ fictif.
+- Les noms, dates et fichiers proviennent de l'API ; le bouton **« Copier le lien »** est conservé aussi sur mobile (plus explicite que « Téléverser » après succès). L'année du copyright est actualisée.
+
+**À distinguer de la recette UI :** avec la démo de cinq minutes, la purge planifiée supprime les fichiers expirés et leurs métadonnées. L'onglet « Expiré » peut donc être vide. L'arbitrage sur la conservation éventuelle de l'historique fait l'objet de [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57), **sans changement de la purge dans UI-01**.
+
+**Preuves et limites :** validation visuelle rapportée par le développeur ; résultats détaillés des derniers tests/build et vérification clavier/accessibilité **non consignés ici**. Les contrôles CI de la PR doivent être consultés avant fusion. Le procès-verbal vierge du PDF source reste une référence historique, pas une preuve d'exécution.
