@@ -38,8 +38,10 @@
         }
       </ul>
 
-      <p class="success-message">Ton transfert est prêt ! Les fichiers seront disponibles jusqu'au
-        {{ newDateLabel(transfer()?.expires_at ?? '') }}.
+      <p class="success-message">Ton transfert est prêt !
+        @if (transfer()?.expires_at; as expiry) {
+          Les fichiers seront disponibles jusqu'au {{ newDateLabel(expiry) }}.
+        }
       </p>
       <label class="field-label" for="share-link">Lien unique de partage</label>
       <input id="share-link" class="share-link" type="text" [value]="link" readonly />
