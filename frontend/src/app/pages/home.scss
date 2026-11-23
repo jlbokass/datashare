@@ -306,17 +306,31 @@ select,
   margin-inline: auto;
 }
 
-.upload-panel--success .field-label {
-  margin: 0 0 8px;
+.upload-panel--success .share-link {
+  margin-bottom: 16px;
+  border-color: #ffe0d2;
+  background: #fff9f6;
+  color: #b15a24;
+  font: 400 0.875rem/1.5rem 'Inter', sans-serif;
+  text-overflow: ellipsis;
 }
 
-.upload-panel--success .share-link,
-.upload-panel--success .primary-action {
-  margin-bottom: 16px;
+.upload-panel--success > .primary-action {
+  margin-bottom: 0;
 }
 
 .upload-panel--success .secondary-action {
-  margin-top: 8px;
+  display: block;
+  width: fit-content;
+  min-height: auto;
+  margin: 16px auto 0;
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+  color: #7a3409;
+  font: 400 0.875rem/1.25rem 'DM Sans', sans-serif;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .upload-panel .error-message {
@@ -390,6 +404,10 @@ select,
 
   .upload-panel--success > .primary-action {
     width: 100%;
+  }
+
+  .upload-panel--success .secondary-action {
+    width: fit-content;
   }
 
   .selected-files li {
