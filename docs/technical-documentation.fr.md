@@ -103,7 +103,7 @@ La couverture atteint l'objectif indicatif de 70 %. Une capture durable du rappo
 
 **Conventions effectivement observables :**
 
-- **PHP/Laravel :** chargement PSR-4 (`App\\` vers `backend/app/`), contrôleurs API, modèles Eloquent, services et validation côté serveur ; mise en forme vérifiée par **Laravel Pint** ; tests **PHPUnit** dans `backend/tests/`.
+- **PHP/Laravel :** chargement PSR-4 (`App\` vers `backend/app/`), contrôleurs API, modèles Eloquent, services et validation côté serveur ; mise en forme vérifiée par **Laravel Pint** ; tests **PHPUnit** dans `backend/tests/`.
 - **Angular/TypeScript :** composants et templates par écran, routes centralisées, garde d'authentification, tests `*.spec.ts` proches du code ; `.editorconfig` frontend : **2 espaces** et **guillemets simples** en TypeScript. Tests Angular via **Vitest**.
 - **E2E :** **Playwright/Chromium** sur `compose.test.yaml`, avec PostgreSQL et stockage isolés. La CI GitHub Actions lance les contrôles backend, frontend et E2E sur PR/push vers `develop` ou `main`.
 
