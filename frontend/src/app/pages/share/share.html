@@ -8,6 +8,7 @@
       <h2>Lien indisponible</h2>
       <p>{{ error }}</p>
     </div>
+    <a class="home-link" routerLink="/">Retour à l'accueil</a>
   } @else if (share(); as details) {
     <ul class="share-files" aria-label="Fichiers disponibles">
       @for (file of details.files; track file.id) {
@@ -20,26 +21,42 @@
           </svg>
           <div class="file-details">
             <strong>{{ file.original_name }}</strong>
-            <small>{{ formatSize(file.size_bytes) }} · {{ file.mime_type }}</small>
+            <small>{{ formatSize(file.size_bytes) }}</small>
           </div>
-          <a class="download-link" [href]="downloadUrl(file.id)"
-            [attr.aria-label]="'Télécharger ' + file.original_name">Télécharger</a>
         </li>
       }
     </ul>
 
-    <div class="share-summary" role="note">
-      <p>Ce transfert contient {{ details.files.length }} fichier(s).</p>
-      <p>Disponible jusqu'au <strong>{{ formatDate(details.expires_at) }}</strong>.</p>
+    <p class="expiry-notice" role="note" [title]="formatDate(details.expires_at)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+        stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3 2 20h20L12 3Z"/>
+        <path d="M12 9v4M12 17h.01"/>
+      </svg>
+      <span>{{ expiryNotice(details.expires_at, details.files.length) }}</span>
+    </p>
+
+    <div class="download-actions">
+      @for (file of details.files; track file.id) {
+        <a class="download-link" [href]="downloadUrl(file.id)"
+          [attr.aria-label]="'Télécharger ' + file.original_name">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 16.6a4.6 4.6 0 0 0-3.4-7.8 5.5 5.5 0 0 0-10.5 1.4A4.1 4.1 0 0 0 7 18h2"/>
+            <path d="M12 12v9m0 0-3.5-3.5M12 21l3.5-3.5"/>
+          </svg>
+          <span>Télécharger@if (details.files.length > 1) { — {{ file.original_name }} }</span>
+        </a>
+      }
     </div>
 
     @if (hasZip(details.files)) {
       <p class="zip-note">
-        Attention : les archives ZIP ne sont pas analysées par antivirus sur le serveur.
+        Les archives ZIP ne sont pas analysées par antivirus sur le serveur.
         Ouvre uniquement les archives provenant de personnes de confiance.
       </p>
     }
   }
-
-  <a class="home-link" routerLink="/">Retour à l'accueil</a>
 </section>
