@@ -104,6 +104,39 @@ describe('Home upload', () => {
       .toContain('Connecte-toi');
   });
 
+  it('opens the upload screen before choosing files and returns home on reset', () => {
+    signIn();
+    const fixture = TestBed.createComponent(Home);
+    fixture.detectChanges();
+    http.expectOne('/api/demo/capabilities').flush({ five_minute_expiry: false });
+
+    expect(fixture.nativeElement.querySelector('.upload-panel')).toBeNull();
+    const open = fixture.nativeElement.querySelector('button.hero-action') as HTMLButtonElement;
+    expect(open).not.toBeNull();
+    open.click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.upload-panel .empty-selection')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.upload-panel .panel-title')?.textContent)
+      .toContain('Ajouter des fichiers');
+    expect((fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement).disabled)
+      .toBe(true);
+
+    fixture.componentInstance.setFiles([new File(['content'], 'report.pdf', { type: 'application/pdf' })]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.selected-files .file-name')?.textContent)
+      .toContain('report.pdf');
+
+    fixture.componentInstance.removeFile(0);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.upload-panel .empty-selection')).not.toBeNull();
+
+    fixture.componentInstance.reset();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.upload-panel')).toBeNull();
+    expect(fixture.nativeElement.querySelector('button.hero-action')).not.toBeNull();
+  });
+
   it('shows oversized selection inside the panel, disables upload, and allows replacement', () => {
     signIn();
     const fixture = TestBed.createComponent(Home);
