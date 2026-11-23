@@ -44,8 +44,8 @@ test('An uploaded TXT file can be downloaded anonymously with identical bytes', 
   await expect(page).toHaveURL('http://web/account');
 
   // Navigate within Angular without reloading (the JWT is stored in memory).
-  await page.getByRole('link', { name: 'DataShare, accueil' }).click();
-  await expect(page).toHaveURL('http://web/');
+  await page.getByRole('link', { name: 'Ajouter des fichiers' }).click();
+  await expect(page).toHaveURL('http://web/upload');
   await page.locator('input[type="file"]').setInputFiles({
     name: filename,
     mimeType: 'text/plain',
@@ -60,7 +60,7 @@ test('An uploaded TXT file can be downloaded anonymously with identical bytes', 
     page.getByRole('button', { name: 'Téléverser', exact: true }).click(),
   ]);
   expect(upload.status()).toBe(201);
-  await expect(page.getByRole('heading', { name: 'Ton lien est prêt !' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Ajouter un fichier', exact: true })).toBeVisible();
   const shareUrl = await page.getByLabel('Lien unique de partage').inputValue();
   expect(new URL(shareUrl).pathname).toMatch(/^\/share\/[a-f0-9]{64}$/);
 
