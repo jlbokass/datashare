@@ -82,12 +82,6 @@ export class Home implements OnInit {
     }
   }
 
-  openUploadPanel(): void {
-    if (this.auth.signedIn() && !this.busy()) {
-      this.uploadPanelOpen.set(true);
-    }
-  }
-
   setFiles(files: File[]): void {
     this.uploadPanelOpen.set(true);
     this.transfer.set(null);
