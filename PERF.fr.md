@@ -18,7 +18,7 @@
 
 - **Backend :** aucune erreur sur la courte série. Les durées et le débit décrivent des transferts **dans le réseau Docker local**, sans latence Internet ni concurrence. Ils ne permettent pas de prédire la capacité en production.
 - **Bundle Angular :** **325,46 kB < 500 kB**, seuil d'avertissement configuré dans `frontend/angular.json` ; seuil d'erreur à **1 MB**. Les budgets de styles de composants sont fixés à 4 kB (avertissement) et 8 kB (erreur).
-- **Lighthouse :** les FCP/LCP élevés sont observés **sur le serveur de développement**, qui charge des modules Vite/Angular non minifiés. La capture signale environ **6,45 Mio de ressources transférées** et du JavaScript non optimisé. Le score **58 ne doit pas être présenté comme le score du build de production**. TBT et CLS à zéro sont favorables dans les conditions de cette mesure.
+- **Lighthouse :** les FCP/LCP élevés sont observés **sur le serveur de développement**, qui charge des modules Vite/Angular non minifiés. La capture signale **6 454 Kio de ressources (environ 6,3 Mio)** et du JavaScript non optimisé. Le score **58 ne doit pas être présenté comme le score du build de production**. TBT et CLS à zéro sont favorables dans les conditions de cette mesure.
 - **Décision :** aucune optimisation ou nouvelle infrastructure de monitoring n'est justifiée par ces données. Pour connaître les performances réelles avant un déploiement public, il faudra mesurer le build servi en conditions de production.
 
 ## 3. Reproduction

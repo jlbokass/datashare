@@ -18,7 +18,7 @@
 
 - **Backend:** no errors in this small sample. Latencies and throughput represent transfers **within the local Docker network**, without Internet latency or concurrent users; they do not predict production capacity.
 - **Angular bundle:** **325.46 kB < 500 kB**, the warning threshold in `frontend/angular.json`; the error threshold is **1 MB**. Component-style budgets are 4 kB warning and 8 kB error.
-- **Lighthouse:** slow FCP/LCP were observed **on the development server**, which loads non-minified Vite/Angular modules. The capture indicates about **6.45 MiB of transferred resources** and unoptimized JavaScript. The **58 score is not a production-build score**. TBT and CLS at zero are favorable within this observation.
+- **Lighthouse:** slow FCP/LCP were observed **on the development server**, which loads non-minified Vite/Angular modules. The capture indicates **6,454 KiB of resources (about 6.3 MiB)** and unoptimized JavaScript. The **58 score is not a production-build score**. TBT and CLS at zero are favorable within this observation.
 - **Decision:** these results do not justify optimization or a monitoring stack. Before a public release, assess the actual production-served build under representative conditions.
 
 ## 3. Reproduce
