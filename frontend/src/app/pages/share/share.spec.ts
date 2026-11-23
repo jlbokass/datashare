@@ -1,6 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { Share } from './share';
@@ -8,6 +8,7 @@ import { Share } from './share';
 describe('Share — public file access', () => {
   const token = 'a'.repeat(64);
   let http: HttpTestingController;
+  let fixture: ComponentFixture<Share>;
 
   function createPage(selectedToken: string | null = token): Share {
     TestBed.configureTestingModule({
@@ -22,7 +23,8 @@ describe('Share — public file access', () => {
 
     http = TestBed.inject(HttpTestingController);
 
-    return TestBed.createComponent(Share).componentInstance;
+    fixture = TestBed.createComponent(Share);
+    return fixture.componentInstance;
   }
 
   afterEach(() => {
@@ -52,6 +54,63 @@ describe('Share — public file access', () => {
     expect(component.downloadUrl('550e8400-e29b-41d4-a716-446655440000'))
       .toBe(`/api/shares/${token}/files/550e8400-e29b-41d4-a716-446655440000`);
     expect(component.hasZip(component.share()?.files ?? [])).toBe(true);
+  });
+
+  it('renders the direct-download Figma order for a single file', () => {
+    const page = createPage();
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(12, 0, 0, 0);
+    const file = {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      original_name: 'report.pdf',
+      mime_type: 'application/pdf',
+      size_bytes: 2_600_000,
+      uploaded_at: '2026-11-18T10:00:00Z',
+    };
+
+    http.expectOne(`/api/shares/${token}`).flush({
+      share: { expires_at: tomorrow.toISOString(), files: [file] },
+    });
+    fixture.detectChanges();
+
+    const card = fixture.nativeElement.querySelector('.share-card') as HTMLElement;
+    expect(Array.from(card.children).map(child => child.tagName)).toEqual(['H1', 'UL', 'P', 'DIV']);
+    expect(card.querySelector('h1')?.textContent).toContain('Télécharger un fichier');
+    expect(card.querySelector('.file-details strong')?.textContent).toContain('report.pdf');
+    expect(card.querySelector('.file-details small')?.textContent).toContain('2,6 Mo');
+    expect(card.querySelector('.expiry-notice')?.textContent).toContain('Ce fichier expirera demain.');
+    expect(card.querySelector('.share-summary')).toBeNull();
+    expect(card.querySelector('.home-link')).toBeNull();
+    const download = card.querySelector('a.download-link') as HTMLAnchorElement;
+    expect(download.getAttribute('aria-label')).toBe('Télécharger report.pdf');
+    expect(download.getAttribute('href')).toBe(page.downloadUrl(file.id));
+    expect(download.querySelector('svg')).not.toBeNull();
+    expect(download.textContent).toContain('Télécharger');
+
+    expect(page.formatSize(512)).toBe('512 octets');
+    expect(page.formatSize(2_048)).toBe('2 Ko');
+  });
+
+  it('keeps an individual download action for every file in a public transfer', () => {
+    createPage();
+    const files = [
+      { id: 'first', original_name: 'one.pdf', mime_type: 'application/pdf', size_bytes: 2_000_000, uploaded_at: '2026-11-18T10:00:00Z' },
+      { id: 'second', original_name: 'two.pdf', mime_type: 'application/pdf', size_bytes: 3_000_000, uploaded_at: '2026-11-18T10:00:00Z' },
+    ];
+    const expiry = new Date();
+    expiry.setDate(expiry.getDate() + 3);
+    http.expectOne(`/api/shares/${token}`).flush({
+      share: { expires_at: expiry.toISOString(), files },
+    });
+    fixture.detectChanges();
+
+    const links = Array.from(fixture.nativeElement.querySelectorAll('a.download-link')) as HTMLAnchorElement[];
+    expect(links.map(link => link.getAttribute('aria-label'))).toEqual([
+      'Télécharger one.pdf', 'Télécharger two.pdf',
+    ]);
+    expect(fixture.nativeElement.querySelector('.expiry-notice')?.textContent)
+      .toContain('Ces fichiers expireront dans 3 jours.');
   });
 
   it('shows expiration error for HTTP 410', () => {
