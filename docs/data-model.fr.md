@@ -7,7 +7,7 @@ lang: fr
 
 # DataShare — Modèle conceptuel de données (UML)
 
-**Statut :** modèle conceptuel validé dans [DESIGN-02](https://github.com/jlbokass/datashare/issues/2). Il s'agit d'un **modèle conceptuel**, pas d'une base de données implémentée.
+**Statut :** modèle conceptuel validé dans [DESIGN-02](https://github.com/jlbokass/datashare/issues/2). Les trois classes obligatoires sont mises en œuvre ; le diagramme ne décrit pas le schéma physique ni des extensions déjà développées.
 
 **Source :** OpenClassrooms, *DataShare – Spécifications fonctionnelles*, US01 à US10. Les **US01 à US06** constituent le MVP obligatoire ; US07 à US10 sont optionnelles. Le modèle de documentation fourni autorise UML ou Merise.
 
@@ -45,13 +45,13 @@ lang: fr
 ## 2. Règles métier obligatoires (US01 à US06)
 
 - **Téléversement :** utilisateur connecté, stockage privé, token unique non prédictible. Taille maximale **1 Go** ; politique des formats définie en sécurité (US01).
-- **Regroupement :** un TRANSFERT contient plusieurs FICHIERS avec **un seul lien de partage et une expiration commune**. C'est un **choix proposé**, pas une structure de base imposée par OC.
-- **Expiration :** **7 jours par défaut**, personnalisable jusqu'à **7 jours**. Les fichiers expirés et leurs métadonnées sont automatiquement supprimés (US01). US10 précise les modalités de la planification quotidienne.
+- **Regroupement :** un TRANSFERT contient plusieurs FICHIERS avec **un seul lien de partage et une expiration commune**. C'est un **choix retenu**, pas une structure de base imposée par OC.
+- **Expiration :** **7 jours par défaut**, personnalisable de **1 à 7 jours**. Les fichiers expirés et leurs métadonnées sont automatiquement supprimés (US01). US10 précise les modalités de la planification quotidienne.
 - **Téléchargement :** un lien valide donne accès aux métadonnées nom, type, taille et expiration avant récupération ; les liens invalides/expirés produisent une erreur claire (US02).
 - **Comptes :** email unique, mots de passe hachés et salés, connexion par JWT (US03, US04).
 - **Historique :** l'utilisateur consulte uniquement ses fichiers et leurs métadonnées ainsi que l'état du lien (US05).
 - **Suppression :** le propriétaire supprime **un fichier individuel** après confirmation dans le frontend. Ses octets et métadonnées sont supprimés ; les autres fichiers du transfert restent disponibles (US06).
-- **Transfert vide :** **règle proposée :** si le dernier fichier disparaît, le TRANSFERT devenu vide est également supprimé et son token invalidé, ce qui respecte la multiplicité `1..*`.
+- **Transfert vide :** **règle implémentée :** si le dernier fichier disparaît, le TRANSFERT devenu vide est également supprimé et son token invalidé, ce qui respecte la multiplicité `1..*`.
 
 ## 3. Extensions optionnelles intégrées au même MCD
 
@@ -65,11 +65,11 @@ lang: fr
 
 Un événement représente un **téléchargement réellement effectué**, et non la simple ouverture d'une page de partage. `totalOctetsTelecharges` et `nbFichiers` mesurent ce qui a **réellement été transféré durant cet événement**, pas la taille initiale de tout le partage.
 
-## 4. Conservation de l'historique après suppression — règle proposée
+## 4. Statistiques facultatives après suppression — proposition historique
 
-**Décision de conception :** conserver des statistiques anonymes d'activité et de volumétrie, tout en supprimant les transferts expirés, leurs fichiers et leurs métadonnées opérationnelles.
+**Proposition non implémentée :** conserver des statistiques anonymes d'activité et de volumétrie, tout en supprimant les transferts expirés, leurs fichiers et leurs métadonnées opérationnelles.
 
-1. **Avant suppression :** chaque TÉLÉCHARGEMENT est associé à **un TRANSFERT existant**. L'application contrôle cette règle à la création.
+1. **Avant suppression :** chaque TÉLÉCHARGEMENT est associé à **un TRANSFERT existant**. Une éventuelle implémentation devrait contrôler cette règle à la création.
 2. **Après suppression :** l'événement subsiste, mais l'association au TRANSFERT supprimé disparaît. La multiplicité UML historique est donc **0..1**.
 3. **Mesures conservées :** total d'octets téléchargés, nombre de fichiers effectivement téléchargés et période adaptée aux statistiques (jour/mois), à condition que ces données ne permettent pas d'identifier une personne.
 4. **Données personnelles :** ne pas conserver dans l'historique statistique après purge les identifiants utilisateur, noms de fichiers, tokens de partage, IP brutes ou hachées, ni user-agents. Supprimer aussi les attributs indirectement identifiants ; regrouper ou réduire la précision des dates si nécessaire. **Hacher une IP relève généralement de la pseudonymisation, pas automatiquement de l'anonymisation.**
@@ -97,18 +97,10 @@ ALTER TABLE telechargements
     ON DELETE SET NULL;
 ```
 
-Les noms définitifs des tables et des colonnes seront choisis à l'implémentation. **Ces instructions SQL n'anonymisent pas, à elles seules, le contenu des lignes conservées.**
+Les noms des tables et colonnes ci-dessus sont illustratifs. **Ces instructions SQL n'anonymisent pas, à elles seules, le contenu des lignes conservées.**
 
-## 5. Détails techniques reportés
+## 5. Modèle physique et arbitrage sur la purge
 
-`cleStockage` (référence au stockage privé), `checksumSha256` éventuellement, clés primaires/étrangères SQL, index, migrations et classes ORM relèvent du futur **modèle logique/physique**, pas du MCD conceptuel.
+Le stockage privé, les clés, les index, les migrations et les classes ORM relèvent du modèle physique (voir `backend/database/migrations/`). Le statut est dérivé de l'expiration. Les statistiques de téléchargement, les tags et la protection par mot de passe ne font pas partie de l'implémentation.
 
-## 6. Points à valider
-
-- [ ] Un lien commun et une expiration commune pour plusieurs fichiers.
-- [ ] Suppression individuelle des fichiers et suppression du transfert vide.
-- [ ] Statistiques de téléchargement **hors MVP obligatoire**.
-- [ ] Historique réellement anonyme ; `ON DELETE SET NULL` ne suffit pas pour l'anonymisation.
-- [ ] Multiplicités UML, notamment la relation historique **TRANSFERT 0..1 — 0..* TÉLÉCHARGEMENT**.
-- [ ] Lisibilité du **diagramme unique** et cohérence FR/EN.
-- [ ] Cohérence à confirmer avec DESIGN-01 et DESIGN-03 avant fusion.
+[HIST-01 #57](https://github.com/jlbokass/datashare/issues/57) confirme la conservation de la purge existante : fichiers et métadonnées sont supprimés à expiration par la tâche planifiée. L'historique peut uniquement inclure les enregistrements expirés non encore purgés. Les statistiques facultatives ci-dessus restent une hypothèse de conception, pas une politique de conservation en vigueur.

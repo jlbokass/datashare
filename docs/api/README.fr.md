@@ -7,7 +7,7 @@ lang: fr
 
 # API DataShare — Contrat d'interface
 
-**Statut :** contrat validé dans DESIGN-03 ([issue #3](https://github.com/jlbokass/datashare/issues/3)). **Ce contrat décrit une conception, pas une API Laravel déjà développée.**
+**Statut :** contrat validé dans [DESIGN-03](https://github.com/jlbokass/datashare/issues/3), utilisé par le MVP US01–US06 intégré à `develop`. Le YAML conserve le contrat de conception ; aucune validation formelle OpenAPI supplémentaire n'est revendiquée.
 
 - [English version](README.md)
 - [Spécification OpenAPI 3.1](openapi.yaml)
@@ -40,7 +40,7 @@ Le contrat couvre le **MVP OpenClassrooms obligatoire US01 à US06**. Le backend
 
 Nous n'ajoutons **pas** de route de suppression globale `DELETE /api/transfers/{id}` dans ce MVP : l'US06 officielle prévoit de supprimer un **fichier**. Si c'est le dernier fichier du transfert, le backend supprime le transfert devenu vide.
 
-## 3. Exemples du contrat envisagé
+## 3. Exemples du contrat
 
 ### Inscription — US03
 
@@ -90,7 +90,7 @@ Exemple de réponse `201` :
 
 `share_url` est une **route Angular**, non une route API. Angular ouvre `/share/{token}`, puis demande `GET /api/shares/{token}`.
 
-OC précise une limite de **1 Go** par fichier dans sa formulation. Le brouillon retient **1 000 000 000 octets par fichier** ; la limite cumulée d'une requête HTTP multi-fichiers reste une **décision à prendre**, non explicitement donnée par OC. La politique de formats interdits/acceptés reste également à définir.
+Le MVP utilise **1 000 000 000 octets par fichier**, cinq fichiers et **2 000 000 000 octets cumulés** par transfert. Ces deux dernières limites sont des choix locaux, pas des exigences OC. Les formats sont contrôlés côté serveur (voir [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md)).
 
 ### Suppression — US06
 
@@ -103,7 +103,7 @@ Réponse `204 No Content`. Angular demande confirmation **avant l'envoi** de cet
 
 ## 4. Erreurs et sécurité des accès
 
-| Situation | Réponse proposée | Justification |
+| Situation | Réponse | Justification |
 | --- | --- | --- |
 | JWT absent, invalide ou expiré | **401** | Accès privé refusé |
 | Inscription invalide ou email déjà enregistré | **422** | Validation détaillée |
@@ -118,7 +118,7 @@ Aucune URL directe vers le stockage privé n'est fournie. Les octets sont transm
 
 ## 5. Historique et expiration
 
-US05 demande un statut de lien valide/expiré, tandis qu'US06 indique que **les fichiers non expirés apparaissent par défaut**. L'[implémentation US05](../us05-personal-history.fr.md) de `GET /api/transfers` exclut les éléments expirés par défaut et prend en charge le paramètre facultatif `include_expired=true` pour voir ceux qui attendent encore leur purge physique. Un fichier déjà purgé ne peut plus réapparaître. Le statut est **calculé** à partir de l'expiration.
+US05 demande un statut de lien valide/expiré, tandis qu'US06 indique que **les fichiers non expirés apparaissent par défaut**. L'[US05](https://github.com/jlbokass/datashare/issues/8) de `GET /api/transfers` exclut les éléments expirés par défaut et prend en charge le paramètre facultatif `include_expired=true` pour voir ceux qui attendent encore leur purge physique. Un fichier déjà purgé ne peut plus réapparaître. Le statut est **calculé** à partir de l'expiration.
 
 US01 impose la suppression automatique des fichiers **et des métadonnées** à expiration. L'ordonnancement figure dans DESIGN-01 ; l'OpenAPI décrit seulement les effets observables côté client.
 
@@ -126,15 +126,13 @@ US01 impose la suppression automatique des fichiers **et des métadonnées** à 
 
 La spécification OpenAPI ne contient **aucune route de téléversement anonyme US07**, de tags US08, de protection par mot de passe US09 ou de suivi statistique facultatif des téléchargements. La planification US10 est un traitement interne, pas une route publique. Ces éléments restent dans le backlog et dans la partie optionnelle du MCD.
 
-## 7. Décisions à valider
+## 7. Comportements implémentés
 
-- [ ] Valider les conventions de routes et de réponses (`/transfers`, `/shares`, `snake_case`).
-- [ ] Confirmer **un token commun à plusieurs fichiers** comme défini dans DESIGN-02.
-- [ ] Vérifier que la route `DELETE` supprime **un seul fichier**, pas le groupe entier.
-- [ ] Confirmer **1 Go par fichier** et l'éventuelle limite globale des requêtes HTTP ; vérifier plus tard les paramètres frontend/backend/proxy.
-- [ ] Conserver le paramètre `include_expired` seulement s'il répond à un besoin réel.
-- [ ] Définir les extensions/types de fichiers autorisés et interdits dans `SECURITY.md` avant implémentation.
-- [ ] Valider syntaxiquement `openapi.yaml` avec un outil compatible OpenAPI 3.1.
-- [ ] Maintenir cette documentation cohérente avec [la version anglaise](README.md) et les décisions DESIGN-01/DESIGN-02.
+- Inscription : réponse 201 sans JWT ; email normalisé, doublon ou mot de passe invalide → 422. Connexion : JWT Bearer, erreur générique 401 si identifiants incorrects. `/api/auth/me` nécessite un JWT valide.
+- Téléversement : multipart `files[]`, un lien relatif `/share/{token}` (64 caractères hexadécimaux), une expiration commune, identifiants UUID et métadonnées ; aucune exposition de chemin privé. En cas d'échec de stockage ou de BDD, les octets déjà écrits sont nettoyés. Expiration de 1 à 7 jours (7 par défaut) ; démo cinq minutes réservée au local.
+- Téléchargement : lien public sans compte, métadonnées autorisées uniquement, octets forcés en pièce jointe, `application/octet-stream`, `nosniff` et absence de cache partagé. 410 après expiration tant que les métadonnées existent ; 404 après purge.
+- Historique : propriétaire exclusivement, tri par date de création puis identifiant décroissants, pas de pagination ; `include_expired=true` inclut seulement les éléments non encore purgés. `Cache-Control: private, no-store, max-age=0`. Le statut est dérivé de l'expiration.
+- Suppression : 204, refus 404 pour ressource inconnue ou appartenant à un autre compte ; un fichier seulement, les autres restent disponibles. La suppression du dernier fichier révoque le lien. Un échec de stockage renvoie 500 et conserve les métadonnées pour reprise (voir [architecture](../architecture.fr.md)).
+- [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57) est clôturé : purge et historique inchangés. Aucun mécanisme de conservation permanente ajouté.
 
-**Aucun endpoint n'est encore développé dans le nouveau dépôt.**
+Voir [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) pour les preuves et limites, et [installation](../installation.fr.md) pour exécuter le MVP.

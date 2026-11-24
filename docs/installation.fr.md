@@ -7,7 +7,7 @@ lang: fr
 
 # Installer DataShare en local
 
-[**English**](installation.md) · [Accueil de la documentation](index.fr.md) · [README complet](https://github.com/jlbokass/datashare/blob/main/README.fr.md)
+[**English**](installation.md) · [Accueil de la documentation](index.md) · [README complet](https://github.com/jlbokass/datashare/blob/develop/README.md)
 
 **MVP fonctionnel US01–US06.** Cette procédure est destinée à un poste de développement (macOS, Linux ou autre hôte Docker). Elle lance Laravel 13, Angular 22 et PostgreSQL 18 **localement** : **http://127.0.0.1:8080/**. Aucun service applicatif n'est hébergé par GitHub Pages.
 
@@ -25,7 +25,7 @@ cd datashare
 git switch develop
 ```
 
-`develop` contient les six US ; après la livraison vers `main`, la branche principale représentera la version publiée. Sur un poste déjà configuré, **préserver les fichiers `.env` existants**.
+`develop` contient les six US et les lots qualité ; `main` représente la dernière livraison publiée. Sur un poste déjà configuré, **préserver les fichiers `.env` existants**.
 
 **2. Créer les configurations locales :**
 
@@ -70,4 +70,30 @@ Visiter **http://127.0.0.1:8080/**. La route `/api/health` ne vérifie pas à el
 
 Si Nginx répond d'abord `502`, vérifier `docker compose logs -f frontend app web` : le premier `npm ci` dans le conteneur frontend peut être encore en cours. Éviter d'écraser les `.env` ou de supprimer les volumes. Pour arrêter sans effacer la base : `docker compose down` (**jamais `down -v` sans vouloir supprimer les données**).
 
-Les [badges de qualité](index.fr.md) correspondent aux tests Laravel/Pint et Angular/build dans GitHub Actions. La couverture chiffrée, les tests E2E, la sécurité, les performances et la [conformité UI](https://github.com/jlbokass/datashare/issues/37) restent à valider avant la livraison définitive OC. Cette configuration ne doit pas être exposée à Internet telle quelle.
+Les trois workflows CI et les lots qualité ont été validés ; voir [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md). Cette configuration de développement ne doit pas être exposée à Internet.
+
+## Services et diagnostics
+
+| Service | Rôle |
+| --- | --- |
+| `db` | PostgreSQL 18, réseau Docker privé, volume persistant monté dans `/var/lib/postgresql` |
+| `app` | Laravel via PHP-FPM 8.4, réseau privé |
+| `frontend` | Angular 22, serveur de développement et HMR |
+| `web` | Nginx, seule entrée HTTP locale sur le port 8080 ; routes API et `/up` vers Laravel |
+| `scheduler` | Purge Laravel |
+| `php`, `node` | Outils CLI ponctuels, profil `tools` |
+
+Le projet Compose `datashare-p3` isole ses conteneurs et volumes. Les sources sont montées ; Angular détecte les changements avec `--poll 1000` et Nginx relaie les WebSockets HMR. Les dépendances Node utilisent un volume dédié ; les changements de lockfile peuvent nécessiter `npm ci`. Les variables PostgreSQL injectées par Compose priment sur les anciennes valeurs SQLite locales.
+
+```bash
+docker compose exec -T db sh -lc 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+docker compose exec -T app php artisan migrate:status
+curl -fsS http://127.0.0.1:8080/up
+docker compose run --rm php php -v
+docker compose run --rm php composer --version
+docker compose run --rm php php -m
+docker compose run --rm node node --version
+docker compose run --rm node npm --version
+```
+
+Ces diagnostics sont ponctuels, à utiliser si nécessaire. Ne jamais publier les secrets interpolés par Compose. Voir [MAINTENANCE](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md) pour la démonstration de purge et les procédures d'exploitation.

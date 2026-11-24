@@ -1,12 +1,12 @@
-# DataShare — Maintenance procedures (OC P3)
+# DataShare — Procédures de maintenance (OC P3)
 
-[Français](MAINTENANCE.fr.md) · [Technical documentation](docs/technical-documentation.md)
+[English](docs/en/MAINTENANCE.md) · [Documentation technique](docs/technical-documentation.fr.md)
 
-**Status: development-environment procedure; production operations, backup testing and deployment automation remain unverified.**
+**Statut : procédures pour l'environnement de développement ; exploitation de production, sauvegardes testées et déploiement automatisé non encore vérifiés.**
 
-## Local runtime
+## Exploitation locale
 
-From the repository root with the correct branch and an ignored root `.env` and `backend/.env`:
+À la racine du dépôt, avec la branche correcte et les `.env` locaux ignorés par Git :
 
 ```bash
 docker compose config --quiet
@@ -17,34 +17,51 @@ docker compose exec -T app php artisan schedule:list
 docker compose logs --tail=100 app web frontend scheduler db
 ```
 
-The `scheduler` executes the daily US01 expired-file purge; if local demo flag `TRANSFER_DEMO_5_MIN_ENABLED=true` is set, the app must clear config and the scheduler must be restarted to use minute-level execution. **`docker compose down` keeps named database volumes**; never run `docker compose down -v` without intentionally destroying local data.
+Le service `scheduler` assure la purge quotidienne des fichiers expirés US01. Avec le flag local `TRANSFER_DEMO_5_MIN_ENABLED=true`, vider le cache de configuration et redémarrer le scheduler pour une exécution à la minute. **`docker compose down` conserve les volumes** ; ne jamais lancer `docker compose down -v` sauf si l'on veut effacer volontairement les données locales.
 
-## Updating dependencies — proposed cadence
+## Mise à jour des dépendances — fréquence proposée
 
-| When | Activity | Risks / validation |
+| Moment | Opération | Risques / contrôles |
 | --- | --- | --- |
-| Promptly after a critical security advisory | Review Composer/npm and Docker images; patch affected dependencies | Breaking changes, lockfile integrity, JWT/file upload regressions |
-| Every 2–4 weeks (proposed) | Review available framework/library updates and release notes | Laravel/Angular/PHP/Node compatibility; require tested PR |
-| Before an OC release / after a significant feature | Repeat backend/frontend build/tests, migrations and manual critical paths | Schema migration data loss, private storage access, broken JWT session |
-| Daily during app operation | Confirm expired-file scheduler is running and logs are healthy | Unpurged data, disk growth, failed cleanup |
+| Rapidement après une alerte critique | Vérifier Composer/npm et les images Docker, corriger les dépendances concernées | Régressions JWT/upload, versions incompatibles, cohérence lockfiles |
+| Toutes les 2 à 4 semaines (proposition) | Examiner mises à jour framework/outils et changelogs | Compatibilité Laravel/Angular/PHP/Node ; PR testée |
+| Avant livraison / nouvelle fonction majeure | Relancer tests/builds, migrations et parcours fonctionnels critiques | Perte de données, erreur de migration, stockage privé, session JWT |
+| Chaque jour en exploitation | Contrôler fonctionnement du scheduler, purge et logs | Fichiers expirés non supprimés, saturation disque |
 
-Example review commands (these **do not** modify dependency versions):
+Commandes d'inventaire sans changement de version :
 
 ```bash
 docker compose run --rm php sh -lc 'cd backend && composer outdated'
 docker compose run --rm node sh -lc 'cd frontend && npm outdated'
 ```
 
-Run actual Composer/npm updates **in a dedicated branch**; commit both lockfiles, review diffs, run tests and CI when available.
+Effectuer les mises à jour effectives **sur branche dédiée**, conserver les lockfiles, relire la différence et exécuter les tests et vérifier la CI existante.
 
-## Data and recovery — not yet production-ready
+## Données et reprise — travail restant
 
-- PostgreSQL metadata and private file contents are **two distinct data stores**; a usable backup/recovery policy needs both to be consistent. No tested backup/restore plan exists yet.
-- Plan retention/restore, access credentials, encryption and scheduled backups before deploying real user data.
-- Review database migration against existing rows, avoid destructive `migrate:fresh`, and document rollback risks.
-- No deployed production infrastructure or automated release scripts are claimed.
-- Dozzle logs, if later added, require a separate security assessment of Docker socket/API permissions.
+- PostgreSQL (métadonnées) et stockage privé (octets) sont **deux sources de données distinctes** : une sauvegarde cohérente doit couvrir les deux. Aucun test de restauration n'existe encore.
+- Définir rétention, accès, chiffrement et automatisation de sauvegardes avant d'héberger des données réelles.
+- Avant migration, vérifier les lignes existantes ; éviter `migrate:fresh` et documenter les limites du rollback.
+- Aucun hébergement de production ou script de livraison automatisée n'est déclaré opérationnel.
+- Dozzle, s'il est ajouté, nécessite une revue de l'accès privilégié au socket/API Docker.
 
-## Maintenance record template
+## Fiche d'opération
 
-Record **date, commit SHA, changed dependencies/images, migrations, commands/tests, observed issue, decision, person approving and recovery action**. Avoid pasting credentials or private upload data.
+Consigner **date, SHA, dépendances/images touchées, migrations, commandes/tests, incident, décision, validation et possibilité de reprise**. Ne pas inclure de mots de passe ou de fichiers utilisateurs privés.
+
+## Démonstration de l'expiration et de la purge
+
+Le mode standard expire les transferts après 1 à 7 jours et les purge quotidiennement. La démonstration à cinq minutes est locale uniquement : définir `TRANSFER_DEMO_5_MIN_ENABLED=true` dans `backend/.env`, puis :
+
+```bash
+docker compose exec -T app php artisan config:clear
+docker compose restart app scheduler
+curl -fsS http://127.0.0.1:8080/api/demo/capabilities
+docker compose exec -T app php artisan schedule:list
+```
+
+La capacité `five_minute_expiry` doit être vraie et la purge planifiée chaque minute. Pour la soutenance, conformément à [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57), arrêter temporairement le scheduler avec `docker compose stop scheduler`, créer un transfert de démonstration et observer son statut expiré et le refus du lien public après expiration. Relancer impérativement `docker compose start scheduler` et observer la disparition des métadonnées (`docker compose logs --tail=30 scheduler`). En usage normal, le scheduler reste actif. Pour revenir au mode standard, désactiver le flag, vider le cache de configuration et redémarrer les services.
+
+## Suppression et reprise après incident
+
+`TransferDeletion` verrouille le transfert parent dans une transaction PostgreSQL pour sérialiser suppression et purge. Les octets sont supprimés avant les métadonnées. Les deux stockages ne forment pas une transaction atomique : si la BDD échoue après la suppression des octets, ils ne sont pas restaurés. Une nouvelle tentative peut réconcilier les métadonnées restantes ; une erreur de stockage conserve les métadonnées pour permettre cette reprise. La purge poursuit les autres transferts et retourne un code non nul si l'un échoue. Vérifier les journaux et ne pas supprimer récursivement le stockage. Voir [architecture](docs/architecture.fr.md).

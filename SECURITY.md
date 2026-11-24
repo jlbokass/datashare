@@ -1,33 +1,40 @@
-# DataShare — Security and dependency audit
+# DataShare — Sécurité et audit des dépendances
 
-[Français](SECURITY.fr.md) · [Technical documentation](docs/technical-documentation.md) · [QL-03 tracking](https://github.com/jlbokass/datashare/issues/53)
+[English](docs/en/SECURITY.md) · [Documentation technique](docs/technical-documentation.fr.md) · [Lot QL-03](https://github.com/jlbokass/datashare/issues/53)
 
-**Security audits — 23 November 2026.** Checks executed in the project's local Docker environment on `quality/ql-03-security` (branched from `develop` at commit `36291cd`). **Results: Composer reported no security advisories and npm reported zero vulnerabilities.** Terminal output was provided as a screenshot; the exact local checkout SHA and audit tool versions were not recorded.
+**Audits de sécurité — 23 novembre 2026.** Contrôles effectués dans l'environnement Docker local du projet, sur `quality/ql-03-security` (branche issue de `develop` au commit `36291cd`). **Résultats : aucun avis de vulnérabilité détecté par Composer et aucune vulnérabilité détectée par npm.** Les sorties ont été communiquées sous forme de capture ; le SHA exact du poste et les versions des outils d'audit n'ont pas été relevés.
 
-## 1. Dependency audits and decisions
+## 1. Audits et décisions
 
-| Ecosystem | Command run from repository root | Result |
+| Écosystème | Commande exécutée depuis la racine | Résultat |
 | --- | --- | --- |
-| PHP / Composer (`backend/composer.lock`) | `docker compose run --rm php sh -lc 'cd backend && composer audit --locked --format=summary'` | **0 security advisories** |
-| Angular / npm (`frontend/package-lock.json`) | `docker compose run --rm node sh -lc 'cd frontend && npm audit'` | **0 vulnerabilities** |
+| PHP / Composer (`backend/composer.lock`) | `docker compose run --rm php sh -lc 'cd backend && composer audit --locked --format=summary'` | **0 avis de vulnérabilité** |
+| Angular / npm (`frontend/package-lock.json`) | `docker compose run --rm node sh -lc 'cd frontend && npm audit'` | **0 vulnérabilité** |
 
-The checks cover declared dependencies, including development dependencies, as reported at scan time. **Decision: no security-driven update is needed** based on these results. npm's notice that version 12.2.3 is available is a version announcement, **not a security finding**; no automatic upgrades were made. No repeat scan is needed for this work package while dependencies remain unchanged.
+Les audits couvrent les dépendances déclarées, y compris celles utilisées pour le développement, à la date du contrôle. **Décision : aucune mise à jour corrective nécessaire** au vu de ces résultats. La notification de disponibilité de npm 12.2.3 est une suggestion de nouvelle version, **pas une vulnérabilité** ; aucune mise à jour automatique n'a été effectuée. Aucun nouveau scan n'est nécessaire tant que les dépendances restent inchangées pour ce lot.
 
-## 2. Implemented MVP controls
+## 2. Protections du MVP
 
-| Area | Implemented measures |
+| Domaine | Mesures implémentées |
 | --- | --- |
-| Accounts and JWT | Unique email, server validation, hashed passwords, signed JWT verified in Laravel. Public registration/login have rate limits; JWT is required to access an account, upload, view owner history or delete owned files. |
-| Files and sharing | Private storage outside the public web root, opaque internal filenames, MIME/extension validation, **1 GB per file**, chosen **5-file / 2 GB transfer** limits. Public links use unpredictable tokens; invalid/expired links return 404/410 and downloads are forced as attachments. |
-| Retention | **1–7-day** expiry and scheduled removal of bytes and metadata; five-minute demonstration is restricted to local use. |
+| Comptes et JWT | Email unique, validation côté serveur, mot de passe hashé ; JWT signé et vérifié côté Laravel. Inscription et connexion publiques avec limitation de fréquence ; JWT exigé pour consulter son compte, téléverser, afficher son historique ou supprimer ses fichiers. |
+| Fichiers et partage | Stockage privé hors racine web, noms internes opaques, contrôle MIME/extension, taille maximale de **1 Go/fichier**, **5 fichiers et 2 Go/transfert** (choix MVP). Le lien public repose sur un token imprévisible ; erreurs 404/410 si invalide/expiré et téléchargement forcé en pièce jointe. |
+| Durée de vie | Expiration de **1 à 7 jours**, purge planifiée des fichiers et métadonnées ; démonstration de cinq minutes réservée au local. |
 
-Application access checks and critical journeys are also exercised in [TESTING](TESTING.md). These controls do not establish production-grade security on their own.
+Les contrôles d'accès applicatifs et les parcours principaux sont également couverts par les [tests](TESTING.md). Ces mesures ne prouvent pas à elles seules la sécurité en production.
 
-## 3. Known limitations
+## 3. Limites connues
 
-- **Logout:** Angular clears the JWT from memory, but a previously issued JWT remains valid server-side until expiry (approximately 30 minutes); there is no immediate revocation.
-- **ZIP archives:** accepted without extraction, execution or antivirus scanning; recipients should treat untrusted content cautiously.
-- **Deployment:** public HTTPS, backup/restore, hardening and operational security must be addressed before production use.
-- **Audit scope:** dependency scanners report known advisories at scan time; they do not replace code review, container scanning or penetration testing.
+- **Déconnexion :** le JWT est retiré de la mémoire Angular mais demeure valide côté serveur jusqu'à son expiration (environ 30 minutes) ; aucune révocation immédiate.
+- **ZIP :** archives acceptées sans extraction, exécution ni analyse antivirus ; les destinataires doivent se méfier des fichiers non fiables.
+- **Déploiement :** HTTPS public, sauvegarde/restauration, durcissement et sécurité opérationnelle restent à définir avant toute mise en production.
+- **Portée des scans :** les audits de dépendances détectent des avis connus à la date du contrôle ; ils ne remplacent ni l'analyse du code, ni un audit des conteneurs, ni un test d'intrusion.
 
-**QL-03 conclusion:** the basic dependency-scan requirement is met, **no vulnerabilities reported, no corrective change needed**. Known limitations are recorded without adding further requirements to this work package.
+**Conclusion QL-03 :** exigence de scan basique satisfaite, **aucune vulnérabilité signalée, aucune correction à appliquer**. Les limites ci-dessus sont documentées et ne constituent pas de nouvelles exigences pour ce lot.
+
+## 4. Règles de validation et d'authentification
+
+- Formats autorisés (extension et MIME côté serveur) : PDF, PNG, JPEG, GIF, WEBP, TXT, MP3, MP4 et ZIP. Le filtre du sélecteur Angular est une aide à la saisie, pas un contrôle de sécurité. Pas d'envoi direct de dossier ; le ZIP reste opaque. Limites décimales : 1 000 000 000 octets par fichier, 2 000 000 000 octets par transfert et cinq fichiers au maximum. Les deux dernières sont des choix locaux, pas des exigences OC.
+- Inscription : email normalisé en minuscules, unicité en base, mot de passe de huit caractères minimum, aucun JWT délivré à l'inscription. Dix inscriptions par minute et par client.
+- Connexion : bibliothèque `firebase/php-jwt`, signature HS256, clé `JWT_SECRET` distincte de `APP_KEY`, contrôle de signature, expiration, émetteur et utilisateur. Durée de vie : 1 800 secondes ; cinq tentatives par minute et par client. Aucun refresh token ni révocation immédiate. Le garde Angular ne remplace pas les contrôles Laravel.
+- Les tokens de partage publics sont distincts des JWT (64 caractères hexadécimaux). Les chemins privés et données du propriétaire ne sont pas exposés ; téléchargement forcé, `nosniff` et absence de cache partagé.
