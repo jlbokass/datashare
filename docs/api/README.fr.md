@@ -7,7 +7,7 @@ lang: fr
 
 # API DataShare — Contrat d'interface
 
-**Statut :** contrat validé dans [DESIGN-03](https://github.com/jlbokass/datashare/issues/3), utilisé par le MVP US01–US06 intégré à `develop`. Le YAML conserve le contrat de conception ; aucune validation formelle OpenAPI supplémentaire n'est revendiquée.
+**Statut (24 novembre 2026) :** contrat de conception [DESIGN-03](https://github.com/jlbokass/datashare/issues/3) rapproché de l'API US01–US06 implémentée dans [DELIVERY-API #75](https://github.com/jlbokass/datashare/issues/75). La documentation générée complète ce contrat.
 
 - [English version](README.md)
 - [Spécification OpenAPI 3.1](openapi.yaml)
@@ -15,7 +15,57 @@ lang: fr
 
 ## 1. Périmètre et conventions
 
-Le contrat couvre le **MVP OpenClassrooms obligatoire US01 à US06**. Le backend utilisera Laravel, le frontend Angular, PostgreSQL pour les données et un stockage privé pour les octets des fichiers.
+### Documentation générée locale — DELIVERY-API
+
+Scramble **0.13.55** génère OpenAPI **3.1.2** depuis Laravel. L'installation, le routage, l'audit Composer, les tests backend et Pint de la phase 1 ont été validés manuellement par le développeur. Le [YAML OpenAPI 3.1.0](openapi.yaml) reste le contrat de conception, rapproché du comportement implémenté ; la génération ne l'écrase pas.
+
+- [Documentation interactive](http://127.0.0.1:8080/docs/api)
+- [JSON généré](http://127.0.0.1:8080/docs/api.json)
+
+La documentation nécessite `APP_ENV=local` : `RestrictedDocsAccess` est conservé et aucune gate `viewApiDocs` n'autorise les autres environnements. La passerelle Nginx écoute uniquement en boucle locale et transmet ces deux chemins à Laravel. Les dépendances de développement s'installent avec le verrou Composer existant ; le démarrage normal sans dépendances de développement ne nécessite pas Scramble.
+
+`AppServiceProvider` configure `MiddlewareAuthSecurityStrategy` pour le middleware existant `AuthenticateJwt`, avec un unique schéma HTTP Bearer `bearerAuth` et `bearerFormat: JWT`. Quatre opérations protégées héritent de la sécurité globale ; les quatre opérations métier publiques déclarent explicitement `security: []`. Le token de partage est une capacité, pas un JWT. Le document généré contient aussi les routes de support publiques `/health` et `/demo/capabilities`.
+
+### Export et vérification
+
+Depuis la racine du dépôt, avec la pile existante démarrée :
+
+```bash
+# Export sur l'hôte, sans modifier le contrat de conception.
+docker compose exec -T -e APP_URL=http://127.0.0.1:8080 app \
+  php artisan scramble:export --stdout --fail-on-unknown > /tmp/datashare-openapi.json
+# Contrôler les middlewares des deux routes de documentation.
+docker compose exec -T app php artisan route:list --path=docs -vv
+bash scripts/qa.sh all
+git diff --check
+```
+
+L'export CLI utilise `APP_URL` ; la commande fournit explicitement l'origine de la passerelle. La génération HTTP utilise l'origine de la requête. `--fail-on-unknown` détecte les types inconnus, sans prouver à lui seul la conformité complète. L'interface charge Stoplight depuis un CDN et nécessite donc un accès réseau pour son rendu.
+
+### Rapprochement et limites d'inférence
+
+| Domaine | Correction ou limite restante |
+| --- | --- |
+| Authentification | Un schéma JWT, quatre opérations protégées/quatre publiques ; ajout des réponses 401 du middleware. |
+| Partage public | Annotation explicite de l'enveloppe de métadonnées ; ajout des réponses 404/410 du service. Aucun email propriétaire, identifiant utilisateur numérique, mot de passe, chemin privé ou token de partage brut dans ces métadonnées. |
+| Téléchargement | Succès JSON incorrect remplacé par `application/octet-stream`, schéma binaire et en-têtes pièce jointe, `nosniff`, private/no-store. Un échec non intercepté avant le flux produit une 500 du framework ; après les en-têtes, il peut tronquer les octets. |
+| Validation | 422 contient `message`, `code: validation_error` et `errors`. La 429 du framework contient `message`, sans garantie de champ `code`. |
+| Téléversement | `files[]` obligatoire, 1–5 fichiers binaires ; 1 000 000 000 octets chacun et 2 000 000 000 au total. Les limites d'octets et formats autorisés sont décrits, pas imposés par JSON Schema. Le serveur contrôle contenu et extension. |
+| Expiration | 1–7 jours, défaut 7 ; enum entier `[5]` pour la démonstration locale/testing activée explicitement. L'exclusion mutuelle et la condition d'environnement ne sont pas exprimées structurellement par le générateur ; descriptions et YAML les précisent. |
+| Paramètres et modèles | Formats UUID/date-time/email, motif de token hexadécimal minuscule sur 64 caractères et comportement de `include_expired`. L'inférence nullable prudente de l'identifiant et de la date utilisateur est conservée, conformément au modèle/schéma existant. |
+| Écarts du contrat | Suppression de `title`/`message` non implémentés ; limites de nombre/taille totale, expiration de démonstration, format du token et 429 précisés ; retrait de `additionalProperties: false` des requêtes, car Laravel ignore les champs inconnus. |
+
+`backend/app/Documentation/DataShareOperationTransformer.php` corrige uniquement la documentation générée, jamais la validation ni l'exécution des réponses. L'annotation publique et ces corrections doivent être revues si le comportement évolue. La plupart des schémas d'authentification, d'historique et de téléversement restent inférés. Les différences structurelles (schémas intégrés plutôt que références YAML, operation IDs/tags, version corrective OpenAPI) sont intentionnelles. Le YAML précise davantage la fermeture des objets de réponse et certaines bornes. Son ApiError réutilisable autorise errors en option, alors que les erreurs de champs sont émises uniquement en 422. `APP_DEBUG` local peut exposer des diagnostics lors d'erreurs non interceptées ; les enveloppes personnalisées sûres ne garantissent pas l'assainissement de toutes les erreurs.
+
+### Recette manuelle courte
+
+1. Ouvrir les deux adresses : titre DataShare, huit opérations métier et deux routes de support.
+2. Se connecter avec un compte local jetable. Copier le JWT dans l'autorisation Bearer de la documentation. Vérifier qu'il est requis pour `/auth/me`, l'envoi, l'historique et la suppression ; son absence renvoie 401.
+3. Envoyer un petit fichier autorisé via `files[]`, avec `expires_in_days=1` et sans expiration en minutes. Attendre 201 et une URL relative `/share/{token}`. Relever uniquement le token et l'UUID de fichier de cette réponse.
+4. Effacer le JWT. Consulter `/shares/{token}` et télécharger `/shares/{token}/files/{fileId}` : 200, métadonnées limitées et octets identiques en pièce jointe. Ne pas utiliser d'identifiants réels ni de fichiers privés dans les exemples.
+5. Vérifier l'historique avec et sans `include_expired=true` ; un identifiant de partage invalide ou incohérent renvoie 404. Les tests existants couvrent expiration (410), envois invalides (413/422), propriété et suppression. Exécuter la recette existante ci-dessus, sans nouvelle suite de tests.
+
+Le contrat couvre le **MVP OpenClassrooms obligatoire US01 à US06**. Le backend utilise Laravel, le frontend Angular, PostgreSQL pour les données et un stockage privé pour les octets des fichiers.
 
 - **Préfixe REST :** `/api` (défini dans la propriété `servers` d'OpenAPI).
 - **Formats :** JSON pour les données, `multipart/form-data` pour les fichiers, flux binaire pour les téléchargements.
@@ -23,7 +73,7 @@ Le contrat couvre le **MVP OpenClassrooms obligatoire US01 à US06**. Le backend
 - **Dates :** ISO 8601 avec indication du fuseau horaire.
 - **Identifiants :** UUID pour utilisateurs, transferts et fichiers ; le token de partage est un secret opaque, indépendant et non prédictible.
 - **Accès :** `Authorization: Bearer <JWT>` pour les routes privées ; aucun JWT requis pour les routes publiques `/shares`.
-- **Erreurs :** `{ "message": "...", "code": "...", "errors": { "field": ["..."] } }`. Le détail `errors` est facultatif.
+- **Erreurs :** `{ "message": "...", "code": "...", "errors": { "field": ["..."] } }`. Le détail `errors` est présent pour la validation. Les réponses 429 et 500 non interceptées du framework ne garantissent pas un champ `code`.
 
 ## 2. Correspondance avec les User Stories officielles
 
@@ -63,7 +113,7 @@ Authorization: Bearer <JWT>
 Content-Type: multipart/form-data
 ```
 
-Champs : `files[]` (un ou plusieurs fichiers), `expires_in_days` facultatif (entier de **1 à 7**, défaut **7**), éventuellement `title` et `message` (attributs facultatifs de DESIGN-02, non exigés par les US).
+Champs : `files[]` (**1–5** fichiers), `expires_in_days` facultatif (entier de **1 à 7**, défaut **7**). Sinon, `expires_in_minutes=5` est réservé à local/testing avec activation explicite ; ne jamais envoyer les deux durées. `title` et `message` ne sont pas implémentés.
 
 Exemple de réponse `201` :
 

@@ -7,7 +7,7 @@ lang: en
 
 # DataShare API — Interface contract
 
-**Status:** contract reviewed in [DESIGN-03](https://github.com/jlbokass/datashare/issues/3), used by the US01–US06 MVP merged into `develop`. The YAML retains the design contract; no additional formal OpenAPI validation is claimed.
+**Status (24 November 2026):** [DESIGN-03](https://github.com/jlbokass/datashare/issues/3) design contract reconciled with the implemented US01–US06 API in [DELIVERY-API #75](https://github.com/jlbokass/datashare/issues/75). Generated documentation supplements this contract.
 
 - [Version française](README.fr.md)
 - [OpenAPI 3.1 specification](openapi.yaml)
@@ -15,7 +15,57 @@ lang: en
 
 ## 1. Scope and conventions
 
-The API contract covers the **mandatory OpenClassrooms MVP US01–US06**. The backend will be Laravel, the client Angular, the persistence PostgreSQL, and uploaded bytes will remain in a private storage system.
+### Local generated documentation — DELIVERY-API
+
+Scramble **0.13.55** generates OpenAPI **3.1.2** from Laravel. Phase 1 installation, routing, Composer audit, backend tests and Pint were manually validated by the developer. The maintained [OpenAPI 3.1.0 YAML](openapi.yaml) remains the design contract, reconciled with implemented behavior; it is not overwritten by generation.
+
+- [Interactive reference](http://127.0.0.1:8080/docs/api)
+- [Generated JSON](http://127.0.0.1:8080/docs/api.json)
+
+Documentation requires `APP_ENV=local`: `RestrictedDocsAccess` is retained and no `viewApiDocs` gate grants access elsewhere. The Nginx gateway binds to loopback and forwards the two documentation paths to Laravel. Install development dependencies with the existing Composer lock; Scramble is not required for normal application boot without dev packages.
+
+`AppServiceProvider` configures `MiddlewareAuthSecurityStrategy` for the existing `AuthenticateJwt` middleware, using a single `bearerAuth` HTTP Bearer scheme with `bearerFormat: JWT`. Four protected operations inherit the document-level requirement; the four public business operations explicitly declare `security: []`. A public share token is a capability, not a JWT. The generated document also includes the public `/health` and `/demo/capabilities` support endpoints.
+
+### Export and verification
+
+From the repository root, with the existing stack running:
+
+```bash
+# Export to the host without modifying the design contract.
+docker compose exec -T -e APP_URL=http://127.0.0.1:8080 app \
+  php artisan scramble:export --stdout --fail-on-unknown > /tmp/datashare-openapi.json
+# Inspect middleware on both documentation routes.
+docker compose exec -T app php artisan route:list --path=docs -vv
+bash scripts/qa.sh all
+git diff --check
+```
+
+CLI generation uses `APP_URL`; the command supplies the gateway origin explicitly. HTTP generation uses the current request origin. `--fail-on-unknown` catches unknown inferred types, but is not proof of complete API correctness. The UI loads Stoplight assets from a CDN, so rendering requires network access.
+
+### Reconciliation and remaining inference limits
+
+| Area | Correction or remaining limit |
+| --- | --- |
+| Authentication | One JWT scheme, four protected/four public business operations; missing middleware 401 responses added. |
+| Public sharing | Explicit response annotation for the public metadata envelope; service-level 404/410 added. No owner email, numeric user key, password, storage path or raw share token in public metadata. |
+| Download | Replaced incorrect JSON success with `application/octet-stream`, binary schema, attachment, `nosniff` and private/no-store headers. An unhandled failure before streaming uses a framework 500; failure after headers may truncate bytes. |
+| Validation | 422 includes `message`, `code: validation_error` and field `errors`. 429 is a framework response with `message`, without a guaranteed `code`. |
+| Upload | Required `files[]`, 1–5 binary files; 1,000,000,000 bytes each and 2,000,000,000 total. Byte caps and allowed types are described, not machine-enforced by JSON Schema. Actual content/extension checks remain server-side. |
+| Expiration | 1–7 days, default 7; integer enum `[5]` for opt-in local/testing demo. The generator does not express mutual exclusion or the environment/feature-flag condition structurally; descriptions and the YAML record them. |
+| Parameters and models | UUID/date-time/email formats and 64-lowercase-hex token pattern added; `include_expired` behavior described. User ID and creation date retain conservative nullable inference from the existing model/schema. |
+| Design drift | Removed unimplemented `title`/`message`; specified total/count limits, demo expiry, token format and 429; removed request `additionalProperties: false` because Laravel ignores unknown fields. |
+
+`backend/app/Documentation/DataShareOperationTransformer.php` only corrects gaps in generated documentation; it never changes request validation or response execution. The public-share response attribute and these corrections must be reviewed when runtime behavior changes. Most upload/history/authentication shapes remain inferred. Structural differences (inline schemas versus YAML references, operation IDs/tags and OpenAPI patch version) are intentional. The YAML remains more explicit about response object closure and some bounds. Its reusable ApiError permits optional errors, whereas runtime field errors are emitted for 422 only. Local `APP_DEBUG` may expose diagnostics on unhandled framework errors; the documented safe custom envelopes do not imply that every failure is sanitized.
+
+### Short manual acceptance
+
+1. Open both URLs and confirm the DataShare title, eight business operations and two support operations.
+2. With a disposable local account, call login. Copy its JWT into the reference's Bearer authorization input. Confirm `/auth/me`, upload, history and deletion require it; a request without it returns 401.
+3. Upload a small allowed file using `files[]`, with `expires_in_days=1` and no minute expiry. Expect 201 and a relative `/share/{token}` URL. Record the file UUID and token from this response only.
+4. Clear JWT authorization. Read `/shares/{token}` and download `/shares/{token}/files/{fileId}`: expect 200, restricted metadata and unchanged attachment bytes. Do not paste real credentials or private files into examples.
+5. Check history with and without `include_expired=true`; malformed/mismatched share identifiers return 404. Existing tests cover expired links (410), invalid uploads (413/422), ownership and deletion. Run the existing QA command above; no new test suite is needed.
+
+The API contract covers the **mandatory OpenClassrooms MVP US01–US06**. The backend is Laravel, the client Angular, persistence PostgreSQL, and uploaded bytes remain in private storage.
 
 - **REST API root:** `/api` (the OpenAPI `servers` entry defines this prefix).
 - **Payloads:** JSON for application data, `multipart/form-data` for file uploads, streamed bytes for downloads.
@@ -23,7 +73,7 @@ The API contract covers the **mandatory OpenClassrooms MVP US01–US06**. The ba
 - **Dates:** ISO 8601 date-time values with an explicit timezone.
 - **Identifiers:** UUID for user, transfer and file; the public share token is an independent, unpredictable opaque secret.
 - **Authorization:** `Authorization: Bearer <JWT>` for private routes; the public `/shares` routes require no JWT.
-- **Error shape:** `{ "message": "...", "code": "...", "errors": { "field": ["..."] } }`. The `errors` object is only present when useful.
+- **Error shape:** `{ "message": "...", "code": "...", "errors": { "field": ["..."] } }`. The `errors` object is present for validation. Framework 429 and unhandled 500 responses do not guarantee a `code` field.
 
 ## 2. Endpoint contract mapped to the official user stories
 
@@ -38,7 +88,7 @@ The API contract covers the **mandatory OpenClassrooms MVP US01–US06**. The ba
 | **US02** | `GET /api/shares/{token}` | Public link | 200 JSON | Show share metadata before download |
 | **US02** | `GET /api/shares/{token}/files/{fileId}` | Public link | 200 binary | Stream one file without exposing private storage |
 
-There is **no** `DELETE /api/transfers/{id}` user endpoint in this MVP draft because the official **US06 concerns a single file**, not the entire transfer. If the final file is deleted, its empty parent transfer is removed as a backend invariant.
+There is **no** `DELETE /api/transfers/{id}` user endpoint in this MVP because the official **US06 concerns a single file**, not the entire transfer. If the final file is deleted, its empty parent transfer is removed as a backend invariant.
 
 ## 3. Contract examples
 
@@ -63,9 +113,9 @@ Authorization: Bearer <JWT>
 Content-Type: multipart/form-data
 ```
 
-Form fields: `files[]` (one or more files); optional `expires_in_days` (integer **1–7**, default **7**); optionally `title` and `message` (optional DESIGN-02 attributes, not mandatory US fields).
+Form fields: `files[]` (**1–5** files); optional `expires_in_days` (integer **1–7**, default **7**). Alternatively, `expires_in_minutes=5` is available only in local/testing with the explicit demo flag; never send both expiry fields. `title` and `message` are not implemented.
 
-Proposed `201` JSON:
+`201` JSON:
 
 ```json
 {

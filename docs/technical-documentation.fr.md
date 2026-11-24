@@ -69,6 +69,10 @@ Trois entités principales : **Utilisateur** (email unique, mot de passe hashé)
 
 [Contrat OpenAPI 3.1](api/openapi.yaml) · [Guide des endpoints](api/README.fr.md)
 
+[Documentation interactive locale](http://127.0.0.1:8080/docs/api) · [JSON généré](http://127.0.0.1:8080/docs/api.json). Scramble 0.13.55 génère OpenAPI 3.1.2 depuis Laravel, avec des corrections documentaires ciblées. Le YAML reste le contrat de conception rapproché de l'implémentation. `RestrictedDocsAccess` réserve les deux routes à l'environnement local ; le middleware JWT existant sélectionne quatre opérations protégées, tandis que quatre opérations métier restent publiques. Deux routes de support publiques figurent aussi dans le document généré.
+
+Export depuis la racine du dépôt : `docker compose exec -T -e APP_URL=http://127.0.0.1:8080 app php artisan scramble:export --stdout --fail-on-unknown > /tmp/datashare-openapi.json`. Le [guide API](api/README.fr.md) précise les limites multipart, réponses binaires, corrections 401/404/410/422, limites d'inférence et recette manuelle. Les tailles en octets et conditions de démonstration ne sont pas complètement exprimées par les contraintes générées ; les erreurs du framework ne suivent pas toujours l'enveloppe personnalisée.
+
 | Fonctionnalité | Endpoints principaux |
 | --- | --- |
 | US03 / US04 — inscription et authentification | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me` |

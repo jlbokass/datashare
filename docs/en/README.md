@@ -7,6 +7,8 @@ lang: en
 
 # DataShare
 
+Local API: [interactive reference](http://127.0.0.1:8080/docs/api) · [generated OpenAPI JSON](http://127.0.0.1:8080/docs/api.json) · [export, contract and limits](../api/README.md). Available only with `APP_ENV=local`.
+
 **Temporary file sharing — OpenClassrooms P3 project**
 
 [Français](https://github.com/jlbokass/datashare/blob/develop/README.md) · [Technical documentation](index.md)
