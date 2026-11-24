@@ -67,7 +67,11 @@ Three main entities: **User** (unique email, password hash), **Transfer** (owner
 
 ## 4. REST API documentation
 
-[OpenAPI 3.1 contract](api/openapi.yaml) · [Endpoint guide](api/README.md)
+[Swagger UI](http://127.0.0.1:8080/docs/api) · [OpenAPI JSON](http://127.0.0.1:8080/docs/api.json) · [Design contract](api/openapi.yaml) · [API guide](api/README.md)
+
+Documentation is generated from Laravel: **PHPDoc** describes behavior, **PHP 8 attributes** group operations and **Scramble** generates the OpenAPI 3.1 specification. Targeted corrections supplement file schemas and responses that cannot be inferred accurately. **Swagger UI** reads the generated JSON directly for consultation and requests, without a second runtime specification. This approach reduces drift between code and documentation; the YAML retains the design contract.
+
+The local-only interface groups ten operations into Authentication, Transfers, Public sharing and System. The two support routes report API availability and demonstration capabilities. Swagger UI assets require CDN access; security rules and generation limitations are described in the API guide.
 
 | Feature | Main endpoints |
 | --- | --- |

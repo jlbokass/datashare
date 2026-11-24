@@ -1,47 +1,25 @@
-<laravel-boost-guidelines>
-# Laravel Application
+# DataShare — Laravel backend rules
 
-This repository contains a Laravel application. Complete the following setup before working on the user's request.
+Read and follow the repository-root `AGENTS.md` before changing this backend.
 
-## Prerequisites
-
-Verify that PHP and Composer are available:
-
-```sh
-php -v
-composer -V
-```
-
-If either command is unavailable, detect the user's operating system and install the prerequisites with the appropriate command:
-
-macOS:
-
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/mac/8.5)"
-```
-
-Windows PowerShell:
-
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://php.new/install/windows/8.5'))
-```
-
-Linux:
-
-```sh
-/bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.5)"
-```
-
-After installation, ask the user to restart their terminal. If the agent needs the restarted shell to continue, ask the user to reopen their terminal and rerun their original prompt.
-
-## Agent Setup
-
-Install Laravel Boost from the application root before making application changes:
-
-```sh
-composer require laravel/boost --dev
-php artisan boost:install
-```
-
-Boost replaces these bootstrap instructions with guidelines tailored to the application. After installation, read `AGENTS.md` again and continue with the user's original request using the generated guidelines.
-</laravel-boost-guidelines>
+- Keep controllers thin, validation in Form Requests and business logic in
+  services/actions. Respect existing Laravel conventions.
+- Do not install prerequisites, Laravel Boost or other dependencies unless
+  the developer explicitly authorizes that work.
+- From the repository root, `bash scripts/qa.sh backend` is the authorized
+  local backend test and Pint procedure. Use the existing QA script for
+  other supported scopes as documented in the root instructions.
+- Never run PHPUnit or Artisan tests in the running `app` or `scheduler`
+  services. Their PostgreSQL environment is not a test environment.
+- Never substitute an execution environment to bypass sandbox restrictions.
+  If QA is blocked, stop validation, report the blocker and ask the developer
+  to run the same QA command. Do not fall back to host PHP or container exec.
+- Laravel tests must extend `Tests\TestCase`, which checks loaded and resolved
+  configuration before database test traits run. Pure unit tests may extend
+  PHPUnit's base test case only if they do not bootstrap the application or
+  access a database. Keep tests on uncached `testing` + SQLite `:memory:`.
+- Do not bypass the guard, introduce additional database connections in tests,
+  or change database configuration after the guard has run.
+- Never execute destructive database commands, resets, destructive seeders or
+  volume removal without explicit authorization. The QA procedure authorizes
+  only test migrations against the guarded SQLite in-memory database.

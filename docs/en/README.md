@@ -9,7 +9,7 @@ lang: en
 
 **Temporary file sharing — OpenClassrooms P3 project**
 
-[Français](https://github.com/jlbokass/datashare/blob/develop/README.md) · [Technical documentation](index.md)
+[Français](https://github.com/jlbokass/datashare/blob/develop/README.md) · [Technical documentation — GitHub Pages](https://jlbokass.github.io/datashare/en/) · [Documentation sources](index.md)
 
 [![Backend CI](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml?query=branch%3Adevelop)
 [![Frontend CI](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml?query=branch%3Adevelop)
@@ -40,6 +40,8 @@ docker compose ps
 ```
 
 Application: **http://127.0.0.1:8080/**
+
+Local API: [Swagger UI](http://127.0.0.1:8080/docs/api) · [API guide](../api/README.md).
 
 Run Laravel tests, Pint formatting checks, Angular tests and build:
 
@@ -77,6 +79,8 @@ The workflow is **work branch → PR into `develop` → review/CI → release PR
 For future commits, use **`type(scope): action`** (for example `feat(upload): ...`, `fix(auth): ...`, `test(e2e): ...`, `docs: ...`). Earlier commit messages are not entirely consistent; the existing history is preserved.
 
 ## Documentation and limitations
+
+The bilingual technical documentation is published on [GitHub Pages](https://jlbokass.github.io/datashare/) from `main/docs`. The application and Swagger UI run locally only.
 
 [OC technical dossier](../technical-documentation.md) · [Architecture](../architecture.md) · [API contract](../api/openapi.yaml) · [Testing](TESTING.md) · [Security](SECURITY.md) · [Performance](PERF.md) · [Maintenance](MAINTENANCE.md) · [AI journal](../ai-journal.md)
 

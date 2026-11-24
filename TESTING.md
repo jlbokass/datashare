@@ -93,3 +93,7 @@ Les résultats des validations fonctionnelles locales sont consignés dans les c
 | US06 | Suppression d'un fichier seul ou parmi plusieurs, annulation, refus de suppression à un autre utilisateur et révocation du lien après suppression du dernier fichier : cinq scénarios réussis ([PR #46](https://github.com/jlbokass/datashare/pull/46)). |
 
 Ces comptes rendus documentent les validations manuelles ; ils ne remplacent pas les rapports d'exécution automatisés. Les accès concurrents à PostgreSQL et les tests de charge avec des fichiers de 1 Go ne sont pas couverts par la suite actuelle.
+
+### Recette interactive Swagger UI
+
+Le 25 novembre 2026, les 17 contrôles de la [recette QA-API #76](https://github.com/jlbokass/datashare/issues/76) ont été déclarés réussis par le développeur : Authentication (4), Transfers (7), Public sharing (4) et System (2). Les dix opérations documentées ont été exercées, notamment le multipart simple et multiple et les téléchargements publics sans JWT. Cette recette locale complète les tests automatisés ; elle ne constitue ni une nouvelle mesure de couverture ni un audit exhaustif de conformité OpenAPI.

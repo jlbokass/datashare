@@ -67,7 +67,11 @@ Trois entités principales : **Utilisateur** (email unique, mot de passe hashé)
 
 ## 4. Documentation de l'API
 
-[Contrat OpenAPI 3.1](api/openapi.yaml) · [Guide des endpoints](api/README.fr.md)
+[Swagger UI](http://127.0.0.1:8080/docs/api) · [OpenAPI JSON](http://127.0.0.1:8080/docs/api.json) · [Contrat de conception](api/openapi.yaml) · [Guide API](api/README.fr.md)
+
+La documentation est générée à partir de Laravel : les **PHPDoc** décrivent les comportements, les **attributs PHP 8** regroupent les opérations et **Scramble** produit la spécification OpenAPI 3.1. Des corrections ciblées complètent les schémas de fichiers et les réponses que l'inférence ne suffit pas à décrire. **Swagger UI** exploite directement le JSON généré pour la consultation et les essais, sans seconde spécification d'exécution. Cette approche limite les écarts entre le code et la documentation ; le YAML conserve le contrat de conception.
+
+L'interface, réservée à l'environnement local, organise les dix opérations en quatre domaines : Authentication, Transfers, Public sharing et System. Les deux routes de support concernent la disponibilité et les capacités de démonstration. Les ressources Swagger UI nécessitent un accès au CDN ; les règles de sécurité et limites de génération sont précisées dans le guide API.
 
 | Fonctionnalité | Endpoints principaux |
 | --- | --- |

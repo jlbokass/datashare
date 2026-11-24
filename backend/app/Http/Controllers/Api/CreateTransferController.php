@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Transfer;
 use App\Services\TransferPresenter;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,15 @@ use Throwable;
 
 class CreateTransferController extends Controller
 {
+    /**
+     * Create a transfer.
+     *
+     * Requires a valid Bearer JWT. Uploaded files belong to the authenticated owner,
+     * are stored privately and share one expiration and public link. Access ends at
+     * expiration even before scheduled cleanup. Minute-based expiry is an opt-in
+     * local/testing demonstration; normal transfers use day-based expiry.
+     */
+    #[Group('Transfers', weight: 20)]
     public function __invoke(Request $request): JsonResponse
     {
         $maxFiles = config('transfers.max_files', 5);
