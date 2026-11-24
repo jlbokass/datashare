@@ -45,6 +45,9 @@ services:
     volumes:
       - ./backend:/workspace/backend
     environment:
+      # Send Laravel events as JSON to the container's stderr.
+      LOG_CHANNEL: stderr
+      LOG_STDERR_FORMATTER: 'Monolog\Formatter\JsonFormatter'
       DB_CONNECTION: pgsql
       DB_HOST: db
       DB_PORT: "5432"
@@ -63,6 +66,9 @@ services:
     volumes:
       - ./backend:/workspace/backend
     environment:
+      # Send Laravel events as JSON to the container's stderr.
+      LOG_CHANNEL: stderr
+      LOG_STDERR_FORMATTER: 'Monolog\Formatter\JsonFormatter'
       DB_CONNECTION: pgsql
       DB_HOST: db
       DB_PORT: "5432"

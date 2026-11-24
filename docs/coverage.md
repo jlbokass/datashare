@@ -23,6 +23,12 @@ Xdebug was already installed locally, so no system extension/configuration was
 changed. CI explicitly selects PCOV; its result must be recorded separately and
 must not be inferred from this Xdebug measurement.
 
+## Released version measurements — 24 November 2026
+
+Commit [97abebd](https://github.com/jlbokass/datashare/commit/97abebd7fc704821e0f8c5bbcedf7f7e0b58590b) on `main` was checked by all three workflows. Laravel remains at **96.36%** (318/330 lines; 52 tests, 364 assertions), and Angular reaches **85.97%** line coverage (52 tests, 7 files; 86.52% statements, 80.23% branches, 87.2% functions). All 6 E2E tests passed in 7.7 s.
+
+Evidence: [Backend CI](https://github.com/jlbokass/datashare/actions/runs/45302509975) · [Frontend CI](https://github.com/jlbokass/datashare/actions/runs/45302510070) · [E2E CI](https://github.com/jlbokass/datashare/actions/runs/45302509992). Coverage artifacts for this run expire on 8 December 2026. Screenshots were reported prepared for the assessment submission. The 19 November measurements above remain historical.
+
 ## Reproduction and report locations
 
 Backend, from `backend/`, with PCOV enabled (CI), or Xdebug in coverage mode:

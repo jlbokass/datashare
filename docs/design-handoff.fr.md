@@ -66,4 +66,19 @@ Ce document constitue la référence visuelle des écrans Angular et retrace les
 
 **À distinguer de la recette UI :** avec la démo de cinq minutes, la purge planifiée supprime les fichiers expirés et leurs métadonnées. L'onglet « Expiré » peut donc être vide. La décision de maintenir la purge actuelle est enregistrée dans [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57), **sans changement de la purge dans UI-01**.
 
-**Preuves et limites :** validation visuelle rapportée par le développeur ; résultats détaillés des derniers tests/build et vérification clavier/accessibilité **non consignés ici**. Les trois workflows CI de la [PR #58](https://github.com/jlbokass/datashare/pull/58) ont réussi ; ils n'attestent pas la validation clavier. Le procès-verbal vierge du PDF source reste une référence historique, pas une preuve d'exécution.
+**Preuves et limites :** validation visuelle déclarée réussie. Les trois workflows CI de la [PR #58](https://github.com/jlbokass/datashare/pull/58) ont réussi ; ils ne constituent pas une preuve de recette clavier. Le procès-verbal vierge du PDF source reste une référence historique, pas une preuve d'exécution.
+
+### Recette complémentaire au clavier — 24 novembre 2026
+
+Les six contrôles manuels suivants ont été déclarés réussis :
+
+| Contrôle | Résultat déclaré |
+| --- | --- |
+| Navigation avec Tab et Maj + Tab | OK |
+| Indicateur de focus visible | OK |
+| Inscription et connexion | OK |
+| Sélection et téléversement de fichiers | OK |
+| Téléchargement et suppression | OK |
+| Ouverture et fermeture du menu mobile | OK |
+
+Cette recette fonctionnelle ciblée atteste la prise en compte de la navigation au clavier selon les contrôles réalisés. Elle ne constitue pas un audit exhaustif de conformité RGAA ou WCAG.

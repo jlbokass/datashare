@@ -9,7 +9,7 @@ lang: en
 
 [**Français**](technical-documentation.fr.md) · [Documentation home](en/index.md) · [GitHub repository](https://github.com/jlbokass/datashare)
 
-**Status as of 23 November 2026.** US01–US06, quality batches QL-01 through QL-04 and UI-01 are integrated into `develop`. All three CI workflows passed on [PR #58](https://github.com/jlbokass/datashare/pull/58); the READMEs were simplified in [PR #60](https://github.com/jlbokass/datashare/pull/60). No production deployment is claimed.
+**Status as of 24 November 2026.** MVP US01–US06, quality checks QL-01 to QL-04 and visual acceptance UI-01 are released on `main` ([PR #68](https://github.com/jlbokass/datashare/pull/68), [97abebd](https://github.com/jlbokass/datashare/commit/97abebd7fc704821e0f8c5bbcedf7f7e0b58590b)). All three release CI workflows and GitHub Pages publishing passed. The prototype runs locally; GitHub Pages publishes documentation only.
 
 ## 1. Application architecture
 
@@ -90,12 +90,12 @@ These routes are implemented; request/response schemas and statuses are document
 
 | Required document | Status and reference |
 | --- | --- |
-| **TESTING.md** | [Tests and evidence](en/TESTING.md): **96.36%** Laravel and **79.58%** Angular measured line coverage (QL-01), **6 E2E tests** (QL-02); three CI workflows passed on [PR #58](https://github.com/jlbokass/datashare/pull/58) |
+| **TESTING.md** | [Tests and evidence](en/TESTING.md): **96.36%** Laravel and **85.97%** Angular line coverage, **6 E2E tests passed** on the 24 November release; [dated measurements and evidence](coverage.md) |
 | **SECURITY.md** | [Composer and npm audits](en/SECURITY.md) run on 23 Nov 2026: **no vulnerabilities reported** (QL-03) |
 | **PERF.md** | [QL-04 measurements](en/PERF.md): local download, Angular bundle and development-server Lighthouse result; **no production performance claim** |
 | **MAINTENANCE.md** | [Local procedures](en/MAINTENANCE.md), updates and risks; no production recovery test |
 
-Line coverage exceeds the indicative 70% target. A durable coverage report screenshot is still needed for the assessment. Measurement methods, dates and limitations are detailed in the documents linked above.
+Line coverage exceeds the indicative 70% target independently for Laravel and Angular. Coverage report screenshots were reported prepared for the assessment submission. Measurement methods, dates and limitations are detailed in the documents linked above.
 
 ### Development workflow and conventions
 
@@ -151,4 +151,4 @@ These examples illustrate supervision of AI contributions through review of chan
 
 ## Outstanding assessment work
 
-**To finish before the assessment:** include a coverage report screenshot, prepare the presentation and self-assessment, and clarify the applicable OpenClassrooms policy on AI assistance (section 8). QL-03 audits, QL-04 measurements and UI-01 visual review are complete. [HIST-01 — cleanup/history](https://github.com/jlbokass/datashare/issues/57) is closed: current purge retained without code changes; [pagination](https://github.com/jlbokass/datashare/issues/59) is optional.
+**To finish before the assessment:** include the prepared coverage screenshots, finalize the presentation and self-assessment, and clarify the applicable OpenClassrooms policy on AI assistance (section 8). QL-03 audits, QL-04 measurements and UI-01 visual review are complete. [HIST-01 — cleanup/history](https://github.com/jlbokass/datashare/issues/57) is closed: current purge retained without code changes; [pagination](https://github.com/jlbokass/datashare/issues/59) is optional.

@@ -45,6 +45,10 @@ Isolated-stack setup and database migration are documented in [TESTING.md](TESTI
 
 **Evidence:** build and benchmark outputs and Lighthouse screenshots were supplied during acceptance on 23 November 2026. The original images are **not stored in the repository**; only the values above are retained.
 
+### Local runtime metrics
+
+The Nginx JSON access log complements one-off measurements: HTTP status, total duration and request/response volumes. The [log inspection procedure](MAINTENANCE.md) describes the fields, limitations and format check. These logs do not replace QL-04 timed measurements or constitute aggregated production monitoring.
+
 ## 4. Limitations
 
 No concurrent load, 1 GB transfer, real-user metric, or production-served Lighthouse result was measured. Results are point-in-time and local-hardware dependent. The benchmark is a **focused transfer/latency check**, not a capacity guarantee or production-performance certification.
