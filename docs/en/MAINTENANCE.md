@@ -53,7 +53,7 @@ docker compose exec -T app php artisan tinker --execute='logger()->info("datasha
 
 This command's JSON message appears on the stderr of the process launched by `docker compose exec`; it does not on its own prove collection of the PHP-FPM service logs. Long-running service logs remain available through `docker compose logs`. Run the test command locally only.
 
-To analyze metrics, compare status and `request_time_s` during a test transfer or download; `response_body_bytes` measures response body size, not necessarily file size for every route. See [PERF.md](PERF.md) for timed measurements. The Nginx format was checked with Nginx 1.26.3 on two synthetic HTTP 200/404 requests: valid JSON, numeric metrics and no synthetic secrets in access logs. Acceptance of the complete Docker configuration and Laravel channel remains to be confirmed. Dozzle remains an [optional enhancement](https://github.com/jlbokass/datashare/issues/64).
+To analyze metrics, compare status and `request_time_s` during a test transfer or download; `response_body_bytes` measures response body size, not necessarily file size for every route. See [PERF.md](PERF.md) for timed measurements. Local acceptance of structured Nginx and Laravel logging, following the procedure above, was reported successful on 24 November 2026 ([PR #72](https://github.com/jlbokass/datashare/pull/72)). Detailed output and the exact Nginx version were not archived; this is not an exhaustive privacy audit. Dozzle remains an [optional enhancement](https://github.com/jlbokass/datashare/issues/64).
 
 ## Updating dependencies — proposed cadence
 
