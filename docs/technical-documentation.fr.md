@@ -133,7 +133,19 @@ L'application est accessible sur `http://127.0.0.1:8080/`. Les E2E utilisent **`
 
 [Journal de développement IA](ai-journal.fr.md) · [Version anglaise](ai-journal.md)
 
-L'IA a aidé à préparer certaines implémentations, tests et documentations ; le développeur a cadré les tâches, effectué les recettes, demandé des corrections et validé les changements. Le journal distingue les interventions de l'IA des vérifications humaines, avec renvois aux issues et PR.
+Les contributions de l'IA portent sur des tâches d'implémentation, de test et de documentation. Le cadrage des tâches, les arbitrages, les demandes de correction et la validation des changements relèvent de la supervision humaine. Le journal IA distingue les contributions, les décisions et les vérifications, avec les références aux issues et pull requests.
+
+### Revue technique du code généré par l'IA
+
+La synthèse ci-dessous présente des exemples de revue et de validation issus du [journal IA](ai-journal.fr.md). Les corrections demandées, les décisions et les résultats des contrôles y sont documentés.
+
+| Fonctionnalité | Constat et décision | Vérification |
+| --- | --- | --- |
+| Inscription (US03, [PR #34](https://github.com/jlbokass/datashare/pull/34)) | Messages de validation initialement en anglais ; correction demandée pour respecter la langue de l'interface. | Recette locale et tests de non-régression signalés réussis après correction ; sorties détaillées non archivées. |
+| Téléchargement public (US02, [PR #43](https://github.com/jlbokass/datashare/pull/43)) | Routes perdues lors d'un conflit de fusion, identifiées avec Codex ; restauration des routes et correction du formatage. | CI réussie : 33 tests Laravel, 217 assertions, Pint et contrôles frontend. Cinq scénarios de recette locale validés. |
+| Suppression individuelle (US06, [PR #46](https://github.com/jlbokass/datashare/pull/46)) | Contrôle de propriété, suppression limitée au fichier et verrouillage du transfert parent retenus. | [CI backend](https://github.com/jlbokass/datashare/actions/runs/44446497875) : 52 tests et 364 assertions ; [CI frontend](https://github.com/jlbokass/datashare/actions/runs/44446497731) : 44 tests et compilation réussis. Cinq scénarios locaux validés. L'atomicité entre stockage et base de données reste une limite documentée. |
+
+Ces exemples illustrent la supervision des contributions de l'IA par la revue des changements, les tests automatisés et la recette fonctionnelle. Le journal constitue la trace détaillée de ces décisions ; cette synthèse ne constitue pas un audit exhaustif du code.
 
 **Point à clarifier avant la soutenance :** la mission écrite limite le développement confié à l'IA à une User Story ; le journal décrit des interventions sur plusieurs US. La règle applicable et la manière de présenter ces contributions doivent être confirmées, sans effacer l'historique.
 
