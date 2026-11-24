@@ -34,7 +34,7 @@ docker compose ps
 
 Application : **http://127.0.0.1:8080/**
 
-API locale : [Swagger UI](http://127.0.0.1:8080/docs/api) · [JSON OpenAPI généré](http://127.0.0.1:8080/docs/api.json) · [export, contrat et limites](docs/api/README.fr.md). Accès réservé à `APP_ENV=local`.
+API locale : [Swagger UI](http://127.0.0.1:8080/docs/api) · [Guide API](docs/api/README.fr.md).
 
 Exécuter les tests Laravel et Angular, vérifier le formatage avec Pint et compiler l'application Angular :
 
@@ -42,7 +42,7 @@ Exécuter les tests Laravel et Angular, vérifier le formatage avec Pint et comp
 bash scripts/qa.sh all
 ```
 
-Les tests E2E utilisent une [environnement Docker isolé](TESTING.md) pour protéger les données locales.
+Les tests E2E utilisent un [environnement Docker isolé](TESTING.md) pour protéger les données locales.
 
 ### Tester la limite de 1 Go (macOS)
 

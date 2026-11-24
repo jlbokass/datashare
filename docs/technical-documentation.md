@@ -67,11 +67,11 @@ Three main entities: **User** (unique email, password hash), **Transfer** (owner
 
 ## 4. REST API documentation
 
-[OpenAPI 3.1 contract](api/openapi.yaml) · [Endpoint guide](api/README.md)
+[Swagger UI](http://127.0.0.1:8080/docs/api) · [OpenAPI JSON](http://127.0.0.1:8080/docs/api.json) · [Design contract](api/openapi.yaml) · [API guide](api/README.md)
 
-[Interactive local reference](http://127.0.0.1:8080/docs/api) · [Generated JSON](http://127.0.0.1:8080/docs/api.json). Scramble 0.13.55 generates OpenAPI 3.1.2 from Laravel with targeted documentation corrections. A minimal Blade view serves Swagger UI 5.34.1 using pinned jsDelivr assets and the same-origin JSON; CDN access is required. External validation and persistent authorization are disabled. Scramble's default UI route is disabled, while its document route remains the only generated specification. The YAML remains the reconciled design contract. `RestrictedDocsAccess` keeps both routes local-only; the existing JWT middleware selects four protected operations, while four business operations remain public. The generated document also contains two public support endpoints. English PHPDoc describes all ten operations; native Group attributes order Authentication, Transfers, Public sharing and System. A minimal ClosureGroup adapter preserves the two support closures because Scramble 0.13.55 restricts the native attribute target to classes/methods. The shared ui.title setting supplies both OpenAPI and the page title. Swagger UI uses native filtering and expansion options; functional API acceptance follows documentation review.
+Documentation is generated from Laravel: **PHPDoc** describes behavior, **PHP 8 attributes** group operations and **Scramble** generates the OpenAPI 3.1 specification. Targeted corrections supplement file schemas and responses that cannot be inferred accurately. **Swagger UI** reads the generated JSON directly for consultation and requests, without a second runtime specification. This approach reduces drift between code and documentation; the YAML retains the design contract.
 
-Export from the repository root with `docker compose exec -T -e APP_URL=http://127.0.0.1:8080 app php artisan scramble:export --stdout --fail-on-unknown > /tmp/datashare-openapi.json`. The [API guide](api/README.md) records multipart limits, binary responses, 401/404/410/422 corrections, remaining inference limitations and manual acceptance. File-byte caps and conditional demo expiry are documented but not fully expressed by generated schema constraints; framework errors do not always follow the custom error envelope.
+The local-only interface groups ten operations into Authentication, Transfers, Public sharing and System. The two support routes report API availability and demonstration capabilities. Swagger UI assets require CDN access; security rules and generation limitations are described in the API guide.
 
 | Feature | Main endpoints |
 | --- | --- |
