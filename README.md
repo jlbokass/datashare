@@ -44,6 +44,10 @@ bash scripts/qa.sh all
 
 Les tests E2E utilisent un [environnement Docker isolé](TESTING.md) pour protéger les données locales.
 
+### Raccourcis de développement (facultatifs)
+
+Si GNU Make est disponible, utiliser `make help` pour afficher les commandes. Depuis la racine du dépôt, `make up`, `make ps`, `make logs`, `make health` et `make down` pilotent l'environnement local (`down` conserve les volumes). `make qa`, `make qa-backend` et `make qa-frontend` réutilisent le script QA existant ; `make status` vérifie la synchronisation Git. Les commandes Docker et Bash restent utilisables sans Make.
+
 ### Tester la limite de 1 Go (macOS)
 
 ```bash
