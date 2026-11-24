@@ -2,7 +2,7 @@
 
 **Partage temporaire de fichiers — projet OpenClassrooms P3**
 
-[English version](docs/en/README.md) · [Documentation technique](docs/index.md)
+[English version](docs/en/README.md) · [Documentation technique — GitHub Pages](https://jlbokass.github.io/datashare/) · [Sources de la documentation](docs/index.md)
 
 [![Backend CI](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml?query=branch%3Adevelop)
 [![Frontend CI](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml?query=branch%3Adevelop)
@@ -72,6 +72,8 @@ Le développement suit le processus suivant : **branche de travail → pull requ
 La convention de nommage des nouveaux commits est **`type(scope): action`** (par exemple `feat(upload): ...`, `fix(auth): ...`, `test(e2e): ...`, `docs: ...`). Les messages des commits antérieurs sont conservés sans réécriture de l'historique.
 
 ## Documentation et limites
+
+La documentation technique bilingue est publiée sur [GitHub Pages](https://jlbokass.github.io/datashare/) depuis `main/docs`. L'application et Swagger UI s'exécutent uniquement en local.
 
 [Documentation OC](docs/technical-documentation.fr.md) · [Architecture](docs/architecture.fr.md) · [Contrat API](docs/api/openapi.yaml) · [Tests](TESTING.md) · [Sécurité](SECURITY.md) · [Performances](PERF.md) · [Maintenance](MAINTENANCE.md) · [Journal IA](docs/ai-journal.fr.md)
 
