@@ -4,12 +4,21 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class RegisterController extends Controller
 {
+    /**
+     * Create an account.
+     *
+     * Public endpoint. Email addresses are trimmed and normalized before registration.
+     * Creating an account does not sign the user in or issue a token; use the login
+     * endpoint to obtain a Bearer JWT.
+     */
+    #[Group('Authentication', weight: 10)]
     public function __invoke(Request $request): JsonResponse
     {
         // Canonicalize email so a different letter case cannot create duplicates.

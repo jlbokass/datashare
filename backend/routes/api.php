@@ -1,5 +1,6 @@
 <?php
 
+use App\Documentation\ClosureGroup;
 use App\Http\Controllers\Api\CreateTransferController;
 use App\Http\Controllers\Api\DeleteTransferFileController;
 use App\Http\Controllers\Api\DownloadPublicShareFileController;
@@ -11,10 +12,17 @@ use App\Http\Controllers\Api\ShowPublicShareController;
 use App\Http\Middleware\AuthenticateJwt;
 use Illuminate\Support\Facades\Route;
 
-// Infrastructure smoke test only. No business US or authentication yet.
-// This endpoint does not validate PostgreSQL connectivity; migrations are
-// tested independently in the local TECH-04 recipe.
-Route::get('/health', fn () => response()->json(['status' => 'ok']));
+Route::get(
+    '/health',
+    /**
+     * Check API availability.
+     *
+     * Public smoke check confirming that the API can handle a request. It does
+     * not verify database connectivity, private storage or dependency readiness.
+     */
+    #[ClosureGroup('System', weight: 40)]
+    fn () => response()->json(['status' => 'ok'])
+);
 
 // US03 registration is public and intentionally does not issue a JWT.
 Route::post('/auth/register', RegisterController::class)->middleware('throttle:10,1');
@@ -23,11 +31,21 @@ Route::post('/auth/register', RegisterController::class)->middleware('throttle:1
 Route::post('/auth/login', LoginController::class)->middleware('throttle:5,1');
 Route::get('/auth/me', MeController::class)->middleware(AuthenticateJwt::class);
 
-// Public, non-sensitive capability flags: Angular only offers demo expiry when enabled.
-Route::get('/demo/capabilities', fn () => response()->json([
-    'five_minute_expiry' => app()->environment('local')
-        && (bool) config('transfers.demo_five_minutes', false),
-]));
+Route::get(
+    '/demo/capabilities',
+    /**
+     * Read demonstration capabilities.
+     *
+     * Public capability discovery for clients. Five-minute expiry is advertised
+     * only in the local environment with the demo feature explicitly enabled.
+     * No credentials or private configuration are exposed.
+     */
+    #[ClosureGroup('System', weight: 40)]
+    fn () => response()->json([
+        'five_minute_expiry' => app()->environment('local')
+            && (bool) config('transfers.demo_five_minutes', false),
+    ])
+);
 
 // US01: authenticated private upload.
 Route::post('/transfers', CreateTransferController::class)->middleware(AuthenticateJwt::class);

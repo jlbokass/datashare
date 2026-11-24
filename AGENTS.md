@@ -1,8 +1,8 @@
 # DataShare — Agent operating rules
 
 This is the repository-wide context for AI coding agents. Work from the Git
-repository root. For Laravel-specific conventions, also read any generated
-`backend/AGENTS.md` / Laravel Boost guidance if Boost is installed.
+repository root. For Laravel-specific conventions and test safety, also read
+`backend/AGENTS.md`.
 
 ## Project and scope
 
@@ -35,7 +35,10 @@ repository root. For Laravel-specific conventions, also read any generated
 - Never reveal, commit, rotate or overwrite real secrets, `.env`, private
   uploads or production data.
 - Never execute destructive database/volume commands (including
-  `migrate:fresh` and `docker compose down -v`) without explicit approval.
+  `migrate:fresh`, `migrate:refresh`, `db:wipe`, destructive seeders and
+  `docker compose down -v`) without explicit authorization. Test commands
+  using `RefreshDatabase` also reset their selected database; only the
+  guarded SQLite in-memory database is authorized for local automated tests.
 - During merges inspect both sides; do not resolve conflicts by blindly
   replacing a file. Check registered API routes after route-file changes.
 - Do not commit, push, merge PRs, deploy or alter branch protection without
@@ -46,7 +49,8 @@ repository root. For Laravel-specific conventions, also read any generated
 - At the start: inspect `git status`, current branch and upstream.
 - Prefer minimal, tested changes on the active task; do not hide failures by
   deleting tests or weakening assertions.
-- Run `bash scripts/qa.sh us02` for US02, `bash scripts/qa.sh backend`
+- The existing QA script is the authorized local test procedure.
+  Run `bash scripts/qa.sh us02` for US02, `bash scripts/qa.sh backend`
   for Laravel checks, `bash scripts/qa.sh frontend` for Angular, or
   `bash scripts/qa.sh all` before proposing a merge.
 - `bash scripts/qa.sh status` fetches remote refs and reports whether local
@@ -55,8 +59,14 @@ repository root. For Laravel-specific conventions, also read any generated
   `${TMPDIR:-/tmp}/datashare-qa/` unless `DATASHARE_QA_LOG_DIR` is set.
 - Local tests using SQLite do not replace PostgreSQL/browser acceptance
   tests. Never claim that Docker, CI or E2E passed when unverified.
-- If Docker is blocked by an agent sandbox, report that limitation and let
-  the developer execute the exact command outside the sandbox.
+- Never run PHPUnit or Artisan tests inside the running `app` or
+  `scheduler` services, even if PHPUnit declares a testing environment.
+- Never substitute an execution environment to bypass sandbox restrictions
+  (including direct container execution or host PHP as a QA fallback).
+- If the authorized QA procedure is blocked, stop validation, report the
+  blocker and ask the developer to run the exact QA command outside the
+  sandbox. Do not claim tests passed or clear a configuration cache to
+  bypass the test guard.
 - Summarize root cause, files changed, commands, pass/fail counts, any
   limitations, and outstanding decisions. Never infer green CI from local
   test results.

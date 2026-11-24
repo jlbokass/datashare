@@ -5,12 +5,21 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\JwtService;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
+    /**
+     * Obtain an access token.
+     *
+     * Public endpoint. Valid credentials issue a Bearer JWT for owner operations.
+     * Invalid credentials receive the same generic error whether or not the account
+     * exists. This JWT is separate from the capability token in a public share link.
+     */
+    #[Group('Authentication', weight: 10)]
     public function __invoke(Request $request, JwtService $jwt): JsonResponse
     {
         $data = $request->validate([

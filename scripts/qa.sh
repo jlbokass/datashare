@@ -16,7 +16,10 @@ Usage: bash scripts/qa.sh <status|us02|backend|frontend|all>
   all       Full Laravel/Pint + Angular tests/build
 
 Logs: ${DATASHARE_QA_LOG_DIR:-${TMPDIR:-/tmp}/datashare-qa/<timestamp>}
-The script never commits, pushes, merges or modifies databases/volumes.
+The script never commits, pushes, merges or removes Docker volumes.
+Backend tests rebuild and modify their test database using RefreshDatabase.
+They require uncached testing configuration and guarded SQLite :memory:.
+Never run these tests in the running app or scheduler services.
 HELP
 }
 

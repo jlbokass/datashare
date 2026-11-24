@@ -3,9 +3,10 @@ info:
   title: DataShare REST API
   version: 0.1.0
   description: |
-    DESIGN-03 — Proposed frontend/backend contract for the mandatory OpenClassrooms
-    MVP (US01–US06). This specification describes the planned Laravel API; no
-    implementation is claimed. Optional US07–US10 are not exposed as MVP endpoints.
+    DESIGN-03 — Design contract for the implemented OpenClassrooms MVP (US01–US06),
+    reconciled with Laravel on 24 November 2026 (DELIVERY-API #75). Scramble
+    generates a complementary OpenAPI document at /docs/api.json in local only.
+    Optional US07–US10 are not exposed. See README.md for inference limitations.
 servers:
   - url: /api
     description: API path prefix on the same origin as the Angular application
@@ -42,6 +43,8 @@ paths:
                 $ref: '#/components/schemas/UserEnvelope'
         '422':
           $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsError'
 
   /auth/login:
     post:
@@ -66,14 +69,16 @@ paths:
           $ref: '#/components/responses/AuthenticationError'
         '422':
           $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsError'
 
   /auth/me:
     get:
       tags: [Authentication]
       summary: Get the authenticated user's profile
       description: |
-        Supporting API operation to restore the signed-in Angular session;
-        not a separate OpenClassrooms user story.
+        Supporting operation to retrieve the profile using an existing JWT;
+        not a separate user story. Refreshing Angular loses its in-memory JWT.
       operationId: getCurrentUser
       security:
         - bearerAuth: []
@@ -95,11 +100,12 @@ paths:
         US01. JWT required. One transfer holds one or more files under one
         unpredictable share token and one expiration date (DESIGN-02 decision).
         A file is limited to 1 GB as specified by OC. For this contract,
-        1 GB means 1,000,000,000 bytes (decimal); an aggregate request limit
-        must be decided and documented separately with proxy/PHP configuration.
+        1 GB means 1,000,000,000 bytes (decimal). Maximum five files and
+        2,000,000,000 file bytes in total; Nginx/PHP allow multipart overhead.
         Expiration defaults to seven days, and may be set to one through seven
-        days. Files are stored privately. File types are validated on the server
-        according to a security policy to be finalized in SECURITY.md.
+        days. A separate five-minute expiry is opt-in for local/testing only.
+        Files are private. Content and extension are checked against pdf, png,
+        jpg, jpeg, gif, webp, txt, mp3, mp4 and zip. See SECURITY.md.
       operationId: createTransfer
       security:
         - bearerAuth: []
@@ -135,8 +141,8 @@ paths:
         US05 and US06. Only owner records are returned. By default,
         expired items are excluded, per US06. Setting include_expired=true
         may show expired records not yet physically purged, with status=expired.
-        Automatically purged files can no longer appear in history. Sorting,
-        filtering and pagination beyond this switch are not mandated.
+        Automatically purged files can no longer appear in history. Results
+        are sorted by created_at descending, then id descending, without pagination.
       operationId: listMyTransfers
       security:
         - bearerAuth: []
@@ -210,6 +216,8 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '410':
           $ref: '#/components/responses/ExpiredShareError'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsError'
 
   /shares/{token}/files/{fileId}:
     get:
@@ -253,7 +261,9 @@ paths:
         '410':
           $ref: '#/components/responses/ExpiredShareError'
         '500':
-          $ref: '#/components/responses/ServerError'
+          $ref: '#/components/responses/DownloadServerError'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsError'
 
 components:
   securitySchemes:
@@ -288,7 +298,9 @@ components:
       description: Unpredictable share token; different from the login JWT
       schema:
         type: string
-        minLength: 32
+        minLength: 64
+        maxLength: 64
+        pattern: '^[a-f0-9]{64}$'
   schemas:
     User:
       type: object
@@ -296,17 +308,16 @@ components:
       required: [id, email, created_at]
       properties:
         id:
-          type: string
+          type: [string, "null"]
           format: uuid
         email:
           type: string
           format: email
         created_at:
-          type: string
+          type: [string, "null"]
           format: date-time
     RegisterRequest:
       type: object
-      additionalProperties: false
       required: [email, password]
       properties:
         email:
@@ -320,12 +331,12 @@ components:
           writeOnly: true
     LoginRequest:
       type: object
-      additionalProperties: false
       required: [email, password]
       properties:
         email:
           type: string
           format: email
+          maxLength: 255
         password:
           type: string
           format: password
@@ -380,7 +391,7 @@ components:
         share_url:
           type: string
           description: Relative Angular URL in the form /share/{token}
-          example: /share/replace-with-unpredictable-token
+          example: /share/0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
         created_at:
           type: string
           format: date-time
@@ -390,13 +401,7 @@ components:
         status:
           type: string
           enum: [valid, expired]
-          description: Derived from the expiration instant; not necessarily persisted
-        title:
-          type: string
-          description: Optional display title (DESIGN-02; not mandated by OC)
-        message:
-          type: string
-          description: Optional display message (DESIGN-02; not mandated by OC)
+          description: Derived from the expiration instant; not persisted
         files:
           type: array
           minItems: 1
@@ -410,12 +415,6 @@ components:
         expires_at:
           type: string
           format: date-time
-        title:
-          type: string
-          description: Optional public display title
-        message:
-          type: string
-          description: Optional public display message
         files:
           type: array
           minItems: 1
@@ -423,16 +422,18 @@ components:
             $ref: '#/components/schemas/FileMetadata'
     CreateTransferRequest:
       type: object
-      additionalProperties: false
       required: ['files[]']
+      not:
+        required: [expires_in_days, expires_in_minutes]
       properties:
         'files[]':
           type: array
           minItems: 1
+          maxItems: 5
           description: |
-            One or more attached files. Each file must be at most
-            1,000,000,000 bytes (design interpretation of 1 GB).
-            The aggregate request limit remains a review decision.
+            Repeated files[] multipart parts: 1–5 files, each at most
+            1,000,000,000 bytes, at most 2,000,000,000 bytes in total.
+            Content and extension must match the allowlist in SECURITY.md.
           items:
             type: string
             format: binary
@@ -441,13 +442,11 @@ components:
           minimum: 1
           maximum: 7
           default: 7
-          description: Optional integer number of days until automatic expiry
-        title:
-          type: string
-          description: Optional display title; not mandatory in the official user stories
-        message:
-          type: string
-          description: Optional display message; not mandatory in the official user stories
+          description: Default 7 when neither expiry field is supplied; excludes expires_in_minutes
+        expires_in_minutes:
+          type: integer
+          enum: [5]
+          description: Only local/testing with TRANSFER_DEMO_5_MIN_ENABLED=true, otherwise 422; excludes expires_in_days
     TransferEnvelope:
       type: object
       additionalProperties: false
@@ -511,7 +510,7 @@ components:
             errors:
               expires_in_days: [The expiry must be between 1 and 7 days.]
     PayloadTooLargeError:
-      description: Uploaded file exceeds the allowed maximum
+      description: Per-file, total file-byte or proxy request-size limit exceeded
       content:
         application/json:
           schema:
@@ -546,3 +545,31 @@ components:
           example:
             message: Unable to complete the operation.
             code: server_error
+    TooManyRequestsError:
+      description: Rate limit exceeded (register 10/min, login 5/min, each public share route 60/min)
+      headers:
+        Retry-After:
+          description: Seconds until retry is permitted
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [message]
+            properties:
+              message:
+                type: string
+    DownloadServerError:
+      description: |
+        Unhandled storage failure before streaming starts; framework JSON error
+        without a guaranteed code field. APP_DEBUG may add diagnostics locally.
+        A failure after headers have been sent may truncate the download instead.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [message]
+            properties:
+              message:
+                type: string
