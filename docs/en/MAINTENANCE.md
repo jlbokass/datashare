@@ -26,6 +26,35 @@ docker compose logs --tail=100 app web frontend scheduler db
 
 The `scheduler` executes the daily US01 expired-file purge; if local demo flag `TRANSFER_DEMO_5_MIN_ENABLED=true` is set, the app must clear config and the scheduler must be restarted to use minute-level execution. **`docker compose down` keeps named database volumes**; never run `docker compose down -v` without intentionally destroying local data.
 
+## Structured logging and local diagnostics
+
+Nginx writes JSON access logs to standard output (`stdout`). The format includes timestamp, HTTP method, status, total request duration in seconds, request size (line, headers and body) and response body size in bytes. URLs, query parameters, IP addresses, headers and tokens are excluded from **this access-log format**. Nginx error logs, PHP-FPM logs and Laravel exceptions may still contain sensitive information: review them before sharing.
+
+Laravel `app` and `scheduler` use Monolog's `stderr` channel with `JsonFormatter`, configured by Docker Compose without changing local `.env` files. Other container streams retain their existing formats. No external collector is required.
+
+After retrieving the configuration on an already running environment:
+
+```bash
+docker compose config --quiet
+docker compose up -d --no-deps --force-recreate app scheduler web
+docker compose exec -T app php artisan config:clear
+docker compose restart scheduler
+docker compose exec -T web nginx -t
+curl -fsS http://127.0.0.1:8080/api/health
+docker compose logs --no-log-prefix --tail=20 web
+docker compose logs --tail=20 app scheduler
+```
+
+To check the Laravel format without writing business data:
+
+```bash
+docker compose exec -T app php artisan tinker --execute='logger()->info("datashare.logging_check", ["status" => "ok"]);'
+```
+
+This command's JSON message appears on the stderr of the process launched by `docker compose exec`; it does not on its own prove collection of the PHP-FPM service logs. Long-running service logs remain available through `docker compose logs`. Run the test command locally only.
+
+To analyze metrics, compare status and `request_time_s` during a test transfer or download; `response_body_bytes` measures response body size, not necessarily file size for every route. See [PERF.md](PERF.md) for timed measurements. The Nginx format was checked with Nginx 1.26.3 on two synthetic HTTP 200/404 requests: valid JSON, numeric metrics and no synthetic secrets in access logs. Acceptance of the complete Docker configuration and Laravel channel remains to be confirmed. Dozzle remains an [optional enhancement](https://github.com/jlbokass/datashare/issues/64).
+
 ## Updating dependencies — proposed cadence
 
 | When | Activity | Risks / validation |
