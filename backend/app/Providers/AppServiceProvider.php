@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
         // Scramble is a development dependency; normal application boot must not require it.
         if (class_exists(Scramble::class)) {
             Scramble::configure()
+                ->expose(ui: false, document: '/docs/api.json')
                 ->config(array_replace(config('scramble'), [
                     'security_strategy' => [MiddlewareAuthSecurityStrategy::class, [
                         'middleware' => [AuthenticateJwt::class],

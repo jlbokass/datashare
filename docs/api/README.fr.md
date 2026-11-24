@@ -24,7 +24,26 @@ Scramble **0.13.55** génère OpenAPI **3.1.2** depuis Laravel. L'installation, 
 
 La documentation nécessite `APP_ENV=local` : `RestrictedDocsAccess` est conservé et aucune gate `viewApiDocs` n'autorise les autres environnements. La passerelle Nginx écoute uniquement en boucle locale et transmet ces deux chemins à Laravel. Les dépendances de développement s'installent avec le verrou Composer existant ; le démarrage normal sans dépendances de développement ne nécessite pas Scramble.
 
+`AppServiceProvider` utilise `expose(ui: false, document: '/docs/api.json')`, disponible dans Scramble 0.13.55 : Scramble enregistre uniquement la route du document généré. `routes/web.php` enregistre une seule vue Blade sur `/docs/api`, protégée par `RestrictedDocsAccess` et conditionnée à la présence de Scramble. Aucune seconde spécification ni compilation frontend n'est nécessaire. Scramble 0.13.55 lit aussi `ui.title` pour générer `info.title` dans OpenAPI ; ce paramètre est conservé et partagé avec le titre de la page Blade, indépendamment du moteur d'interface par défaut désactivé.
+
 `AppServiceProvider` configure `MiddlewareAuthSecurityStrategy` pour le middleware existant `AuthenticateJwt`, avec un unique schéma HTTP Bearer `bearerAuth` et `bearerFormat: JWT`. Quatre opérations protégées héritent de la sécurité globale ; les quatre opérations métier publiques déclarent explicitement `security: []`. Le token de partage est une capacité, pas un JWT. Le document généré contient aussi les routes de support publiques `/health` et `/demo/capabilities`.
+
+### Documentation fonctionnelle et regroupement
+
+Les PHPDoc anglais décrivent le rôle, l'accès et le comportement métier des dix opérations ; Scramble conserve l'inférence des schémas et validations. Les attributs PHP 8 `Group` définissent ces domaines dans l'ordre (poids 10, 20, 30, 40) :
+
+| Domaine | Opérations |
+| --- | --- |
+| Authentication | Inscription, connexion, compte courant (3) |
+| Transfers | Création, historique propriétaire, suppression d'un fichier (3) |
+| Public sharing | Métadonnées publiques, téléchargement (2) |
+| System | Disponibilité API, capacités de démonstration (2) |
+
+Les deux routes de support restent des closures. En 0.13.55, l'attribut natif `Group` cible uniquement classes/méthodes ; la petite sous-classe `ClosureGroup` ajoute la cible fonction et reste reconnue par le lecteur natif d'attributs de Scramble, qui accepte les sous-classes. Aucun transformateur de regroupement ni contrôleur supplémentaire. L'ordre de déclaration est conservé dans chaque domaine. Swagger UI utilise le titre DataShare REST API, un aperçu court, les listes de groupes ouvertes, le filtrage et les modèles repliés avec ses options natives, sans thème ni JavaScript de tri personnalisé.
+
+### Recette documentaire — sans exécution de l'API
+
+Le développeur a confirmé l'accès Swagger UI et la QA backend de l'étape 1. Pour l'étape 2, lire `/docs/api` et `/docs/api.json` sans utiliser **Try it out**. Vérifier le titre, les quatre domaines dans l'ordre ci-dessus, leurs 3/3/2/2 opérations et les résumés/descriptions anglais non vides. Contrôler la sécurité effective : `/auth/me`, les deux opérations `/transfers` et la suppression exigent `bearerAuth` ; inscription, connexion, deux opérations publiques et deux routes System ont `security: []`. Conserver un seul schéma HTTP Bearer JWT. Vérifier le multipart avec `files[]` obligatoire, 1–5 éléments binaires et les contraintes d'expiration inchangées ; vérifier la réponse 200 du téléchargement en `application/octet-stream`, `type: string`, `format: binary`. Conserver l'accès local aux deux routes. La recette fonctionnelle ci-dessous est distincte et reportée après revue de la documentation.
 
 ### Export et vérification
 
@@ -36,11 +55,11 @@ docker compose exec -T -e APP_URL=http://127.0.0.1:8080 app \
   php artisan scramble:export --stdout --fail-on-unknown > /tmp/datashare-openapi.json
 # Contrôler les middlewares des deux routes de documentation.
 docker compose exec -T app php artisan route:list --path=docs -vv
-bash scripts/qa.sh all
+bash scripts/qa.sh backend
 git diff --check
 ```
 
-L'export CLI utilise `APP_URL` ; la commande fournit explicitement l'origine de la passerelle. La génération HTTP utilise l'origine de la requête. `--fail-on-unknown` détecte les types inconnus, sans prouver à lui seul la conformité complète. L'interface charge Stoplight depuis un CDN et nécessite donc un accès réseau pour son rendu.
+L'export CLI utilise `APP_URL` ; la commande fournit explicitement l'origine de la passerelle. La génération HTTP utilise l'origine de la requête. `--fail-on-unknown` détecte les types inconnus, sans prouver à lui seul la conformité complète. Swagger UI **5.34.1** charge sa feuille CSS et son bundle JavaScript depuis **cdn.jsdelivr.net** (`swagger-ui-dist@5.34.1`) ; son rendu nécessite un accès réseau à ce CDN. La spécification est lue directement sur `/docs/api.json`, depuis l'origine du navigateur, sans service externe. La validation externe est désactivée (`validatorUrl: null`) et le JWT n'est pas persisté (`persistAuthorization: false`) : il faut s'autoriser à nouveau après actualisation.
 
 ### Rapprochement et limites d'inférence
 
@@ -57,13 +76,20 @@ L'export CLI utilise `APP_URL` ; la commande fournit explicitement l'origine de 
 
 `backend/app/Documentation/DataShareOperationTransformer.php` corrige uniquement la documentation générée, jamais la validation ni l'exécution des réponses. L'annotation publique et ces corrections doivent être revues si le comportement évolue. La plupart des schémas d'authentification, d'historique et de téléversement restent inférés. Les différences structurelles (schémas intégrés plutôt que références YAML, operation IDs/tags, version corrective OpenAPI) sont intentionnelles. Le YAML précise davantage la fermeture des objets de réponse et certaines bornes. Son ApiError réutilisable autorise errors en option, alors que les erreurs de champs sont émises uniquement en 422. `APP_DEBUG` local peut exposer des diagnostics lors d'erreurs non interceptées ; les enveloppes personnalisées sûres ne garantissent pas l'assainissement de toutes les erreurs.
 
-### Recette manuelle courte
+### Recette fonctionnelle ultérieure — Swagger UI et multipart
 
-1. Ouvrir les deux adresses : titre DataShare, huit opérations métier et deux routes de support.
-2. Se connecter avec un compte local jetable. Copier le JWT dans l'autorisation Bearer de la documentation. Vérifier qu'il est requis pour `/auth/me`, l'envoi, l'historique et la suppression ; son absence renvoie 401.
-3. Envoyer un petit fichier autorisé via `files[]`, avec `expires_in_days=1` et sans expiration en minutes. Attendre 201 et une URL relative `/share/{token}`. Relever uniquement le token et l'UUID de fichier de cette réponse.
-4. Effacer le JWT. Consulter `/shares/{token}` et télécharger `/shares/{token}/files/{fileId}` : 200, métadonnées limitées et octets identiques en pièce jointe. Ne pas utiliser d'identifiants réels ni de fichiers privés dans les exemples.
-5. Vérifier l'historique avec et sans `include_expired=true` ; un identifiant de partage invalide ou incohérent renvoie 404. Les tests existants couvrent expiration (410), envois invalides (413/422), propriété et suppression. Exécuter la recette existante ci-dessus, sans nouvelle suite de tests.
+Utiliser la pile locale existante, un compte jetable et deux petits fichiers texte, `swagger-one.txt` et `swagger-two.txt`, avec du contenu de démonstration sans données privées. Ne supprimer aucune donnée ni aucun fichier de démonstration. Cette recette crée de vrais enregistrements locaux ; l'expiration normale reste applicable.
+
+1. Ouvrir `http://127.0.0.1:8080/docs/api` : vérifier Swagger UI. Ouvrir `/docs/api.json` : vérifier OpenAPI 3.1.2, huit opérations métier et deux routes de support, avec un seul schéma HTTP Bearer JWT. Dans `paths./transfers.post.requestBody.content.multipart/form-data.schema`, contrôler `required: ["files[]"]`, des éléments `type: string` / `format: binary`, `minItems: 1`, `maxItems: 5`. Vérifier l'expiration en jours 1–7/défaut 7 et l'enum minutes `[5]` avec la condition d'activation décrite. Ne pas modifier l'environnement de l'application active pour tester les restrictions d'accès.
+2. Si nécessaire, ouvrir `POST /auth/register`, cliquer **Try it out**, saisir un email jetable unique et un mot de passe d'au moins huit caractères, puis **Execute** (201). Utiliser ces identifiants dans `POST /auth/login` (200). Dans **Authorize → bearerAuth**, coller seulement `access_token`, sans préfixe `Bearer`, puis autoriser. Vérifier que `GET /auth/me` renvoie 200. Ne publier ni token, ni mot de passe, ni fichier HAR brut.
+3. Ouvrir les outils développeur du navigateur → **Network**, puis `POST /transfers` → **Try it out**. Sélectionner `multipart/form-data`. Ajouter une entrée fichier `files[]` et choisir `swagger-one.txt` ; renseigner `expires_in_days=1`. Laisser `expires_in_minutes` absent, en désactivant aussi **Send empty value** si proposé. Exécuter : attendre **201** et exactement **un** élément dans `transfer.files` ; relever l'identifiant du transfert et le nom du fichier.
+4. Inspecter la vraie requête Network `POST /api/transfers`, pas uniquement l'exemple curl affiché par Swagger. Vérifier `Content-Type: multipart/form-data; boundary=…`, l'en-tête Authorization Bearer et une partie fichier nommée exactement `files[]`. Ajouter ensuite une deuxième entrée fichier, choisir `swagger-two.txt`, conserver le premier fichier et exécuter une seule fois. Attendre **201**, un nouvel identifiant de transfert et exactement **deux** éléments dans son `transfer.files`. Le payload doit contenir deux parties fichier distinctes nommées `files[]` (multipart brut : deux en-têtes `Content-Disposition: form-data; name="files[]"; filename="…"`), pas du CSV, du JSON ou un unique champ `files`. La réponse 201 avec les deux métadonnées confirme que Laravel a accepté le tableau attendu, sans ajouter de journalisation serveur.
+5. Dans Swagger UI, exécuter `GET /transfers` avec le même JWT : retrouver les deux identifiants et leurs listes respectives de un/deux fichiers. Se connecter avec le même compte sur `http://127.0.0.1:8080/login`, ouvrir `/account` et confirmer les deux transferts dans l'historique existant de l'application.
+6. Actualiser Swagger UI et vérifier que l'autorisation est effacée. Vérifier éventuellement le partage public et le téléchargement de ces seuls transferts de démonstration. Conserver les données/fichiers ; ne pas appeler les routes de suppression pour cette recette.
+
+Exécuter uniquement `bash scripts/qa.sh backend` pour la recette backend, puis `git diff --check`. Si Docker est bloqué, arrêter et demander au développeur la même commande, sans changer d'environnement. La réussite des tests backend ne prouve pas la sérialisation multipart du navigateur.
+
+Références d'implémentation : [version Swagger UI](https://github.com/swagger-api/swagger-ui/releases/tag/v5.34.1), [compatibilité OpenAPI](https://github.com/swagger-api/swagger-ui/tree/v5.34.1), [options de configuration](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/).
 
 Le contrat couvre le **MVP OpenClassrooms obligatoire US01 à US06**. Le backend utilise Laravel, le frontend Angular, PostgreSQL pour les données et un stockage privé pour les octets des fichiers.
 

@@ -5,16 +5,18 @@ use Dedoc\Scramble\Http\Middleware\RestrictedDocsAccess;
 return [
     'api_path' => 'api',
 
-    'info' => [
-        'version' => '0.1.0',
-        'description' => 'Automatically generated documentation for the DataShare API (OpenClassrooms P3, US01–US06). '
-            .'The design contract remains in docs/api/openapi.yaml. '
-            .'Owner operations require a Bearer JWT; public sharing uses a separate capability token. '
-            .'See docs/api/README.md for inference limits and manual acceptance.',
-    ],
-
+    // Scramble 0.13.55 also uses this setting for OpenAPI info.title.
     'ui' => [
         'title' => 'DataShare REST API',
+    ],
+
+    'info' => [
+        'version' => '0.1.0',
+        'description' => 'Create an account, manage private file transfers and share expiring download links. '
+            .'Account and transfer management require a Bearer JWT, except registration and login. '
+            .'Public sharing uses an independent capability token and requires no account. '
+            .'System endpoints report API availability and demonstration capabilities. '
+            .'Interactive documentation is available only in the local environment.',
     ],
 
     // Resolve the API URL against the current origin, including the Docker port.
