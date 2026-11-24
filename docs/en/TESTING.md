@@ -79,7 +79,7 @@ The [E2E CI workflow](https://github.com/jlbokass/datashare/blob/develop/.github
 
 - PHPUnit/Feature tests primarily use **in-memory SQLite and fake file storage**. E2E also verifies real HTTP flows against **isolated PostgreSQL and private storage**, but only with small synthetic files; no 1 GB load test is implied.
 - Line coverage does not guarantee defect-free software. Playwright screenshots, videos and traces remain disabled to avoid disclosing credentials and files.
-- **Completed complementary batches:** [security audit](SECURITY.md), [performance measurements](PERF.md) and [Figma visual acceptance](../design-handoff.md). Keyboard/accessibility validation is not evidenced by the UI-01 record. Maintenance procedures are in [MAINTENANCE.md](MAINTENANCE.md).
+- **Completed complementary batches:** [security audit](SECURITY.md), [performance measurements](PERF.md) and [Figma visual acceptance](../design-handoff.md). Manual keyboard acceptance was reported successful on all six checks on 24 November 2026; the [UI-01 record](../design-handoff.md) details the scope. This is not a comprehensive accessibility audit. Maintenance procedures are in [MAINTENANCE.md](MAINTENANCE.md).
 
 **QL-02 decision:** the three business scenarios and CI checks are validated. No additional E2E scenario is required for this work package.
 

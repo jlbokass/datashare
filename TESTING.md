@@ -74,7 +74,7 @@ Le [workflow d'intégration continue E2E](.github/workflows/e2e-ci.yml) précise
 
 - Les tests fonctionnels Laravel utilisent notamment **SQLite en mémoire et un stockage simulé**. Les tests E2E complètent ces vérifications par des requêtes HTTP réelles, avec **PostgreSQL et un stockage privé isolés**. Les fichiers utilisés sont de petite taille ; ces tests ne mesurent pas les performances de transferts de 1 Go.
 - La couverture des lignes de code ne garantit pas l'absence de défauts. Les captures, vidéos et traces Playwright restent désactivées pour éviter de diffuser des identifiants et des fichiers.
-- Les vérifications complémentaires sont documentées dans les rapports d'[audit de sécurité](SECURITY.md), de [performance](PERF.md) et de [recette visuelle des interfaces](docs/design-handoff.fr.md). La navigation au clavier et l'accessibilité ne font pas l'objet d'une validation attestée dans le compte rendu UI-01. Les procédures de mise à jour figurent dans [MAINTENANCE.md](MAINTENANCE.md).
+- Les vérifications complémentaires sont documentées dans les rapports d'[audit de sécurité](SECURITY.md), de [performance](PERF.md) et de [recette visuelle des interfaces](docs/design-handoff.fr.md). La recette manuelle au clavier a été déclarée réussie sur les six contrôles le 24 novembre 2026 ; le [compte rendu UI-01](docs/design-handoff.fr.md) détaille ce périmètre. Il ne s'agit pas d'un audit complet d'accessibilité. Les procédures de mise à jour figurent dans [MAINTENANCE.md](MAINTENANCE.md).
 
 **Conclusion :** les trois parcours critiques ont été validés par les tests E2E et les contrôles d'intégration continue associés.
 

@@ -66,4 +66,19 @@ Do **not** invent exact status colors where the PDF only shows approximations (P
 
 **Separate decision:** the local five-minute demo enables frequent cleanup, deleting expired file bytes **and** database metadata; the “Expired” history tab can therefore be empty. The decision to retain the current purge is recorded in [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57), **outside UI-01**.
 
-**Evidence and limits:** developer-reported visual acceptance; detailed results for the most recent tests/build and keyboard/accessibility checks are **not recorded here**. All three CI workflows on [PR #58](https://github.com/jlbokass/datashare/pull/58) passed; they do not establish keyboard acceptance. The original PDF sign-off remains blank historical source material, not proof of completed acceptance.
+**Evidence and limits:** visual acceptance was reported successful. All three CI workflows on [PR #58](https://github.com/jlbokass/datashare/pull/58) passed; they do not establish keyboard acceptance. The original PDF sign-off remains blank historical source material, not proof of completed acceptance.
+
+### Additional keyboard acceptance — 24 November 2026
+
+All six manual checks below were reported successful:
+
+| Check | Reported result |
+| --- | --- |
+| Tab and Shift + Tab navigation | OK |
+| Visible focus indicator | OK |
+| Registration and login | OK |
+| File selection and upload | OK |
+| Download and deletion | OK |
+| Opening and closing the mobile menu | OK |
+
+This targeted functional acceptance documents keyboard navigation within the scope checked. It is not a comprehensive RGAA or WCAG compliance audit.
