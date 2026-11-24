@@ -1,7 +1,8 @@
 # GitHub Pages source: main branch, /docs folder
 # Project Pages URL (after Pages is enabled): https://jlbokass.github.io/datashare/
-title: "DataShare — Technical Documentation"
-description: "OpenClassrooms P3 — secure file-sharing MVP (EN/FR)"
+title: "DataShare — Documentation technique"
+description: "OpenClassrooms P3 — partage sécurisé de fichiers (FR/EN)"
+lang: fr
 url: "https://jlbokass.github.io"
 baseurl: "/datashare"
 theme: jekyll-theme-cayman

@@ -50,7 +50,7 @@ Routes, response structures and HTTP status codes are documented in [the API con
 - JWTs authenticate protected operations; public share tokens grant limited, time-bounded download access only.
 - The storage volume/bucket is **private**. No direct public URL exposes uploaded bytes.
 - Only the owner can view their private history or delete their files.
-- Allowed file types are documented in [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md).
+- Allowed file types are documented in [SECURITY](en/SECURITY.md).
 - Public deployments must use HTTPS; local development may use HTTP on localhost.
 - Secrets and credentials are configured outside the source code.
 
@@ -68,4 +68,4 @@ Manual deletion and cleanup use `TransferDeletion`: a PostgreSQL transaction loc
 
 Storage and the database do not form one atomic transaction. Already absent bytes allow metadata removal; storage failure preserves metadata for retry. If the database fails after byte removal, those bytes are not restored. Partial cleanup failure retains metadata for recovery. Cleanup continues for other transfers and reports failure with a nonzero exit code. SQLite tests do not demonstrate real PostgreSQL concurrency.
 
-See [maintenance](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md) and [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57): the current purge policy was retained without code changes. No production deployment is claimed.
+See [maintenance](en/MAINTENANCE.md) and [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57): the current purge policy was retained without code changes. No production deployment is claimed.

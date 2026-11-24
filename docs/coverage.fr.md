@@ -1,6 +1,6 @@
 # QL-01 — Mesures de couverture et limites
 
-[English](coverage.md) · [Issue #49](https://github.com/jlbokass/datashare/issues/49) · [Tests](https://github.com/jlbokass/datashare/blob/develop/TESTING.fr.md)
+[English](coverage.md) · [Issue #49](https://github.com/jlbokass/datashare/issues/49) · [Tests](https://github.com/jlbokass/datashare/blob/develop/TESTING.md)
 
 ## Mesures de couverture vérifiées — 19 novembre 2026
 

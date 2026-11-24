@@ -1,76 +1,76 @@
 # DataShare
 
-**Temporary file sharing — OpenClassrooms P3 project**
+**Partage temporaire de fichiers — projet OpenClassrooms P3**
 
-[English](README.md) · [Français](README.fr.md) · [Technical documentation](docs/index.md)
+[English version](docs/en/README.md) · [Documentation technique](docs/index.md)
 
 [![Backend CI](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml?query=branch%3Adevelop)
 [![Frontend CI](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml?query=branch%3Adevelop)
 [![E2E CI](https://github.com/jlbokass/datashare/actions/workflows/e2e-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/e2e-ci.yml?query=branch%3Adevelop)
 
-## About
+## Le projet
 
-DataShare lets users upload private files and share them temporarily through a public link. The **required US01–US06 MVP** provides:
+DataShare permet de téléverser des fichiers privés et de les partager temporairement au moyen d'un lien public. Le **MVP obligatoire US01–US06** couvre :
 
-- authenticated uploads, multiple files per transfer and expiry;
-- public links and downloads without an account;
-- registration and JWT login;
-- personal history and individual file deletion.
+- téléversement authentifié, sélection de plusieurs fichiers et expiration ;
+- lien public et téléchargement sans compte ;
+- inscription et connexion JWT ;
+- historique personnel et suppression individuelle des fichiers.
 
-**Status, 23 November 2026:** the MVP, quality batches QL-01 through QL-04 and Figma UI-01 are integrated into `develop`. Backend, frontend and E2E checks passed on [UI-01 PR #58](https://github.com/jlbokass/datashare/pull/58). The application runs **locally** and is not deployed to production.
+**État au 23 novembre 2026 :** MVP, lots qualité QL-01 à QL-04 et conformité Figma UI-01 intégrés dans `develop`. Les contrôles backend, frontend et E2E de la [PR UI-01 #58](https://github.com/jlbokass/datashare/pull/58) ont réussi. L'application est **exécutée en local**, pas déployée en production.
 
-**Stack:** Angular 22, Laravel 13 / PHP, PostgreSQL 18, Nginx, Docker Compose and GitHub Actions.
+**Stack :** Angular 22, Laravel 13 / PHP, PostgreSQL 18, Nginx, Docker Compose et GitHub Actions.
 
-## Run locally
+## Démarrer en local
 
-Requirements: Git and Docker with Compose. For a fresh installation, follow the [step-by-step guide](docs/installation.md), including `.env` setup, dependencies and migrations.
+Prérequis : Git et Docker avec Compose. Pour une première installation, suivre le [guide pas à pas](docs/installation.fr.md) (configuration des `.env`, dépendances et migrations).
 
-On an **already configured** checkout, from the repository root:
+Sur un environnement **déjà configuré**, depuis la racine du dépôt :
 
 ```bash
 docker compose up -d
 docker compose ps
 ```
 
-Application: **http://127.0.0.1:8080/**
+Application : **http://127.0.0.1:8080/**
 
-Run Laravel tests, Pint formatting checks, Angular tests and build:
+Vérifier les tests Laravel, le formatage Pint, les tests Angular et le build :
 
 ```bash
 bash scripts/qa.sh all
 ```
 
-E2E tests use an [isolated Docker stack](TESTING.md) to protect local development data.
+Les tests E2E utilisent une [stack Docker isolée](TESTING.md) pour protéger les données locales.
 
-### Test the 1 GB file limit (macOS)
+### Tester la limite de 1 Go (macOS)
 
 ```bash
 mkfile -n 1100000000 /tmp/datashare-oversize.zip
-# Select this file at /upload; the upload must be rejected.
+# Sélectionner ce fichier dans /upload ; l'envoi doit être refusé.
 rm /tmp/datashare-oversize.zip
 ```
 
-This **1.1 GB** sparse test file is **not a real ZIP archive**. It is used only to check size validation.
+Ce fichier fictif de **1,1 Go** est créé en mode sparse : **ce n'est pas une véritable archive ZIP**. Il sert uniquement au contrôle de taille.
 
-## Repository map
+## Repères dans le dépôt
 
 ```text
-frontend/     Angular: pages, routing and authentication
-backend/      Laravel: API, models, migrations and tests
-docker/       Nginx and PHP configuration
-e2e/          Playwright scenarios
-docs/         Technical dossier and OpenClassrooms deliverables
-scripts/      Quality-check commands
+frontend/     Angular : pages, navigation et authentification
+backend/      Laravel : API, modèles, migrations et tests
+docker/       Configuration Nginx et PHP
+e2e/          Scénarios Playwright
+docs/         Dossier technique et livrables OpenClassrooms
+scripts/      Commandes de contrôle qualité
 ```
 
-## Workflow and Git history
+## Organisation du développement et traçabilité
 
-The workflow is **work branch → PR into `develop` → review/CI → release PR into protected `main`**. [Issues](https://github.com/jlbokass/datashare/issues), [pull requests](https://github.com/jlbokass/datashare/pulls?q=is%3Apr) and [`develop` commits](https://github.com/jlbokass/datashare/commits/develop/) trace design work, user stories, quality batches and UI refinement.
+Le workflow suivi est **branche de travail → PR vers `develop` → revue/CI → PR de livraison vers `main`** (protégée). Les [issues](https://github.com/jlbokass/datashare/issues), [pull requests](https://github.com/jlbokass/datashare/pulls?q=is%3Apr) et [commits de `develop`](https://github.com/jlbokass/datashare/commits/develop/) montrent la progression de la conception aux US, puis aux lots qualité et à l'interface.
 
-For future commits, use **`type(scope): action`** (for example `feat(upload): ...`, `fix(auth): ...`, `test(e2e): ...`, `docs: ...`). Earlier commit messages are not entirely consistent; the existing history is preserved.
+Pour les prochains commits, utiliser **`type(scope): action`** (par exemple `feat(upload): ...`, `fix(auth): ...`, `test(e2e): ...`, `docs: ...`). Les messages historiques ne sont pas tous homogènes ; ils sont conservés sans réécriture.
 
-## Documentation and limitations
+## Documentation et limites
 
-[OC technical dossier](docs/technical-documentation.md) · [Architecture](docs/architecture.md) · [API contract](docs/api/openapi.yaml) · [Testing](TESTING.md) · [Security](SECURITY.md) · [Performance](PERF.md) · [Maintenance](MAINTENANCE.md) · [AI journal](docs/ai-journal.md)
+[Documentation OC](docs/technical-documentation.fr.md) · [Architecture](docs/architecture.fr.md) · [Contrat API](docs/api/openapi.yaml) · [Tests](TESTING.md) · [Sécurité](SECURITY.md) · [Performances](PERF.md) · [Maintenance](MAINTENANCE.md) · [Journal IA](docs/ai-journal.fr.md)
 
-The local app uses **HTTP without TLS**. JWT session state is intentionally held in memory, so **refreshing requires signing in again**. ZIP archives are not antivirus-scanned. Scheduled cleanup removes expired file bytes and metadata; this policy was retained by the closing decision in [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57). Advanced US07–US10 features remain optional.
+En local, l'application utilise **HTTP sans TLS** et la session JWT est volontairement conservée en mémoire : **une actualisation impose une nouvelle connexion**. Les ZIP ne sont pas analysés par antivirus. La purge retire les fichiers expirés et leurs métadonnées ; ce comportement est maintenu par la décision de clôture [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57). Les fonctions avancées US07–US10 restent facultatives.

@@ -7,7 +7,7 @@ lang: fr
 
 # DataShare — Journal d'utilisation de l'IA
 
-[**English**](ai-journal.md) · [Accueil de la documentation](index.fr.md)
+[**English**](ai-journal.md) · [Accueil de la documentation](index.md)
 
 **DOC-02 · Journal évolutif · Ouvert le 18 novembre 2026.**
 
@@ -98,3 +98,5 @@ Ajouter **une entrée courte par issue/PR significative** ; inutile de conserver
 ## 7. LANG-01 — Consolidation documentaire, 24 novembre 2026
 
 Le développeur a approuvé l'audit des 24 paires et la conservation de 15 paires, dont les quatre rapports qualité obligatoires. Les informations utiles des neuf paires intermédiaires sont reprises dans les guides de référence ; les statuts périmés et les liens sont corrigés. Aucun changement fonctionnel ni modification de `main`. Les versions antérieures restent consultables au commit audité : [docker-setup](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/docker-setup.fr.md) · [development](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/development.fr.md) · [ci](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/ci.fr.md) · [us01-upload](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/us01-upload.fr.md) · [us02-public-sharing](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/us02-public-sharing.fr.md) · [us03-registration](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/us03-registration.fr.md) · [us04-jwt-login](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/us04-jwt-login.fr.md) · [us05-personal-history](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/us05-personal-history.fr.md) · [us06-file-deletion](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/us06-file-deletion.fr.md).
+
+**Organisation complémentaire approuvée :** les cinq documents de référence à la racine portent désormais leurs noms usuels sans suffixe, en français. Leurs traductions intégrales sont dans [docs/en/](en/index.md). La page d'accueil GitHub Pages devient française, avec une entrée anglaise sous `/en/` et une redirection de l'ancienne adresse `/fr.html`. Aucun changement du code applicatif ni publication de `main` dans ce lot.

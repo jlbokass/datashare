@@ -90,7 +90,7 @@ Proposed `201` JSON:
 
 The `share_url` is an **Angular route**, not an API endpoint. Angular opens `/share/{token}` and calls `GET /api/shares/{token}`.
 
-The MVP uses **1,000,000,000 bytes per file**, at most five files and **2,000,000,000 total bytes** per transfer. The latter two limits are local choices, not OC requirements. Formats are validated server-side (see [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md)).
+The MVP uses **1,000,000,000 bytes per file**, at most five files and **2,000,000,000 total bytes** per transfer. The latter two limits are local choices, not OC requirements. Formats are validated server-side (see [SECURITY](../en/SECURITY.md)).
 
 ### Delete — US06
 
@@ -135,4 +135,4 @@ The OpenAPI file does **not** expose US07 anonymous upload, US08 tags, US09 prot
 - Deletion: 204, 404 for unknown or other-account resources; only one file, siblings remain available. Last-file deletion revokes the link. Storage failure returns 500 and retains metadata for recovery (see [architecture](../architecture.md)).
 - [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57) is closed: purge and history unchanged. No permanent retention mechanism was added.
 
-See [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) for evidence and limits, and [installation](../installation.md) to run the MVP.
+See [TESTING](../en/TESTING.md) for evidence and limits, and [installation](../installation.md) to run the MVP.

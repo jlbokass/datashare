@@ -90,7 +90,7 @@ Exemple de réponse `201` :
 
 `share_url` est une **route Angular**, non une route API. Angular ouvre `/share/{token}`, puis demande `GET /api/shares/{token}`.
 
-Le MVP utilise **1 000 000 000 octets par fichier**, cinq fichiers et **2 000 000 000 octets cumulés** par transfert. Ces deux dernières limites sont des choix locaux, pas des exigences OC. Les formats sont contrôlés côté serveur (voir [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.fr.md)).
+Le MVP utilise **1 000 000 000 octets par fichier**, cinq fichiers et **2 000 000 000 octets cumulés** par transfert. Ces deux dernières limites sont des choix locaux, pas des exigences OC. Les formats sont contrôlés côté serveur (voir [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md)).
 
 ### Suppression — US06
 
@@ -135,4 +135,4 @@ La spécification OpenAPI ne contient **aucune route de téléversement anonyme 
 - Suppression : 204, refus 404 pour ressource inconnue ou appartenant à un autre compte ; un fichier seulement, les autres restent disponibles. La suppression du dernier fichier révoque le lien. Un échec de stockage renvoie 500 et conserve les métadonnées pour reprise (voir [architecture](../architecture.fr.md)).
 - [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57) est clôturé : purge et historique inchangés. Aucun mécanisme de conservation permanente ajouté.
 
-Voir [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.fr.md) pour les preuves et limites, et [installation](../installation.fr.md) pour exécuter le MVP.
+Voir [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) pour les preuves et limites, et [installation](../installation.fr.md) pour exécuter le MVP.

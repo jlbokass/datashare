@@ -7,7 +7,7 @@ lang: fr
 
 # DataShare — Documentation technique
 
-[**English**](technical-documentation.md) · [Accueil](index.fr.md) · [Dépôt GitHub](https://github.com/jlbokass/datashare)
+[**English**](technical-documentation.md) · [Accueil](index.md) · [Dépôt GitHub](https://github.com/jlbokass/datashare)
 
 **État au 23 novembre 2026.** Les US01–US06, les lots qualité QL-01 à QL-04 et UI-01 sont intégrés à `develop`. Les trois contrôles CI de la [PR #58](https://github.com/jlbokass/datashare/pull/58) sont verts ; le README a été simplifié dans la [PR #60](https://github.com/jlbokass/datashare/pull/60). Aucune mise en production n'est annoncée.
 
@@ -84,16 +84,16 @@ Ces routes sont implémentées ; les statuts et schémas de requêtes/réponses 
 - **Comptes :** mots de passe hashés/salés, email unique. JWT signé, vérifié côté Laravel et conservé uniquement en mémoire Angular ; la déconnexion efface la session locale mais **ne révoque pas** un JWT déjà émis (durée d'environ 30 minutes).
 - **Fichiers :** stockage hors racine publique, nom interne opaque ; contrôles du type MIME et de l'extension, limite de 1 Go par fichier (5 fichiers et 2 Go par transfert choisis pour le MVP). Le téléchargement est forcé en pièce jointe.
 - **Partages :** token non prédictible, expiration entre 1 et 7 jours, refus des liens invalides/expirés ; purge planifiée des fichiers et métadonnées. Les ZIP ne sont **pas analysés par antivirus**.
-- **Limites :** aucun hébergement public HTTPS, sauvegarde/restauration testée ou audit de sécurité complet n'est démontré. Les audits de dépendances **Composer et npm ont été réalisés** dans [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.fr.md), sans vulnérabilité signalée à la date du contrôle ; ils ne remplacent pas un audit complet.
+- **Limites :** aucun hébergement public HTTPS, sauvegarde/restauration testée ou audit de sécurité complet n'est démontré. Les audits de dépendances **Composer et npm ont été réalisés** dans [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md), sans vulnérabilité signalée à la date du contrôle ; ils ne remplacent pas un audit complet.
 
 ## 6. Qualité, tests et maintenance
 
 | Livrable demandé | État et renvoi |
 | --- | --- |
-| **TESTING.md** | [Tests et preuves](https://github.com/jlbokass/datashare/blob/develop/TESTING.fr.md) : couverture mesurée **96,36 %** Laravel et **79,58 %** Angular (QL-01), **6 tests E2E** (QL-02) ; trois CI vertes sur [PR #58](https://github.com/jlbokass/datashare/pull/58) |
-| **SECURITY.md** | [Audits Composer et npm](https://github.com/jlbokass/datashare/blob/develop/SECURITY.fr.md) réalisés le 23/11/2026 : **aucune vulnérabilité signalée** (QL-03) |
-| **PERF.md** | [Mesures QL-04](https://github.com/jlbokass/datashare/blob/develop/PERF.fr.md) : téléchargement local, bundle Angular et relevé Lighthouse sur serveur de développement ; **aucune garantie de performance en production** |
-| **MAINTENANCE.md** | [Procédures locales](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.fr.md), mises à jour et risques ; aucune reprise de production testée |
+| **TESTING.md** | [Tests et preuves](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) : couverture mesurée **96,36 %** Laravel et **79,58 %** Angular (QL-01), **6 tests E2E** (QL-02) ; trois CI vertes sur [PR #58](https://github.com/jlbokass/datashare/pull/58) |
+| **SECURITY.md** | [Audits Composer et npm](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md) réalisés le 23/11/2026 : **aucune vulnérabilité signalée** (QL-03) |
+| **PERF.md** | [Mesures QL-04](https://github.com/jlbokass/datashare/blob/develop/PERF.md) : téléchargement local, bundle Angular et relevé Lighthouse sur serveur de développement ; **aucune garantie de performance en production** |
+| **MAINTENANCE.md** | [Procédures locales](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md), mises à jour et risques ; aucune reprise de production testée |
 
 La couverture atteint l'objectif indicatif de 70 %. Une capture durable du rapport reste à préparer pour la soutenance. Les méthodes, dates et limites des mesures figurent dans les documents liés ci-dessus.
 
@@ -115,7 +115,7 @@ La couverture atteint l'objectif indicatif de 70 %. Une capture durable du rappo
 
 ## 7. Installation et exécution
 
-[README](https://github.com/jlbokass/datashare/blob/develop/README.fr.md) · [Installation pas à pas](installation.fr.md)
+[README](https://github.com/jlbokass/datashare/blob/develop/README.md) · [Installation pas à pas](installation.fr.md)
 
 **Prérequis :** Git, Docker et Compose. Pour une installation neuve, initialiser les fichiers `.env` privés selon le [guide d'installation](installation.fr.md) (secrets PostgreSQL, Laravel et JWT) ; ne jamais les commiter.
 

@@ -7,7 +7,7 @@ lang: en
 
 # DataShare — UI design handoff
 
-[**Français**](design-handoff.fr.md) · [Technical documentation](index.md)
+[**Français**](design-handoff.fr.md) · [Technical documentation](en/index.md)
 
 **Source:** *DataShare UI Design Handoff*, version 1, **17 November 2026**, **23 pages**, based on the Figma exports. [Original Figma design](https://www.figma.com/design/i4HHiGsL7Kc3kVBo41m7F6).
 

@@ -7,7 +7,7 @@ lang: en
 
 # DataShare — AI Development Journal
 
-[**Français**](ai-journal.fr.md) · [Documentation home](index.md)
+[**Français**](ai-journal.fr.md) · [Documentation home](en/index.md)
 
 **DOC-02 · Living record · Started 18 November 2026.**
 
@@ -98,3 +98,5 @@ Add **one concise entry per significant issue/PR**; do not archive every prompt.
 ## 7. LANG-01 — Documentation consolidation, 24 November 2026
 
 The developer approved the audit of 24 pairs and retention of 15 pairs, including the four required quality reports. Useful material from nine intermediate pairs is consolidated into reference guides; stale statuses and links are corrected. No functional change or modification of `main`. Previous versions remain available at the audited commit: [docker-setup](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/docker-setup.md) · [development](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/development.md) · [ci](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/ci.md) · [us01-upload](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/us01-upload.md) · [us02-public-sharing](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/us02-public-sharing.md) · [us03-registration](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/us03-registration.md) · [us04-jwt-login](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/us04-jwt-login.md) · [us05-personal-history](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/us05-personal-history.md) · [us06-file-deletion](https://github.com/jlbokass/datashare/blob/297fb517c0af2c685fe6c84f3772c34b928aa54b/docs/us06-file-deletion.md).
+
+**Approved follow-up organization:** the five root reference documents now use their conventional filenames without suffixes, in French. Their complete English translations are grouped in [docs/en/](en/index.md). The GitHub Pages home becomes French, with an English entry at `/en/` and a redirect from the former `/fr.html` address. No application code changes or publication of `main` in this batch.

@@ -7,7 +7,7 @@ lang: en
 
 # Install DataShare locally
 
-[**Français**](installation.fr.md) · [Documentation home](index.md) · [Full README](https://github.com/jlbokass/datashare/blob/develop/README.md)
+[**Français**](installation.fr.md) · [Documentation home](en/index.md) · [Full README](en/README.md)
 
 **Functional US01–US06 MVP.** Use this guide on a development computer with Docker. It runs Laravel 13, Angular 22 and PostgreSQL 18 **locally** at **http://127.0.0.1:8080/**. GitHub Pages hosts static documentation only.
 
@@ -70,7 +70,7 @@ Open **http://127.0.0.1:8080/**. The `/api/health` response alone does not prove
 
 A temporary Nginx `502` may indicate first-boot Angular installation; inspect `docker compose logs -f frontend app web`. Do not overwrite configured environment files or delete volumes. Stop while keeping the database using `docker compose down` (**not `down -v`**).
 
-All three CI workflows and quality batches have been validated; see [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md). Do not expose this development configuration to the public Internet.
+All three CI workflows and quality batches have been validated; see [TESTING](en/TESTING.md). Do not expose this development configuration to the public Internet.
 
 ## Services and diagnostics
 
@@ -96,4 +96,4 @@ docker compose run --rm node node --version
 docker compose run --rm node npm --version
 ```
 
-Use these diagnostics when needed. Never publish interpolated Compose secrets. See [MAINTENANCE](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md) for purge demonstration and operating procedures.
+Use these diagnostics when needed. Never publish interpolated Compose secrets. See [MAINTENANCE](en/MAINTENANCE.md) for purge demonstration and operating procedures.

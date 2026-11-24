@@ -7,7 +7,7 @@ lang: en
 
 # DataShare — Technical documentation
 
-[**Français**](technical-documentation.fr.md) · [Documentation home](index.md) · [GitHub repository](https://github.com/jlbokass/datashare)
+[**Français**](technical-documentation.fr.md) · [Documentation home](en/index.md) · [GitHub repository](https://github.com/jlbokass/datashare)
 
 **Status as of 23 November 2026.** US01–US06, quality batches QL-01 through QL-04 and UI-01 are integrated into `develop`. All three CI workflows passed on [PR #58](https://github.com/jlbokass/datashare/pull/58); the READMEs were simplified in [PR #60](https://github.com/jlbokass/datashare/pull/60). No production deployment is claimed.
 
@@ -84,16 +84,16 @@ These routes are implemented; request/response schemas and statuses are document
 - **Accounts:** salted password hashes and unique emails. Signed JWTs are verified by Laravel and held only in Angular memory; logout clears local session state but **does not revoke** an issued JWT (about 30-minute lifetime).
 - **Files:** storage outside the public web root under opaque internal names; MIME and extension checks; 1 GB per-file limit (5 files and 2 GB per transfer are chosen MVP caps). Downloads are forced as attachments.
 - **Shares:** unpredictable token, 1–7-day expiry, invalid/expired-link rejection and scheduled cleanup of bytes and metadata. ZIP archives are **not antivirus-scanned**.
-- **Limits:** public HTTPS hosting, tested backup/restore and a complete security audit have not been demonstrated. **Composer and npm dependency audits were run**, with no vulnerabilities reported at the time, as documented in [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md). These checks are not a full security audit.
+- **Limits:** public HTTPS hosting, tested backup/restore and a complete security audit have not been demonstrated. **Composer and npm dependency audits were run**, with no vulnerabilities reported at the time, as documented in [SECURITY](en/SECURITY.md). These checks are not a full security audit.
 
 ## 6. Quality, tests and maintenance
 
 | Required document | Status and reference |
 | --- | --- |
-| **TESTING.md** | [Tests and evidence](https://github.com/jlbokass/datashare/blob/develop/TESTING.md): **96.36%** Laravel and **79.58%** Angular measured line coverage (QL-01), **6 E2E tests** (QL-02); three CI workflows passed on [PR #58](https://github.com/jlbokass/datashare/pull/58) |
-| **SECURITY.md** | [Composer and npm audits](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md) run on 23 Nov 2026: **no vulnerabilities reported** (QL-03) |
-| **PERF.md** | [QL-04 measurements](https://github.com/jlbokass/datashare/blob/develop/PERF.md): local download, Angular bundle and development-server Lighthouse result; **no production performance claim** |
-| **MAINTENANCE.md** | [Local procedures](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md), updates and risks; no production recovery test |
+| **TESTING.md** | [Tests and evidence](en/TESTING.md): **96.36%** Laravel and **79.58%** Angular measured line coverage (QL-01), **6 E2E tests** (QL-02); three CI workflows passed on [PR #58](https://github.com/jlbokass/datashare/pull/58) |
+| **SECURITY.md** | [Composer and npm audits](en/SECURITY.md) run on 23 Nov 2026: **no vulnerabilities reported** (QL-03) |
+| **PERF.md** | [QL-04 measurements](en/PERF.md): local download, Angular bundle and development-server Lighthouse result; **no production performance claim** |
+| **MAINTENANCE.md** | [Local procedures](en/MAINTENANCE.md), updates and risks; no production recovery test |
 
 Line coverage exceeds the indicative 70% target. A durable coverage report screenshot is still needed for the assessment. Measurement methods, dates and limitations are detailed in the documents linked above.
 
@@ -115,7 +115,7 @@ Line coverage exceeds the indicative 70% target. A durable coverage report scree
 
 ## 7. Installation and execution
 
-[README](https://github.com/jlbokass/datashare/blob/develop/README.md) · [Step-by-step installation](installation.md)
+[README](en/README.md) · [Step-by-step installation](installation.md)
 
 **Prerequisites:** Git, Docker and Compose. For a fresh install, initialize private `.env` files using the [installation guide](installation.md) (PostgreSQL, Laravel and JWT secrets); never commit them.
 

@@ -1,51 +1,51 @@
 ---
 layout: default
-title: "DataShare — Documentation"
+title: "DataShare — Documentation française"
 permalink: /
-lang: en
+lang: fr
 ---
 
-# DataShare — Technical Documentation
+# DataShare — Documentation technique
 
-[Français](index.fr.md) · [GitHub repository](https://github.com/jlbokass/datashare)
+[English](en/index.md) · [Dépôt GitHub](https://github.com/jlbokass/datashare)
 
-**Status as of 24 November 2026:** US01–US06, quality batches QL-01 through QL-04 and UI-01 visual acceptance are merged into `develop`. HIST-01 is closed: the existing purge policy is retained. The application runs locally; GitHub Pages hosts documentation only.
+**État au 24 novembre 2026 :** US01–US06, lots qualité QL-01 à QL-04 et recette visuelle UI-01 intégrés dans `develop`. HIST-01 est clôturé : la purge existante est maintenue. L'application fonctionne en local ; GitHub Pages héberge uniquement la documentation.
 
-## Get started
+## Démarrer
 
-[Local installation](installation.md) · [README](https://github.com/jlbokass/datashare/blob/develop/README.md)
+[Installation locale](installation.fr.md) · [README](https://github.com/jlbokass/datashare/blob/develop/README.md)
 
-## OpenClassrooms technical dossier
+## Dossier technique OpenClassrooms
 
-[Consolidated technical documentation — eight sections](technical-documentation.md)
+[Documentation technique consolidée — huit sections](technical-documentation.fr.md)
 
-| Topic | Reference |
+| Sujet | Référence |
 | --- | --- |
-| Architecture | [Description](architecture.md) · [Draw.io](diagrams/architecture.drawio) · [SVG](diagrams/architecture.svg) |
-| Technology choices | [Rationale and alternatives](technology-choices.md) |
-| Data model | [Conceptual UML](data-model.md) · [Draw.io](diagrams/data-model.drawio) · [SVG](diagrams/data-model.svg) |
-| REST API | [Guide](api/README.md) · [OpenAPI contract](api/openapi.yaml) |
-| Interface | [UI-01 acceptance and Figma decisions](design-handoff.md) · [Source PDF](design/DataShare_UI_Design_Handoff_v1.pdf) |
-| AI and oversight | [AI development journal](ai-journal.md) |
+| Architecture | [Description](architecture.fr.md) · [Draw.io](diagrams/architecture.drawio) · [SVG](diagrams/architecture.svg) |
+| Choix technologiques | [Justification et alternatives](technology-choices.fr.md) |
+| Modèle de données | [MCD UML](data-model.fr.md) · [Draw.io](diagrams/data-model.drawio) · [SVG](diagrams/data-model.svg) |
+| API REST | [Guide](api/README.fr.md) · [Contrat OpenAPI](api/openapi.yaml) |
+| Interface | [Recette UI-01 et décisions Figma](design-handoff.fr.md) · [PDF source](design/DataShare_UI_Design_Handoff_v1.pdf) |
+| IA et supervision | [Journal d'utilisation de l'IA](ai-journal.fr.md) |
 
-## Quality
+## Qualité
 
-| Document | Reference result |
+| Document | Résultat de référence |
 | --- | --- |
-| [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) | Test plan, CI evidence, 6 E2E tests covering three critical journeys and a smoke check |
-| [Coverage](coverage.md) | 96.36% Laravel and 79.58% Angular (separate line measurements) |
-| [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md) | Composer/npm audits: no vulnerabilities reported on 23 November |
-| [PERF](https://github.com/jlbokass/datashare/blob/develop/PERF.md) | Local measurements and limitations; no production performance claim |
-| [MAINTENANCE](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md) | Local operations, cleanup, updates and recovery |
+| [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) | Plan de tests, preuves CI, 6 tests E2E couvrant trois parcours critiques et un test de démarrage |
+| [Couverture](coverage.fr.md) | 96,36 % Laravel et 79,58 % Angular (lignes mesurées séparément) |
+| [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md) | Audits Composer/npm : aucune vulnérabilité signalée le 23 novembre |
+| [PERF](https://github.com/jlbokass/datashare/blob/develop/PERF.md) | Mesures locales et limites ; aucune performance de production revendiquée |
+| [MAINTENANCE](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md) | Exploitation locale, purge, mises à jour et reprise |
 
 [![Backend CI](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml?query=branch%3Adevelop)
 [![Frontend CI](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml?query=branch%3Adevelop)
 [![E2E CI](https://github.com/jlbokass/datashare/actions/workflows/e2e-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/e2e-ci.yml?query=branch%3Adevelop)
 
-## Project and delivery
+## Projet et livraison
 
 [Issues](https://github.com/jlbokass/datashare/issues) · [Pull requests](https://github.com/jlbokass/datashare/pulls?q=is%3Apr) · [Commits](https://github.com/jlbokass/datashare/commits/develop/)
 
-The workflow uses a dedicated branch, reviewed PR into `develop`, then a separate release PR into `main`. Links to root documents explicitly target `develop`; the published site follows `main/docs`.
+Le workflow repose sur une branche dédiée, une PR revue vers `develop`, puis une PR distincte de livraison vers `main`. Les documents de référence à la racine sont en français ; leurs [traductions anglaises](en/index.md) sont regroupées dans `docs/en/`. Les liens vers les fichiers à la racine visent explicitement `develop` ; le site publié suit `main/docs`.
 
-For assessment: include a coverage screenshot, prepare the presentation and self-assessment, and clarify applicable OC AI-use rules. Real PostgreSQL concurrency, keyboard accessibility and production performance are not demonstrated by the current results.
+Pour la soutenance : joindre une capture de couverture, préparer la présentation et la fiche d'autoévaluation, et clarifier les règles OC d'utilisation de l'IA. La concurrence réelle PostgreSQL, l'accessibilité clavier et les performances de production ne sont pas attestées par les résultats actuels.

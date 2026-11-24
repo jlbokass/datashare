@@ -7,7 +7,7 @@ lang: fr
 
 # Installer DataShare en local
 
-[**English**](installation.md) · [Accueil de la documentation](index.fr.md) · [README complet](https://github.com/jlbokass/datashare/blob/develop/README.fr.md)
+[**English**](installation.md) · [Accueil de la documentation](index.md) · [README complet](https://github.com/jlbokass/datashare/blob/develop/README.md)
 
 **MVP fonctionnel US01–US06.** Cette procédure est destinée à un poste de développement (macOS, Linux ou autre hôte Docker). Elle lance Laravel 13, Angular 22 et PostgreSQL 18 **localement** : **http://127.0.0.1:8080/**. Aucun service applicatif n'est hébergé par GitHub Pages.
 
@@ -70,7 +70,7 @@ Visiter **http://127.0.0.1:8080/**. La route `/api/health` ne vérifie pas à el
 
 Si Nginx répond d'abord `502`, vérifier `docker compose logs -f frontend app web` : le premier `npm ci` dans le conteneur frontend peut être encore en cours. Éviter d'écraser les `.env` ou de supprimer les volumes. Pour arrêter sans effacer la base : `docker compose down` (**jamais `down -v` sans vouloir supprimer les données**).
 
-Les trois workflows CI et les lots qualité ont été validés ; voir [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.fr.md). Cette configuration de développement ne doit pas être exposée à Internet.
+Les trois workflows CI et les lots qualité ont été validés ; voir [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md). Cette configuration de développement ne doit pas être exposée à Internet.
 
 ## Services et diagnostics
 
@@ -96,4 +96,4 @@ docker compose run --rm node node --version
 docker compose run --rm node npm --version
 ```
 
-Ces diagnostics sont ponctuels, à utiliser si nécessaire. Ne jamais publier les secrets interpolés par Compose. Voir [MAINTENANCE](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.fr.md) pour la démonstration de purge et les procédures d'exploitation.
+Ces diagnostics sont ponctuels, à utiliser si nécessaire. Ne jamais publier les secrets interpolés par Compose. Voir [MAINTENANCE](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md) pour la démonstration de purge et les procédures d'exploitation.

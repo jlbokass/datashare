@@ -50,7 +50,7 @@ Les routes, structures de réponse et statuts HTTP relèvent de **DESIGN-03**. L
 - Le JWT authentifie les opérations privées ; le token de partage ne permet qu'un téléchargement public limité dans le temps.
 - Les fichiers restent dans un **stockage privé**, sans URL d'accès direct aux octets.
 - Seul le propriétaire peut consulter son historique et supprimer ses fichiers.
-- La politique des formats acceptés est documentée dans [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.fr.md).
+- La politique des formats acceptés est documentée dans [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md).
 - HTTPS est requis pour toute exposition publique ; HTTP peut être utilisé en local sur `localhost`.
 - Les secrets et identifiants sont configurés hors du code source.
 
@@ -68,4 +68,4 @@ Les suppressions manuelles et la purge utilisent `TransferDeletion` : une transa
 
 Le stockage et la BDD ne forment pas une transaction atomique. Les octets déjà absents permettent une suppression des métadonnées ; si le stockage échoue, les métadonnées sont conservées pour une nouvelle tentative. Si la BDD échoue après suppression des octets, ceux-ci ne sont pas restaurés. Un échec partiel de purge conserve les métadonnées pour reprise. La purge continue pour les autres transferts et signale l'échec par un code non nul. Les tests SQLite ne prouvent pas la concurrence réelle PostgreSQL.
 
-Voir [maintenance](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.fr.md) et [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57) : purge actuelle conservée sans modification de code. Aucun déploiement de production n'est revendiqué.
+Voir [maintenance](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md) et [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57) : purge actuelle conservée sans modification de code. Aucun déploiement de production n'est revendiqué.
