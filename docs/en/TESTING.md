@@ -37,7 +37,19 @@ Detailed validation (file types and sizes, expiry, JWT, ownership and error cond
 
 The indicative OpenClassrooms **70%** line-coverage target is met on both codebases; **do not add or average the two percentages**. Measurement details: [QL-01 coverage report](../coverage.md). The developer also reported **6/6 local E2E PASS** on 22 November 2026; the GitHub Actions runs provide independently checked evidence.
 
-CI coverage artifacts are retained for **14 days**, and the E2E summary for **7 days**, subject to GitHub retention. **A durable screenshot of a coverage report still needs to be included in the assessment submission**, as requested in the specifications.
+CI coverage artifacts are retained for **14 days**, and the E2E summary for **7 days**, subject to GitHub retention. Coverage report screenshots belong in the assessment submission, as requested in the specifications; they are not versioned here.
+
+### Released version results — 24 November 2026
+
+Reference: [97abebd](https://github.com/jlbokass/datashare/commit/97abebd7fc704821e0f8c5bbcedf7f7e0b58590b), `main` branch, release [PR #68](https://github.com/jlbokass/datashare/pull/68). Earlier measurements remain dated historical results.
+
+| Check | Result | Line coverage | Evidence |
+| --- | --- | --- | --- |
+| Laravel / PHPUnit + Pint | 52 tests passed, 364 assertions; formatting compliant | **96.36%** (318/330) | [Backend CI](https://github.com/jlbokass/datashare/actions/runs/45302509975) |
+| Angular / Vitest + build | 52 tests passed (7 files); build passed | **85.97%** | [Frontend CI](https://github.com/jlbokass/datashare/actions/runs/45302510070) |
+| Playwright / Chromium | 6 tests passed (7.7 s) | Not applicable | [E2E CI](https://github.com/jlbokass/datashare/actions/runs/45302509992) |
+
+Both line-coverage measurements independently exceed the 70% target. Coverage screenshots were reported prepared for the assessment submission; they are not versioned here. HTML reports can be downloaded from GitHub Actions runs subject to retention.
 
 ## 3. Running the checks
 
@@ -67,7 +79,7 @@ The [E2E CI workflow](https://github.com/jlbokass/datashare/blob/develop/.github
 
 - PHPUnit/Feature tests primarily use **in-memory SQLite and fake file storage**. E2E also verifies real HTTP flows against **isolated PostgreSQL and private storage**, but only with small synthetic files; no 1 GB load test is implied.
 - Line coverage does not guarantee defect-free software. Playwright screenshots, videos and traces remain disabled to avoid disclosing credentials and files.
-- **Completed complementary batches:** [security audit](SECURITY.md), [performance measurements](PERF.md) and [Figma visual acceptance](../design-handoff.md). Keyboard/accessibility validation is not evidenced by the UI-01 record. Maintenance procedures are in [MAINTENANCE.md](MAINTENANCE.md).
+- **Completed complementary batches:** [security audit](SECURITY.md), [performance measurements](PERF.md) and [Figma visual acceptance](../design-handoff.md). Manual keyboard acceptance was reported successful on all six checks on 24 November 2026; the [UI-01 record](../design-handoff.md) details the scope. This is not a comprehensive accessibility audit. Maintenance procedures are in [MAINTENANCE.md](MAINTENANCE.md).
 
 **QL-02 decision:** the three business scenarios and CI checks are validated. No additional E2E scenario is required for this work package.
 

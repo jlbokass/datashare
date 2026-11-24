@@ -9,7 +9,7 @@ lang: fr
 
 [**English**](technical-documentation.md) · [Accueil](index.md) · [Dépôt GitHub](https://github.com/jlbokass/datashare)
 
-**État au 23 novembre 2026.** Les US01–US06, les lots qualité QL-01 à QL-04 et UI-01 sont intégrés à `develop`. Les trois contrôles CI de la [PR #58](https://github.com/jlbokass/datashare/pull/58) sont verts ; le README a été simplifié dans la [PR #60](https://github.com/jlbokass/datashare/pull/60). Aucune mise en production n'est annoncée.
+**État au 24 novembre 2026.** Le MVP US01–US06, les validations QL-01 à QL-04 et la recette visuelle UI-01 sont livrés sur `main` ([PR #68](https://github.com/jlbokass/datashare/pull/68), [97abebd](https://github.com/jlbokass/datashare/commit/97abebd7fc704821e0f8c5bbcedf7f7e0b58590b)). Les trois contrôles CI de la livraison et la publication GitHub Pages ont réussi. Le prototype s'exécute en local ; GitHub Pages publie uniquement la documentation.
 
 ## 1. Architecture de l'application
 
@@ -90,12 +90,12 @@ Ces routes sont implémentées ; les statuts et schémas de requêtes/réponses 
 
 | Livrable demandé | État et renvoi |
 | --- | --- |
-| **TESTING.md** | [Tests et preuves](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) : couverture mesurée **96,36 %** Laravel et **79,58 %** Angular (QL-01), **6 tests E2E** (QL-02) ; trois CI vertes sur [PR #58](https://github.com/jlbokass/datashare/pull/58) |
+| **TESTING.md** | [Tests et preuves](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) : couverture des lignes **96,36 %** Laravel et **85,97 %** Angular, **6 tests E2E réussis** sur la version livrée le 24 novembre ; [preuves et mesures datées](coverage.fr.md) |
 | **SECURITY.md** | [Audits Composer et npm](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md) réalisés le 23/11/2026 : **aucune vulnérabilité signalée** (QL-03) |
 | **PERF.md** | [Mesures QL-04](https://github.com/jlbokass/datashare/blob/develop/PERF.md) : téléchargement local, bundle Angular et relevé Lighthouse sur serveur de développement ; **aucune garantie de performance en production** |
 | **MAINTENANCE.md** | [Procédures locales](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md), mises à jour et risques ; aucune reprise de production testée |
 
-La couverture atteint l'objectif indicatif de 70 %. Une capture durable du rapport reste à préparer pour la soutenance. Les méthodes, dates et limites des mesures figurent dans les documents liés ci-dessus.
+La couverture dépasse l'objectif indicatif de 70 % séparément pour Laravel et Angular. Les captures des rapports ont été déclarées préparées pour le dossier de soutenance. Les méthodes, dates et limites des mesures figurent dans les documents liés ci-dessus.
 
 ### Workflow et conventions de développement
 
@@ -133,10 +133,22 @@ L'application est accessible sur `http://127.0.0.1:8080/`. Les E2E utilisent **`
 
 [Journal de développement IA](ai-journal.fr.md) · [Version anglaise](ai-journal.md)
 
-L'IA a aidé à préparer certaines implémentations, tests et documentations ; le développeur a cadré les tâches, effectué les recettes, demandé des corrections et validé les changements. Le journal distingue les interventions de l'IA des vérifications humaines, avec renvois aux issues et PR.
+Les contributions de l'IA portent sur des tâches d'implémentation, de test et de documentation. Le cadrage des tâches, les arbitrages, les demandes de correction et la validation des changements relèvent de la supervision humaine. Le journal IA distingue les contributions, les décisions et les vérifications, avec les références aux issues et pull requests.
+
+### Revue technique du code généré par l'IA
+
+La synthèse ci-dessous présente des exemples de revue et de validation issus du [journal IA](ai-journal.fr.md). Les corrections demandées, les décisions et les résultats des contrôles y sont documentés.
+
+| Fonctionnalité | Constat et décision | Vérification |
+| --- | --- | --- |
+| Inscription (US03, [PR #34](https://github.com/jlbokass/datashare/pull/34)) | Messages de validation initialement en anglais ; correction demandée pour respecter la langue de l'interface. | Recette locale et tests de non-régression signalés réussis après correction ; sorties détaillées non archivées. |
+| Téléchargement public (US02, [PR #43](https://github.com/jlbokass/datashare/pull/43)) | Routes perdues lors d'un conflit de fusion, identifiées avec Codex ; restauration des routes et correction du formatage. | CI réussie : 33 tests Laravel, 217 assertions, Pint et contrôles frontend. Cinq scénarios de recette locale validés. |
+| Suppression individuelle (US06, [PR #46](https://github.com/jlbokass/datashare/pull/46)) | Contrôle de propriété, suppression limitée au fichier et verrouillage du transfert parent retenus. | [CI backend](https://github.com/jlbokass/datashare/actions/runs/44446497875) : 52 tests et 364 assertions ; [CI frontend](https://github.com/jlbokass/datashare/actions/runs/44446497731) : 44 tests et compilation réussis. Cinq scénarios locaux validés. L'atomicité entre stockage et base de données reste une limite documentée. |
+
+Ces exemples illustrent la supervision des contributions de l'IA par la revue des changements, les tests automatisés et la recette fonctionnelle. Le journal constitue la trace détaillée de ces décisions ; cette synthèse ne constitue pas un audit exhaustif du code.
 
 **Point à clarifier avant la soutenance :** la mission écrite limite le développement confié à l'IA à une User Story ; le journal décrit des interventions sur plusieurs US. La règle applicable et la manière de présenter ces contributions doivent être confirmées, sans effacer l'historique.
 
 ## Travaux restant avant la remise
 
-**À finaliser avant la soutenance :** joindre une capture du rapport de couverture, préparer le support de présentation et la fiche d'autoévaluation ; clarifier la règle OC applicable à l'usage de l'IA (section 8). Les audits QL-03, mesures QL-04 et la recette UI-01 sont terminés. [HIST-01 — purge/historique](https://github.com/jlbokass/datashare/issues/57) est clôturé : purge actuelle maintenue sans changement de code ; la pagination est [facultative](https://github.com/jlbokass/datashare/issues/59).
+**À finaliser avant la soutenance :** joindre les captures de couverture préparées, finaliser le support de présentation et la fiche d'autoévaluation ; clarifier la règle OC applicable à l'usage de l'IA (section 8). Les audits QL-03, mesures QL-04 et la recette UI-01 sont terminés. [HIST-01 — purge/historique](https://github.com/jlbokass/datashare/issues/57) est clôturé : purge actuelle maintenue sans changement de code ; la pagination est [facultative](https://github.com/jlbokass/datashare/issues/59).

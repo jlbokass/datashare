@@ -38,6 +38,10 @@ La préparation de l'environnement Docker isolé et la migration de sa base de d
 
 **Éléments de preuve :** sorties de la compilation et du script de mesure, ainsi que captures Lighthouse du 23/11/2026. Les captures originales ne sont pas archivées dans le dépôt ; les valeurs relevées sont consignées dans ce rapport.
 
+### Métriques en exploitation locale
+
+Le journal d'accès Nginx au format JSON complète les mesures ponctuelles : statut HTTP, durée totale et volumes requête/réponse. La [procédure de consultation](MAINTENANCE.md) décrit les champs, leurs limites et la vérification du format. Ces journaux ne remplacent pas les mesures chronométrées QL-04 et ne constituent pas un suivi agrégé en production.
+
 ## 4. Limites
 
 L'évaluation ne couvre ni les accès concurrents, ni les transferts de fichiers de 1 Go, ni les mesures auprès d'utilisateurs réels, ni Lighthouse sur une version de production déployée. Les résultats dépendent du matériel et de l'environnement local. Il s'agit de mesures ciblées de latence, de débit et de performance du frontend, et non d'une validation de la capacité de l'application en production.

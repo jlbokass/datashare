@@ -19,6 +19,35 @@ docker compose logs --tail=100 app web frontend scheduler db
 
 Le service `scheduler` assure la purge quotidienne des fichiers expirés et de leurs métadonnées (US01). Lorsque l'option locale `TRANSFER_DEMO_5_MIN_ENABLED=true` est activée, vider le cache de configuration et redémarrer le planificateur pour une exécution chaque minute. **`docker compose down` conserve les volumes nommés.** La commande `docker compose down -v` est destructive et ne doit être utilisée qu'en cas de suppression volontaire des données locales.
 
+## Journalisation structurée et diagnostic local
+
+Nginx produit des journaux d'accès JSON sur la sortie standard (`stdout`). Le format contient l'horodatage, la méthode HTTP, le statut, la durée totale de la requête en secondes, le volume de la requête (ligne, en-têtes et corps) et celui du corps de la réponse, en octets. Les URL, paramètres, adresses IP, en-têtes et jetons ne sont pas enregistrés dans **ce format d'accès**. Les journaux d'erreur Nginx, PHP-FPM et les exceptions Laravel peuvent néanmoins contenir des informations sensibles : ne pas les publier sans vérification.
+
+Les services Laravel `app` et `scheduler` utilisent le canal Monolog `stderr` avec `JsonFormatter`, configuré par Docker Compose sans modifier les fichiers `.env` locaux. Les autres flux des conteneurs conservent leur format existant. Aucun collecteur externe n'est requis.
+
+Après récupération de la configuration sur un environnement déjà démarré :
+
+```bash
+docker compose config --quiet
+docker compose up -d --no-deps --force-recreate app scheduler web
+docker compose exec -T app php artisan config:clear
+docker compose restart scheduler
+docker compose exec -T web nginx -t
+curl -fsS http://127.0.0.1:8080/api/health
+docker compose logs --no-log-prefix --tail=20 web
+docker compose logs --tail=20 app scheduler
+```
+
+Pour vérifier ponctuellement le format Laravel, sans écrire de donnée métier :
+
+```bash
+docker compose exec -T app php artisan tinker --execute='logger()->info("datashare.logging_check", ["status" => "ok"]);'
+```
+
+Le message JSON de cette commande apparaît sur la sortie d'erreur du processus exécuté par `docker compose exec` ; il ne constitue pas à lui seul une preuve de collecte du service PHP-FPM. Les journaux des processus permanents restent consultables avec `docker compose logs`. Utiliser la commande de test uniquement en local.
+
+Pour analyser les métriques, comparer le statut et `request_time_s` lors d'un transfert ou d'un téléchargement de test ; `response_body_bytes` mesure le corps de la réponse et non la taille du fichier pour toutes les routes. Voir [PERF.md](PERF.md) pour les mesures chronométrées. La recette locale de la journalisation structurée Nginx et Laravel, décrite ci-dessus, a été déclarée réussie le 24 novembre 2026 ([PR #72](https://github.com/jlbokass/datashare/pull/72)). Les sorties détaillées et la version exacte de Nginx ne sont pas archivées ; ce résultat ne constitue pas un audit de confidentialité exhaustif. Dozzle reste une [évolution facultative](https://github.com/jlbokass/datashare/issues/64).
+
 ## Mise à jour des dépendances — fréquence proposée
 
 | Moment | Opération | Risques / contrôles |
