@@ -23,6 +23,12 @@ exécutables. Xdebug était déjà installé : aucune extension/configuration sy
 n'a été modifiée. La CI sélectionne explicitement PCOV ; son résultat doit être
 consigné séparément, sans être déduit de cette mesure Xdebug.
 
+## Mesures de la livraison du 24 novembre 2026
+
+Le commit [97abebd](https://github.com/jlbokass/datashare/commit/97abebd7fc704821e0f8c5bbcedf7f7e0b58590b) sur `main` a fait l'objet d'une nouvelle exécution des trois workflows. Le résultat Laravel reste **96,36 %** (318/330 lignes ; 52 tests, 364 assertions), et Angular atteint **85,97 %** des lignes (52 tests, 7 fichiers ; 86,52 % des instructions, 80,23 % des branches, 87,2 % des fonctions). Les 6 tests E2E ont réussi en 7,7 s.
+
+Preuves : [CI backend](https://github.com/jlbokass/datashare/actions/runs/45302509975) · [CI frontend](https://github.com/jlbokass/datashare/actions/runs/45302510070) · [CI E2E](https://github.com/jlbokass/datashare/actions/runs/45302509992). Les artefacts de couverture de cette exécution expirent le 8 décembre 2026. Les captures ont été déclarées préparées pour le dossier de soutenance. Les mesures du 19 novembre ci-dessus restent historiques.
+
 ## Reproduction et emplacement des rapports
 
 Backend, depuis `backend/`, avec PCOV actif (CI) ou Xdebug en mode couverture :

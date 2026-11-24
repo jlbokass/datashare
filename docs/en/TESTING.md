@@ -37,7 +37,19 @@ Detailed validation (file types and sizes, expiry, JWT, ownership and error cond
 
 The indicative OpenClassrooms **70%** line-coverage target is met on both codebases; **do not add or average the two percentages**. Measurement details: [QL-01 coverage report](../coverage.md). The developer also reported **6/6 local E2E PASS** on 22 November 2026; the GitHub Actions runs provide independently checked evidence.
 
-CI coverage artifacts are retained for **14 days**, and the E2E summary for **7 days**, subject to GitHub retention. **A durable screenshot of a coverage report still needs to be included in the assessment submission**, as requested in the specifications.
+CI coverage artifacts are retained for **14 days**, and the E2E summary for **7 days**, subject to GitHub retention. Coverage report screenshots belong in the assessment submission, as requested in the specifications; they are not versioned here.
+
+### Released version results — 24 November 2026
+
+Reference: [97abebd](https://github.com/jlbokass/datashare/commit/97abebd7fc704821e0f8c5bbcedf7f7e0b58590b), `main` branch, release [PR #68](https://github.com/jlbokass/datashare/pull/68). Earlier measurements remain dated historical results.
+
+| Check | Result | Line coverage | Evidence |
+| --- | --- | --- | --- |
+| Laravel / PHPUnit + Pint | 52 tests passed, 364 assertions; formatting compliant | **96.36%** (318/330) | [Backend CI](https://github.com/jlbokass/datashare/actions/runs/45302509975) |
+| Angular / Vitest + build | 52 tests passed (7 files); build passed | **85.97%** | [Frontend CI](https://github.com/jlbokass/datashare/actions/runs/45302510070) |
+| Playwright / Chromium | 6 tests passed (7.7 s) | Not applicable | [E2E CI](https://github.com/jlbokass/datashare/actions/runs/45302509992) |
+
+Both line-coverage measurements independently exceed the 70% target. Coverage screenshots were reported prepared for the assessment submission; they are not versioned here. HTML reports can be downloaded from GitHub Actions runs subject to retention.
 
 ## 3. Running the checks
 

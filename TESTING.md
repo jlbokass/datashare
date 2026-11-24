@@ -32,7 +32,19 @@ L'objectif indicatif de **70 % de couverture**, défini dans le sujet OpenClassr
 
 Le [compte rendu de recette locale du 22 novembre 2026](docs/ai-journal.fr.md) indique également six tests E2E réussis sur six. Les sorties d'exécution locales ne sont pas archivées ; les résultats automatisés consultables dans GitHub Actions constituent la preuve de référence.
 
-Les rapports de couverture sont conservés pendant **14 jours** et la synthèse E2E pendant **7 jours** dans GitHub Actions. Une capture du rapport de couverture est à joindre au dossier de soutenance, conformément aux spécifications ; elle ne figure pas dans ce dépôt.
+Les rapports de couverture sont conservés pendant **14 jours** et la synthèse E2E pendant **7 jours** dans GitHub Actions. Les captures des rapports sont destinées au dossier de soutenance, conformément aux spécifications ; elles ne figurent pas dans ce dépôt.
+
+### Résultats de la version livrée — 24 novembre 2026
+
+Référence : [97abebd](https://github.com/jlbokass/datashare/commit/97abebd7fc704821e0f8c5bbcedf7f7e0b58590b), branche `main`, livraison [PR #68](https://github.com/jlbokass/datashare/pull/68). Les mesures précédentes restent des résultats historiques datés.
+
+| Contrôle | Résultat | Couverture des lignes | Preuve |
+| --- | --- | --- | --- |
+| Laravel / PHPUnit + Pint | 52 tests réussis, 364 assertions ; formatage conforme | **96,36 %** (318/330) | [CI backend](https://github.com/jlbokass/datashare/actions/runs/45302509975) |
+| Angular / Vitest + compilation | 52 tests réussis (7 fichiers) ; compilation réussie | **85,97 %** | [CI frontend](https://github.com/jlbokass/datashare/actions/runs/45302510070) |
+| Playwright / Chromium | 6 tests réussis (7,7 s) | Sans objet | [CI E2E](https://github.com/jlbokass/datashare/actions/runs/45302509992) |
+
+Les deux mesures de couverture dépassent séparément l'objectif de 70 %. Les captures des rapports ont été déclarées préparées pour le dossier de soutenance ; elles ne sont pas versionnées ici. Les rapports HTML restent téléchargeables depuis les exécutions GitHub Actions selon la durée de rétention.
 
 ## 3. Exécuter les tests
 
