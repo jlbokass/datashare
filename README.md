@@ -10,16 +10,16 @@
 
 ## Le projet
 
-DataShare permet de téléverser des fichiers privés et de les partager temporairement au moyen d'un lien public. Le **MVP obligatoire US01–US06** couvre :
+DataShare permet de téléverser des fichiers privés et de les partager temporairement au moyen d'un lien public. Le **produit minimum viable (MVP)** couvre les six fonctionnalités obligatoires (US01–US06) :
 
-- téléversement authentifié, sélection de plusieurs fichiers et expiration ;
+- téléversement de fichiers après authentification, envoi de plusieurs fichiers et gestion de leur expiration ;
 - lien public et téléchargement sans compte ;
-- inscription et connexion JWT ;
+- création de compte et authentification par JWT ;
 - historique personnel et suppression individuelle des fichiers.
 
-**État au 23 novembre 2026 :** MVP, lots qualité QL-01 à QL-04 et conformité Figma UI-01 intégrés dans `develop`. Les contrôles backend, frontend et E2E de la [PR UI-01 #58](https://github.com/jlbokass/datashare/pull/58) ont réussi. L'application est **exécutée en local**, pas déployée en production.
+**État fonctionnel au 23 novembre 2026 :** le MVP, les travaux de validation de la qualité (QL-01 à QL-04) et la recette visuelle des interfaces (UI-01) sont intégrés à `develop`. Les contrôles backend, frontend et de bout en bout (E2E) de la [PR UI-01 #58](https://github.com/jlbokass/datashare/pull/58) ont réussi. L'application fonctionne en environnement local ; elle n'est pas déployée en production.
 
-**Stack :** Angular 22, Laravel 13 / PHP, PostgreSQL 18, Nginx, Docker Compose et GitHub Actions.
+**Environnement technique :** Angular 22, Laravel 13 / PHP, PostgreSQL 18, Nginx, Docker Compose et GitHub Actions.
 
 ## Démarrer en local
 
@@ -34,13 +34,13 @@ docker compose ps
 
 Application : **http://127.0.0.1:8080/**
 
-Vérifier les tests Laravel, le formatage Pint, les tests Angular et le build :
+Exécuter les tests Laravel et Angular, vérifier le formatage avec Pint et compiler l'application Angular :
 
 ```bash
 bash scripts/qa.sh all
 ```
 
-Les tests E2E utilisent une [stack Docker isolée](TESTING.md) pour protéger les données locales.
+Les tests E2E utilisent une [environnement Docker isolé](TESTING.md) pour protéger les données locales.
 
 ### Tester la limite de 1 Go (macOS)
 
@@ -50,7 +50,7 @@ mkfile -n 1100000000 /tmp/datashare-oversize.zip
 rm /tmp/datashare-oversize.zip
 ```
 
-Ce fichier fictif de **1,1 Go** est créé en mode sparse : **ce n'est pas une véritable archive ZIP**. Il sert uniquement au contrôle de taille.
+Le fichier de test de **1,1 Go** est un fichier creux (*sparse file*), et non une archive ZIP valide. Il permet de vérifier uniquement le contrôle de la taille du fichier.
 
 ## Repères dans le dépôt
 
@@ -65,12 +65,12 @@ scripts/      Commandes de contrôle qualité
 
 ## Organisation du développement et traçabilité
 
-Le workflow suivi est **branche de travail → PR vers `develop` → revue/CI → PR de livraison vers `main`** (protégée). Les [issues](https://github.com/jlbokass/datashare/issues), [pull requests](https://github.com/jlbokass/datashare/pulls?q=is%3Apr) et [commits de `develop`](https://github.com/jlbokass/datashare/commits/develop/) montrent la progression de la conception aux US, puis aux lots qualité et à l'interface.
+Le développement suit le processus suivant : **branche de travail → pull request (PR) vers `develop` → revue et intégration continue (CI) → PR de livraison vers `main`**, branche protégée. Les [issues](https://github.com/jlbokass/datashare/issues), [pull requests](https://github.com/jlbokass/datashare/pulls?q=is%3Apr) et [commits de `develop`](https://github.com/jlbokass/datashare/commits/develop/) assurent la traçabilité de la conception, des fonctionnalités et des travaux de validation.
 
-Pour les prochains commits, utiliser **`type(scope): action`** (par exemple `feat(upload): ...`, `fix(auth): ...`, `test(e2e): ...`, `docs: ...`). Les messages historiques ne sont pas tous homogènes ; ils sont conservés sans réécriture.
+La convention de nommage des nouveaux commits est **`type(scope): action`** (par exemple `feat(upload): ...`, `fix(auth): ...`, `test(e2e): ...`, `docs: ...`). Les messages des commits antérieurs sont conservés sans réécriture de l'historique.
 
 ## Documentation et limites
 
 [Documentation OC](docs/technical-documentation.fr.md) · [Architecture](docs/architecture.fr.md) · [Contrat API](docs/api/openapi.yaml) · [Tests](TESTING.md) · [Sécurité](SECURITY.md) · [Performances](PERF.md) · [Maintenance](MAINTENANCE.md) · [Journal IA](docs/ai-journal.fr.md)
 
-En local, l'application utilise **HTTP sans TLS** et la session JWT est volontairement conservée en mémoire : **une actualisation impose une nouvelle connexion**. Les ZIP ne sont pas analysés par antivirus. La purge retire les fichiers expirés et leurs métadonnées ; ce comportement est maintenu par la décision de clôture [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57). Les fonctions avancées US07–US10 restent facultatives.
+L'environnement local utilise **HTTP sans TLS**. Le JWT est conservé uniquement en mémoire ; l'actualisation de la page nécessite donc une nouvelle authentification. Les archives ZIP ne font pas l'objet d'une analyse antivirus. La purge planifiée supprime les fichiers expirés et leurs métadonnées, conformément aux règles de conservation retenues ([HIST-01 #57](https://github.com/jlbokass/datashare/issues/57)). Les fonctionnalités avancées US07 à US10 sont facultatives.
