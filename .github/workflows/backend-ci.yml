@@ -33,7 +33,7 @@ jobs:
         with:
           php-version: '8.4'
           extensions: mbstring, dom, xml, fileinfo, pdo_sqlite, sqlite3, zip
-          coverage: none
+          coverage: pcov
           tools: composer:v2
 
       - name: Validate Composer metadata and lockfile
@@ -47,8 +47,13 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
-      - name: Run Laravel tests (SQLite in-memory)
-        run: php artisan test
+      - name: Run Laravel tests with line coverage (SQLite in-memory)
+        env:
+          PAO_DISABLE: '1'
+        run: |
+          php artisan test --coverage-clover=coverage/clover.xml --coverage-html=coverage/html --coverage-text=coverage/summary.txt
+          cat coverage/summary.txt
+          printf 'Commit: %s\nUTC: %s\nDriver: PCOV\nScope: backend/app/**/*.php (including uncovered files)\nCommand: php artisan test --coverage-clover=coverage/clover.xml --coverage-html=coverage/html --coverage-text=coverage/summary.txt\n' "$GITHUB_SHA" "$(date -u +%FT%TZ)" > coverage/run.txt
 
       - name: Verify Laravel formatting (Pint)
         run: |
@@ -57,3 +62,12 @@ jobs:
             git diff -- .
             exit 1
           fi
+
+      - name: Upload Laravel coverage
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-coverage-${{ github.sha }}
+          path: backend/coverage/
+          if-no-files-found: error
+          retention-days: 14

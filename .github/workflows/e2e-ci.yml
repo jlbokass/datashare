@@ -1,0 +1,90 @@
+name: E2E CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    name: E2E / Chromium
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up PHP 8.4 and Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, dom, xml, fileinfo, pdo_sqlite, sqlite3, zip
+          coverage: none
+          tools: composer:v2
+
+      - name: Install locked Laravel dependencies
+        working-directory: backend
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Start isolated full-stack test environment
+        run: |
+          # Linux needs these mountpoints before applying nested volumes under a read-only source bind.
+          mkdir -p frontend/.angular frontend/node_modules
+          docker compose -f compose.test.yaml up -d --build db app frontend web
+
+      - name: Migrate test PostgreSQL and wait for the application
+        run: |
+          docker compose -f compose.test.yaml exec -T app sh -ec '
+            export APP_KEY="base64:$(php -r "echo base64_encode(random_bytes(32));")"
+            export JWT_SECRET="$(php -r "echo bin2hex(random_bytes(32));")"
+            php artisan migrate --force
+          '
+          docker compose -f compose.test.yaml exec -T web sh -ec '
+            i=0
+            until wget -q -O /dev/null http://127.0.0.1/api/demo/capabilities &&
+                  wget -q -O /dev/null http://127.0.0.1/; do
+              i=$((i + 1))
+              if [ "$i" -ge 60 ]; then
+                echo "Full-stack test environment did not become ready" >&2
+                exit 1
+              fi
+              sleep 2
+            done
+          '
+
+      - name: Run six Chromium tests against the isolated stack
+        run: |
+          set -o pipefail
+          docker compose -f compose.test.yaml --profile e2e run --rm --no-deps playwright \
+            | tee "$RUNNER_TEMP/e2e-console.log"
+
+      - name: Write sanitized execution evidence
+        if: always()
+        run: |
+          printf 'Commit: %s\nUTC: %s\nRunner: GitHub Actions ubuntu-latest\nBrowser: Chromium (Playwright 1.63.0)\nStack: compose.test.yaml (PostgreSQL tmpfs / private storage tmpfs)\nCommand: docker compose -f compose.test.yaml --profile e2e run --rm --no-deps playwright\n' \
+            "$GITHUB_SHA" "$(date -u +%FT%TZ)" > e2e-ci-summary.txt
+          if [ -f "$RUNNER_TEMP/e2e-console.log" ]; then
+            grep -E '^Running [0-9]+ tests|^[[:space:]]*[0-9]+ (passed|failed|skipped)' \
+              "$RUNNER_TEMP/e2e-console.log" >> e2e-ci-summary.txt || true
+          else
+            printf 'Tests: not reached\n' >> e2e-ci-summary.txt
+          fi
+
+      - name: Upload sanitized E2E summary
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-summary-${{ github.sha }}
+          path: e2e-ci-summary.txt
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Stop isolated test containers
+        if: always()
+        run: docker compose -f compose.test.yaml --profile e2e down --remove-orphans

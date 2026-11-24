@@ -5,107 +5,138 @@ permalink: /technical-documentation.fr.html
 lang: fr
 ---
 
-# DataShare — Documentation technique (OC P3)
+# DataShare — Documentation technique
 
-[**English**](technical-documentation.md) · [Accueil de la documentation](index.fr.md)
+[**English**](technical-documentation.md) · [Accueil](index.md) · [Dépôt GitHub](https://github.com/jlbokass/datashare)
 
-**État au 18 novembre 2026 : document évolutif, non encore livrable final de soutenance.** Organisation en **huit sections** selon le *Modèle de documentation technique* fourni par OC. Les preuves encore absentes sont signalées sans inventer de résultat. Les sujets et modèles d'origine restent en français ; nos documents sont produits en FR/EN.
+**État au 23 novembre 2026.** Les US01–US06, les lots qualité QL-01 à QL-04 et UI-01 sont intégrés à `develop`. Les trois contrôles CI de la [PR #58](https://github.com/jlbokass/datashare/pull/58) sont verts ; le README a été simplifié dans la [PR #60](https://github.com/jlbokass/datashare/pull/60). Aucune mise en production n'est annoncée.
 
-## 1. Architecture de l'application (schéma simple)
+## 1. Architecture de l'application
 
 ![Architecture DataShare](diagrams/architecture.svg)
 
-[Explications](architecture.fr.md) · [Diagramme draw.io modifiable](diagrams/architecture.drawio).
+[Description](architecture.fr.md) · [Source draw.io](diagrams/architecture.drawio)
 
-- Navigateur Angular 22 (TypeScript/SCSS) → passerelle **Nginx** locale `127.0.0.1:8080` → API REST Laravel 13 (PHP 8.4-FPM) → PostgreSQL 18 et **stockage local privé**.
-- Frontend et API partagent la même origine en développement. L'accès HTTP local ne signifie **pas qu'HTTPS est déployé en production**.
-- Docker Compose orchestre backend, frontend, Nginx, BDD et scheduler. La purge US01 retire automatiquement les fichiers expirés et leurs métadonnées. Téléchargement public : US02 à venir.
-- Versionnage sur GitHub : `main` protégée, `develop` d'intégration, PR par lot. GitHub Pages publie **uniquement la documentation statique**.
+**Navigateur Angular → Nginx → API Laravel → PostgreSQL et stockage privé.** Nginx fournit une origine HTTP unique en développement ; Docker Compose orchestre l'application, la base et le planificateur d'expiration. Le téléchargement public utilise un lien unique, distinct du JWT requis pour les actions du propriétaire. Le trafic local en HTTP ne constitue pas une preuve d'HTTPS en production.
 
-## 2. Choix technologiques justifiés (livrable 1–2 pages)
+### Organisation du dépôt
 
-[Justification complète des technologies](technology-choices.fr.md) et comparaison des alternatives autorisées :
+```text
+frontend/src/app/    Pages Angular, authentification et routes
+backend/app/         Contrôleurs API, modèles, services et middleware Laravel
+backend/database/    Migrations et factories PostgreSQL
+backend/tests/       Tests Laravel / PHPUnit
+e2e/                 Scénarios Playwright et mesure ponctuelle
+docker/              Configuration PHP et Nginx
+.github/workflows/   CI backend, frontend et E2E
+scripts/             Commandes de vérification
+docs/                Livrables techniques, API et maquettes
+```
 
-| Domaine | Technologie retenue | Justification / alternative |
+### Navigation de l'application
+
+```text
+/                 Accueil public
+├── /register     Inscription
+├── /login        Connexion
+├── /upload       Téléversement (connexion requise)
+├── /account      Historique et suppression (connexion requise)
+└── /share/:token Lien de téléchargement public
+```
+
+Les chemins sont déclarés dans `frontend/src/app/app.routes.ts`. `/upload` réutilise le composant d'accueil et affiche directement le formulaire ; les pages `/upload` et `/account` sont protégées par `authGuard`. Les URLs non reconnues redirigent vers `/`.
+
+## 2. Choix technologiques justifiés
+
+[Justifications et alternatives détaillées (1–2 pages)](technology-choices.fr.md)
+
+| Domaine | Choix | Motif principal |
 | --- | --- | --- |
-| Backend | PHP 8.4, Laravel 13 | Expérience PHP du développeur, validation, Eloquent, stockage et scheduler ; Symfony était autorisé |
-| Frontend | Angular 22 / TypeScript | SPA structurée, typage, formulaires et routing ; Vue ou React possibles |
-| BDD | PostgreSQL 18 | Relations et contraintes entre utilisateurs, transferts et fichiers ; MongoDB possible |
-| Stockage | Disque privé Laravel | MVP plus simple, choix autorisé ; S3 envisageable plus tard |
-| Authentification | JWT HS256 via `firebase/php-jwt` v7.2.2 | Front/back séparés, validation systématique côté API |
-| HTTP/local | Nginx + PHP-FPM + Docker Compose | Environnement reproductible et point d'entrée unique |
-| Outils | GitHub, Composer, npm, PHPUnit, tests Angular | Traçabilité et reproductibilité ; CI encore à implémenter |
-
-La justification retrace les **choix initiaux**, tandis que les versions ci-dessus correspondent aux dépendances et fichiers effectivement intégrés.
+| Frontend | Angular 22, TypeScript | Composants et formulaires structurés, typage |
+| Backend | PHP 8.4, Laravel 13 | API, validation, stockage et planification intégrés |
+| Base de données | PostgreSQL 18 | Relations entre utilisateurs, transferts et fichiers |
+| Stockage | Système de fichiers local privé | Solution MVP simple, autorisée par les spécifications |
+| Authentification | JWT HS256 | API stateless, contrôle des accès côté serveur |
+| Outillage | Docker Compose, Nginx, GitHub Actions | Développement reproductible, tests de PR automatisés |
 
 ## 3. Modèle de données
 
-[MCD UML conceptuel](data-model.fr.md) · [Diagramme SVG](diagrams/data-model.svg) · [draw.io](diagrams/data-model.drawio).
+[Schéma UML/MCD](data-model.fr.md) · [Diagramme](diagrams/data-model.svg)
 
-- **UTILISATEUR** : clé Laravel numérique interne, email unique, hash salé, UUID public et date de création. Nom facultatif ; aucun rôle administrateur MVP.
-- **TRANSFERT** (US01) : UUID, propriétaire, token de partage imprévisible unique, dates de création et d'expiration. Un utilisateur peut posséder plusieurs transferts.
-- **FICHIER** (US01) : UUID, transfert parent, nom d'origine, taille, type MIME, chemin privé et dates. Un transfert contient **un ou plusieurs fichiers**.
-- Les migrations physiques sont versionnées dans `backend/database/migrations/`. Les tags et statistiques facultatives du dessin DESIGN-02 **ne sont pas implémentés**. Une éventuelle conservation statistique nécessitera une analyse RGPD distincte.
+Trois entités principales : **Utilisateur** (email unique, mot de passe hashé), **Transfert** (propriétaire, token public et expiration) et **Fichier** (nom, type, taille et chemin de stockage privé). Un utilisateur possède plusieurs transferts ; un transfert contient un ou plusieurs fichiers. Les migrations PostgreSQL se trouvent dans `backend/database/migrations/`. Les tags US08 restent facultatifs et non implémentés.
 
-## 4. Contrat d'API REST
+## 4. Documentation de l'API
 
-[Guide API](api/README.fr.md) · [Spécification OpenAPI 3.1](api/openapi.yaml).
+[Contrat OpenAPI 3.1](api/openapi.yaml) · [Guide des endpoints](api/README.fr.md)
 
-| Route du contrat | État |
+| Fonctionnalité | Endpoints principaux |
 | --- | --- |
-| `POST /api/auth/register` | **US03**, réalisée, 201/422 |
-| `POST /api/auth/login` | **US04**, réalisée, JWT signé |
-| `GET /api/auth/me` | **US04**, protégée JWT |
-| `POST /api/transfers` | **US01**, upload multipart authentifié, 201 et lien |
-| `GET /api/shares/{token}`, `GET /api/shares/{token}/files/{fileId}` | **US02 en attente** ; lien actuel vers une page temporaire |
-| `GET /api/transfers` | [US05 implémentée sur sa branche ; recette Docker/navigateur à effectuer](us05-personal-history.fr.md) |
-| `DELETE /api/transfers/{transferId}/files/{fileId}` | [US06 implémentée ; recette à effectuer](us06-file-deletion.fr.md) |
+| US03 / US04 — inscription et authentification | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me` |
+| US01 — téléversement authentifié | `POST /api/transfers` |
+| US02 — partage et téléchargement publics | `GET /api/shares/{token}`, `GET /api/shares/{token}/files/{fileId}` |
+| US05 — historique personnel | `GET /api/transfers` |
+| US06 — suppression individuelle | `DELETE /api/transfers/{transferId}/files/{fileId}` |
 
-`GET /api/health` est uniquement une route de diagnostic technique, pas une US OC. Le contrat décrit des statuts 401/404/410/413/422 ; ne pas annoncer les routes non codées comme disponibles.
+Ces routes sont implémentées ; les statuts et schémas de requêtes/réponses figurent dans OpenAPI. Les transferts privés nécessitent un JWT, tandis que la consultation d'un lien public valide est anonyme.
 
 ## 5. Sécurité et gestion des accès
 
-[Mesures, risques et futurs scans](https://github.com/jlbokass/datashare/blob/develop/SECURITY.fr.md).
-
-- Mots de passe hashés et salés, email unique. JWT HS256 signé avec clé `JWT_SECRET` dédiée, expiration ~30 min, vérification Laravel. Le JWT Angular reste en mémoire ; une actualisation impose une nouvelle connexion. La déconnexion côté navigateur **ne révoque pas** le jeton émis.
-- Upload réservé aux utilisateurs authentifiés ; stockage privé hors répertoire web, noms générés. Contrôle MIME + extension, **1 000 000 000 octets par fichier** et limites d'exploitation choisies de 5 fichiers / 2 Go cumulés. Expiration 7 jours par défaut, réglable de 1 à 7 jours.
-- Démo de cinq minutes : **flag local uniquement**, jamais une durée OC standard ; refus hors local/test ou flag absent.
-- ZIP stocké comme octets opaques, **sans antivirus** ; dossier direct non géré. Protection par mot de passe **US09 facultative non réalisée**. [Arbitrage US02 #5](https://github.com/jlbokass/datashare/issues/5).
-- **HTTPS en production, audit, scan, durcissement et sauvegardes sécurisées ne sont pas encore démontrés.**
+- **Comptes :** mots de passe hashés/salés, email unique. JWT signé, vérifié côté Laravel et conservé uniquement en mémoire Angular ; la déconnexion efface la session locale mais **ne révoque pas** un JWT déjà émis (durée d'environ 30 minutes).
+- **Fichiers :** stockage hors racine publique, nom interne opaque ; contrôles du type MIME et de l'extension, limite de 1 Go par fichier (5 fichiers et 2 Go par transfert choisis pour le MVP). Le téléchargement est forcé en pièce jointe.
+- **Partages :** token non prédictible, expiration entre 1 et 7 jours, refus des liens invalides/expirés ; purge planifiée des fichiers et métadonnées. Les ZIP ne sont **pas analysés par antivirus**.
+- **Limites :** aucun hébergement public HTTPS, sauvegarde/restauration testée ou audit de sécurité complet n'est démontré. Les audits de dépendances **Composer et npm ont été réalisés** dans [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md), sans vulnérabilité signalée à la date du contrôle ; ils ne remplacent pas un audit complet.
 
 ## 6. Qualité, tests et maintenance
 
-Les quatre fichiers prévus par OC sont à la racine du dépôt, chacun avec un équivalent anglais :
+| Livrable demandé | État et renvoi |
+| --- | --- |
+| **TESTING.md** | [Tests et preuves](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) : couverture mesurée **96,36 %** Laravel et **79,58 %** Angular (QL-01), **6 tests E2E** (QL-02) ; trois CI vertes sur [PR #58](https://github.com/jlbokass/datashare/pull/58) |
+| **SECURITY.md** | [Audits Composer et npm](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md) réalisés le 23/11/2026 : **aucune vulnérabilité signalée** (QL-03) |
+| **PERF.md** | [Mesures QL-04](https://github.com/jlbokass/datashare/blob/develop/PERF.md) : téléchargement local, bundle Angular et relevé Lighthouse sur serveur de développement ; **aucune garantie de performance en production** |
+| **MAINTENANCE.md** | [Procédures locales](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md), mises à jour et risques ; aucune reprise de production testée |
 
-| Fichier OC | Contenu | Preuve disponible |
-| --- | --- | --- |
-| [TESTING.md](https://github.com/jlbokass/datashare/blob/develop/TESTING.fr.md) · [EN](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) | Plan, critères, commandes, E2E futurs, objectif indicatif de couverture 70 % | Tests locaux **déclarés verts par le développeur**, couverture **non mesurée** |
-| [SECURITY.md](https://github.com/jlbokass/datashare/blob/develop/SECURITY.fr.md) · [EN](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md) | Accès, restrictions, risques et scan futur | **Aucune preuve de scan** |
-| [PERF.md](https://github.com/jlbokass/datashare/blob/develop/PERF.fr.md) · [EN](https://github.com/jlbokass/datashare/blob/develop/PERF.md) | Plan k6 sur route critique, budget bundle, métriques à relever | **Aucune mesure réelle** |
-| [MAINTENANCE.md](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.fr.md) · [EN](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md) | Docker, BDD, purge, mises à jour, périodicité, risques | Procédure locale, **aucun test de reprise production** |
+La couverture atteint l'objectif indicatif de 70 %. Une capture durable du rapport reste à préparer pour la soutenance. Les méthodes, dates et limites des mesures figurent dans les documents liés ci-dessus.
 
-**Recette US01 :** migrations, tests backend/frontend, build, PDF/multifichier, correction retour accueil et démo cinq minutes déclarés verts par le développeur. **La conformité Figma reste à corriger** dans [UI-01 #37](https://github.com/jlbokass/datashare/issues/37). Les sorties détaillées du terminal ne sont pas archivées ici.
+### Workflow et conventions de développement
+
+**Cycle de travail :** issue ciblée → branche dédiée (`feat/`, `fix/`, `quality/` ou `docs/`) → commits → PR vers `develop` → CI et revue humaine → fusion. Une livraison vers `main` protégée passe par une PR distincte. Le [journal IA](ai-journal.fr.md) sépare les contributions de l'IA des décisions et validations du développeur.
+
+**Conventions effectivement observables :**
+
+- **PHP/Laravel :** chargement PSR-4 (`App\` vers `backend/app/`), contrôleurs API, modèles Eloquent, services et validation côté serveur ; mise en forme vérifiée par **Laravel Pint** ; tests **PHPUnit** dans `backend/tests/`.
+- **Angular/TypeScript :** composants et templates par écran, routes centralisées, garde d'authentification, tests `*.spec.ts` proches du code ; `.editorconfig` frontend : **2 espaces** et **guillemets simples** en TypeScript. Tests Angular via **Vitest**.
+- **E2E :** **Playwright/Chromium** sur `compose.test.yaml`, avec PostgreSQL et stockage isolés. La CI GitHub Actions lance les contrôles backend, frontend et E2E sur PR/push vers `develop` ou `main`.
+
+**Langue de suivi :** pour les prochains lots, rédiger les issues et descriptions de PR en **français**, tout en conservant les termes techniques usuels et les documents de référence **FR/EN**. Les anciennes issues bilingues restent inchangées.
+
+**Conventions de commits :** de nombreux messages suivent déjà `type(scope): description` (`feat`, `fix`, `test`, `docs`, `ci`). Certains commits anciens ou de fusion sont moins homogènes : **l'historique n'est pas réécrit**. Pour la suite, retenir ce format, un changement cohérent par commit et une PR par lot.
+
+**Progression attestée :** [conception/API — PR #16](https://github.com/jlbokass/datashare/pull/16) → [US06 — PR #46](https://github.com/jlbokass/datashare/pull/46) → [couverture — PR #50](https://github.com/jlbokass/datashare/pull/50) → [E2E — PR #52](https://github.com/jlbokass/datashare/pull/52) → [sécurité/performance — PR #54](https://github.com/jlbokass/datashare/pull/54) et [#56](https://github.com/jlbokass/datashare/pull/56) → [UI — PR #58](https://github.com/jlbokass/datashare/pull/58). Les [commits](https://github.com/jlbokass/datashare/commits/develop/) et PR montrent les étapes et corrections ; ils ne prouvent pas une cadence calendaire uniforme.
 
 ## 7. Installation et exécution
 
-[Guide Docker-first](docker-setup.fr.md) · [Environnement local complet](development.fr.md) · [Recette US01](us01-upload.fr.md).
+[README](https://github.com/jlbokass/datashare/blob/develop/README.md) · [Installation pas à pas](installation.fr.md)
 
-1. Docker Desktop/Compose et Git ; fichiers privés `.env` à la racine (PostgreSQL) et `backend/.env` (clé Laravel `APP_KEY`, clé JWT indépendante), **jamais versionnés**.
-2. Depuis la racine, exécuter `docker compose config --quiet` puis `docker compose up -d --build`.
-3. Appliquer `docker compose exec -T app php artisan migrate --force`, vérifier `docker compose ps` et `docker compose exec -T app php artisan schedule:list`. **Ne pas lancer `migrate:fresh`** sur une base utile.
-4. Accès Angular : **http://127.0.0.1:8080/** ; connexion sur `/login`. Fichiers privés : `backend/storage/app/private/transfers`. Téléchargement public non disponible avant US02.
-5. Tests : commandes dans TESTING.md. `docker compose down` conserve les volumes ; `down -v` détruirait les données.
+**Prérequis :** Git, Docker et Compose. Pour une installation neuve, initialiser les fichiers `.env` privés selon le [guide d'installation](installation.fr.md) (secrets PostgreSQL, Laravel et JWT) ; ne jamais les commiter.
 
-L'hébergement de production, HTTPS, scripts de déploiement et procédures de restauration **ne sont pas encore livrés**.
+Depuis la racine, une fois les dépendances initialisées :
 
-## 8. Utilisation de l'IA dans le développement
+```bash
+docker compose up -d --build
+docker compose exec -T app php artisan migrate --force
+bash scripts/qa.sh all
+```
 
-[Journal IA FR](ai-journal.fr.md) · [English](ai-journal.md).
+L'application est accessible sur `http://127.0.0.1:8080/`. Les E2E utilisent **`compose.test.yaml`**, séparé des données de développement (voir TESTING). Ne pas utiliser `docker compose down -v` sur une base utile. Le déploiement en production n'a pas été réalisé.
 
-Le développeur décide du périmètre, supervise le travail, relit et valide les résultats ; l'IA participe à des tâches délimitées de conception, code, tests, documentation et gestion GitHub. Exemples : corrections UML/OpenAPI, socle Docker, US03/US04 et upload/purge US01, corrections issues de la recette. L'historique Git/PR documente ces activités ; aucun prompt ou test n'est inventé.
+## 8. Utilisation de l'IA
 
-**Point de conformité à confirmer :** la mission OC fournie contient une ancienne restriction (« IA sur une seule US »). Le développeur indique que son mentor la considère obsolète. **La consigne écrite actualisée n'a pas été vérifiée** ; s'assurer de la règle applicable avant la remise finale.
+[Journal de développement IA](ai-journal.fr.md) · [Version anglaise](ai-journal.md)
 
-## Travail restant pour la remise finale
+L'IA a aidé à préparer certaines implémentations, tests et documentations ; le développeur a cadré les tâches, effectué les recettes, demandé des corrections et validé les changements. Le journal distingue les interventions de l'IA des vérifications humaines, avec renvois aux issues et PR.
 
-Terminer la recette US02, la recette Docker/navigateur US05 et la recette suppression/concurrence US06, automatiser 2–3 scénarios E2E, fournir le rapport de couverture (objectif indicatif 70 %), exécuter un scan de sécurité et un test de performance sur un endpoint critique avec chiffres réels, arbitrer ZIP/US02, corriger les écarts Figma UI-01, documenter production/HTTPS et finaliser la maintenance. Ce document est **l'index technique évolutif**, pas un substitut aux preuves absentes.
+**Point à clarifier avant la soutenance :** la mission écrite limite le développement confié à l'IA à une User Story ; le journal décrit des interventions sur plusieurs US. La règle applicable et la manière de présenter ces contributions doivent être confirmées, sans effacer l'historique.
+
+## Travaux restant avant la remise
+
+**À finaliser avant la soutenance :** joindre une capture du rapport de couverture, préparer le support de présentation et la fiche d'autoévaluation ; clarifier la règle OC applicable à l'usage de l'IA (section 8). Les audits QL-03, mesures QL-04 et la recette UI-01 sont terminés. [HIST-01 — purge/historique](https://github.com/jlbokass/datashare/issues/57) est clôturé : purge actuelle maintenue sans changement de code ; la pagination est [facultative](https://github.com/jlbokass/datashare/issues/59).

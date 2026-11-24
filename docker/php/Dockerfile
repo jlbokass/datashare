@@ -10,6 +10,7 @@ RUN apt-get update \
         libonig-dev \
         libzip-dev \
     && docker-php-ext-install -j"$(nproc)" \
+        pcntl \
         pdo_pgsql \
         pdo_sqlite \
         mbstring \

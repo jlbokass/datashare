@@ -5,83 +5,137 @@
 
 .site-shell {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #ffb88c 0%, #de6262 100%);
+  background: linear-gradient(175deg, #ffb88c 0%, #de6262 100%);
 }
 
 .site-header {
+  width: 100%;
+  max-width: 1280px;
   min-height: 72px;
-  padding: 0 clamp(1rem, 4vw, 3rem);
+  margin: 0 auto;
+  padding: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 10px;
 }
 
 .brand {
-  font: 700 1.5rem/1.5 'DM Sans', sans-serif;
+  font: 700 2rem/2.5rem 'DM Sans', sans-serif;
   color: #1e1e1e;
   text-decoration: none;
-}
-
-.header-link {
-  display: inline-block;
-  background: #2c2c2c;
-  border-radius: 8px;
-  padding: .65rem .85rem;
-  font: 600 .875rem/1.2 'DM Sans', sans-serif;
-  text-decoration: none;
-  color: white;
-}
-
-.header-link:focus-visible,
-.brand:focus-visible {
-  outline: 3px solid white;
-  outline-offset: 3px;
-}
-
-.site-main {
-  display: flex;
-  flex: 1;
-  padding: 2rem 1rem 3rem;
-  align-items: center;
-  justify-content: center;
-}
-
-.site-footer {
-  padding: 1rem clamp(1rem, 4vw, 3rem);
-  font: 400 .75rem/1.5 'Inter', sans-serif;
-  color: #3b2727;
-}
-
-@media (max-width: 420px) {
-  .brand { font-size: 1.25rem; }
-  .header-link { font-size: .75rem; }
-  .site-main { padding: 1.5rem .9rem 2rem; }
 }
 
 .site-header nav {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: .65rem;
-  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.header-link {
+  display: inline-block;
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #2c2c2c;
+  color: #f3eeea;
+  font: 400 1rem/1rem 'DM Sans', sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
 }
 
 .header-secondary {
   background: transparent;
+  border-color: #2c2c2c;
   color: #1e1e1e;
-  border: 1px solid #2c2c2c;
 }
 
-.header-logout {
-  border: 1px solid transparent;
-  cursor: pointer;
+.header-link:focus-visible,
+.brand:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
 }
 
-@media (max-width: 420px) {
-  .site-header { padding-inline: .8rem; }
-  .site-header nav { gap: .35rem; }
-  .header-link { padding: .55rem; }
+.site-main {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem 3rem;
+}
+
+.site-main:has(> app-home) {
+  padding: 0;
+}
+
+.site-footer {
+  width: 100%;
+  max-width: 1280px;
+  min-height: 56px;
+  margin: 0 auto;
+  padding: 16px;
+  color: #fff;
+  font: 400 1rem/1.5rem 'Inter', sans-serif;
+}
+
+@media (max-width: 600px) {
+  .site-shell {
+    background: linear-gradient(165deg, #ffb88c 0%, #de6262 100%);
+  }
+
+  /* Fill the viewport so the upload and confirmation panels sit at the bottom. */
+  .site-main:has(> app-home) {
+    align-items: stretch;
+  }
+
+  .site-header {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    font-size: 1.25rem;
+    line-height: 1.5rem;
+  }
+
+  .header-link {
+    padding: 8px;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  .site-footer {
+    display: none;
+  }
+}
+
+@media (max-width: 350px) {
+  .site-header {
+    gap: 6px;
+  }
+
+  .site-header nav {
+    flex-basis: 100%;
+  }
+}
+
+/* The authenticated space uses the Figma sidebar instead of the public shell. */
+.site-shell:has(.site-main > app-account) {
+  background: #fff;
+}
+
+.site-shell:has(.site-main > app-account) > .site-header,
+.site-shell:has(.site-main > app-account) > .site-footer {
+  display: none;
+}
+
+.site-main:has(> app-account) {
+  display: block;
+  padding: 0;
 }

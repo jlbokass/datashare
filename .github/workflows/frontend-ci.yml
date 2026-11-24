@@ -38,8 +38,19 @@ jobs:
       - name: Install locked Node dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Run Angular tests
-        run: npm test -- --watch=false
+      - name: Run Angular tests with V8 coverage
+        run: |
+          npm run test:coverage
+          printf 'Commit: %s\nUTC: %s\nDriver: V8\nScope: frontend/src/**/*.ts except tests and type declarations\nCommand: npm run test:coverage\n' "$GITHUB_SHA" "$(date -u +%FT%TZ)" > coverage/datashare/run.txt
 
       - name: Build Angular production application
         run: npm run build
+
+      - name: Upload Angular coverage
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-coverage-${{ github.sha }}
+          path: frontend/coverage/datashare/
+          if-no-files-found: error
+          retention-days: 14

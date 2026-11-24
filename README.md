@@ -1,113 +1,76 @@
 # DataShare
 
-**Secure file-sharing platform — OpenClassrooms software development project (P3).**
+**Partage temporaire de fichiers — projet OpenClassrooms P3**
 
-[English](README.md) · [Français](README.fr.md) · [Documentation](docs/index.md) · [Documentation française](docs/index.fr.md)
-
+[English version](docs/en/README.md) · [Documentation technique](docs/index.md)
 
 [![Backend CI](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml?query=branch%3Adevelop)
 [![Frontend CI](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml?query=branch%3Adevelop)
+[![E2E CI](https://github.com/jlbokass/datashare/actions/workflows/e2e-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/e2e-ci.yml?query=branch%3Adevelop)
 
-## Project status
+## Le projet
 
-**Functional MVP US01–US06 implemented and merged into `develop` (19 November 2026)**: private upload, public download links, registration, JWT login, personal history and individual file deletion. The developer reported successful browser acceptance. [PR #46](https://github.com/jlbokass/datashare/pull/46) passed GitHub Actions with **52 Laravel tests / 364 assertions and Pint**, plus **44 Angular tests and a production build**. The application is **not deployed to production**.
+DataShare permet de téléverser des fichiers privés et de les partager temporairement au moyen d'un lien public. Le **produit minimum viable (MVP)** couvre les six fonctionnalités obligatoires (US01–US06) :
 
-**Still required before OpenClassrooms delivery:** Figma/responsive/accessibility acceptance ([UI-01 #37](https://github.com/jlbokass/datashare/issues/37)), measured coverage, E2E tests, security checks, performance and real PostgreSQL concurrency testing. ZIP archives are not antivirus-scanned. Optional US07–US10 features are not claimed to be implemented.
+- téléversement de fichiers après authentification, envoi de plusieurs fichiers et gestion de leur expiration ;
+- lien public et téléchargement sans compte ;
+- création de compte et authentification par JWT ;
+- historique personnel et suppression individuelle des fichiers.
 
-This public repository allows the OpenClassrooms assessor to review code, documentation, issues, pull requests and commits.
+**État fonctionnel au 23 novembre 2026 :** le MVP, les travaux de validation de la qualité (QL-01 à QL-04) et la recette visuelle des interfaces (UI-01) sont intégrés à `develop`. Les contrôles backend, frontend et de bout en bout (E2E) de la [PR UI-01 #58](https://github.com/jlbokass/datashare/pull/58) ont réussi. L'application fonctionne en environnement local ; elle n'est pas déployée en production.
 
-## MVP scope
+**Environnement technique :** Angular 22, Laravel 13 / PHP, PostgreSQL 18, Nginx, Docker Compose et GitHub Actions.
 
-The mandatory OpenClassrooms user stories are:
+## Démarrer en local
 
-| ID | Feature |
-| --- | --- |
-| US01 | Authenticated file upload and unique share link |
-| US02 | Download through a valid public link |
-| US03 | Account registration |
-| US04 | User login with JWT |
-| US05 | Personal upload history |
-| US06 | Individual file deletion by its owner |
+Prérequis : Git et Docker avec Compose. Pour une première installation, suivre le [guide pas à pas](docs/installation.fr.md) (configuration des `.env`, dépendances et migrations).
 
-Advanced **US07–US10** are tracked as optional. The automatic removal of expired files and metadata remains an **US01 requirement**, independently of optional US10.
-
-## Selected architecture
-
-- **Backend:** PHP / Laravel REST API; JWT authentication required by the specification.
-- **Frontend:** TypeScript / Angular.
-- **Database:** PostgreSQL.
-- **File storage:** private local filesystem, metadata in PostgreSQL; US01 file upload and scheduled expiry cleanup locally checked by the developer.
-- **Development environment:** Docker Compose with PHP/Composer, Node/npm, PostgreSQL, Nginx and Angular hot reload (TECH-04 locally validated by the developer).
-
-See [the evolving OC technical documentation](docs/technical-documentation.md), [the technical rationale](docs/technology-choices.md), [architecture](docs/architecture.md), [UML conceptual model](docs/data-model.md), [OpenAPI contract](docs/api/openapi.yaml), [TECH-04 local setup](docs/development.md), [UI handoff review](docs/design-handoff.md), and [TECH-02 Docker setup](docs/docker-setup.md).
-
-## Documentation and project workflow
-
-The documentation is maintained in **English and French** in the same repository. The OC deliverables [TESTING](TESTING.md), [SECURITY](SECURITY.md), [PERF](PERF.md) and [MAINTENANCE](MAINTENANCE.md) have bilingual plans; security scans, coverage, E2E and performance results remain **pending**, not claimed as completed. [Start here](docs/index.md), or open the [French documentation hub](docs/index.fr.md). Our [AI development journal](docs/ai-journal.md) records AI contributions and developer supervision, with a [French version](docs/ai-journal.fr.md).
-
-Git workflow: work branches → Pull Requests → `develop` → reviewed release Pull Request → protected `main`. See the [issues](https://github.com/jlbokass/datashare/issues) for the official user stories and remaining work.
-
-The repository owner reports GitHub Pages has been enabled for static documentation from `main` / `docs`: **https://jlbokass.github.io/datashare/**. The live rendering has not been independently verified here. GitHub Pages does **not** host the Laravel API.
-
-## Local installation — Docker Compose
-
-**Requirements:** Git, Docker Desktop with Docker Compose v2, and Docker running. No host PHP, Composer, Node or PostgreSQL installation is required. This stack binds to **localhost only** and is **not a production deployment**.
-
-**1. Clone the project.** Until the next `main` release, `develop` contains the completed functional MVP:
+Sur un environnement **déjà configuré**, depuis la racine du dépôt :
 
 ```bash
-git clone https://github.com/jlbokass/datashare.git
-cd datashare
-git switch develop
-```
-
-**2. Create configuration files only on a fresh clone:**
-
-```bash
-cp .env.example .env
-cp backend/.env.example backend/.env
-```
-
-Set a **unique local `POSTGRES_PASSWORD`** in the root `.env`. Keep `APP_ENV=local` and set `JWT_SECRET` in `backend/.env` to a **64-character hex secret** generated by `openssl rand -hex 32`. Do not reuse `APP_KEY` as the JWT secret; the Laravel application key is generated below. **Never overwrite configured `.env` files, commit them or expose secrets.**
-
-**3. Install Laravel dependencies and generate `APP_KEY`:**
-
-```bash
-docker compose config --quiet
-docker compose build php
-docker compose run --rm php sh -lc 'cd backend && composer install --prefer-dist --no-interaction'
-docker compose run --rm php sh -lc 'cd backend && php artisan key:generate'
-```
-
-**4. Start services and initialize PostgreSQL:**
-
-```bash
-docker compose up -d --build
+docker compose up -d
 docker compose ps
-docker compose exec -T app php artisan config:clear
-docker compose exec -T app php artisan migrate --force
-docker compose exec -T app php artisan schedule:list
 ```
 
-On first boot the `frontend` service installs Node dependencies into its dedicated Docker volume. **The CLI `node` service shares this volume**, so QA works on a fresh clone. `db` runs PostgreSQL; `scheduler` purges expired transfers.
+Application : **http://127.0.0.1:8080/**
 
-**5. Verify and open the application:**
+Exécuter les tests Laravel et Angular, vérifier le formatage avec Pint et compiler l'application Angular :
 
 ```bash
-curl -fsS http://127.0.0.1:8080/api/health
 bash scripts/qa.sh all
 ```
 
-Open **http://127.0.0.1:8080/** to register, sign in, upload, download from a public link, view history and delete individual files. `qa.sh all` runs Laravel tests and Pint, Angular tests and a production build. **CI Laravel tests use in-memory SQLite**; the migration above checks local PostgreSQL separately.
+Les tests E2E utilisent une [environnement Docker isolé](TESTING.md) pour protéger les données locales.
 
-If Nginx briefly responds `502`, let the first Angular dependency install finish and check `docker compose logs -f frontend app web`. Stop without deleting persisted data using `docker compose down` (**not `down -v`**). See the [local development guide](docs/development.md) for troubleshooting.
+### Tester la limite de 1 Go (macOS)
 
-## Quality badges and evidence
+```bash
+mkfile -n 1100000000 /tmp/datashare-oversize.zip
+# Sélectionner ce fichier dans /upload ; l'envoi doit être refusé.
+rm /tmp/datashare-oversize.zip
+```
 
-The badges at the top track **actual GitHub Actions runs on `develop`**: `Backend CI` (PHP 8.4, Laravel tests and **Pint**) and `Frontend CI` (Node 24, Angular tests and production build). [Workflow history](https://github.com/jlbokass/datashare/actions). Latest verified functional PR: [#46](https://github.com/jlbokass/datashare/pull/46), with green [backend](https://github.com/jlbokass/datashare/actions/runs/44446701173) and [frontend](https://github.com/jlbokass/datashare/actions/runs/44446701083) runs.
+Le fichier de test de **1,1 Go** est un fichier creux (*sparse file*), et non une archive ZIP valide. Il permet de vérifier uniquement le contrôle de la taille du fichier.
 
-**No coverage, security-audit or performance badge** until those metrics are actually measured and automated. Outstanding evidence is tracked under [TESTING](TESTING.md), [SECURITY](SECURITY.md) and [PERF](PERF.md). GitHub Pages serves **static documentation** from `main/docs` and does **not** run the Laravel/Angular application.
+## Repères dans le dépôt
 
-## Reference
+```text
+frontend/     Angular : pages, navigation et authentification
+backend/      Laravel : API, modèles, migrations et tests
+docker/       Configuration Nginx et PHP
+e2e/          Scénarios Playwright
+docs/         Dossier technique et livrables OpenClassrooms
+scripts/      Commandes de contrôle qualité
+```
 
-The original OpenClassrooms mission, specifications and documentation template remain in their original French. The project's authored Markdown is bilingual. The [Figma designs](https://www.figma.com/design/i4HHiGsL7Kc3kVBo41m7F6), [original 23-page UI handoff PDF](docs/design/DataShare_UI_Design_Handoff_v1.pdf) and [bilingual handoff review](docs/design-handoff.md) are the visual references. **Functional US01 is not yet visually Figma-compliant**; see [UI-01 #37](https://github.com/jlbokass/datashare/issues/37).
+## Organisation du développement et traçabilité
+
+Le développement suit le processus suivant : **branche de travail → pull request (PR) vers `develop` → revue et intégration continue (CI) → PR de livraison vers `main`**, branche protégée. Les [issues](https://github.com/jlbokass/datashare/issues), [pull requests](https://github.com/jlbokass/datashare/pulls?q=is%3Apr) et [commits de `develop`](https://github.com/jlbokass/datashare/commits/develop/) assurent la traçabilité de la conception, des fonctionnalités et des travaux de validation.
+
+La convention de nommage des nouveaux commits est **`type(scope): action`** (par exemple `feat(upload): ...`, `fix(auth): ...`, `test(e2e): ...`, `docs: ...`). Les messages des commits antérieurs sont conservés sans réécriture de l'historique.
+
+## Documentation et limites
+
+[Documentation OC](docs/technical-documentation.fr.md) · [Architecture](docs/architecture.fr.md) · [Contrat API](docs/api/openapi.yaml) · [Tests](TESTING.md) · [Sécurité](SECURITY.md) · [Performances](PERF.md) · [Maintenance](MAINTENANCE.md) · [Journal IA](docs/ai-journal.fr.md)
+
+L'environnement local utilise **HTTP sans TLS**. Le JWT est conservé uniquement en mémoire ; l'actualisation de la page nécessite donc une nouvelle authentification. Les archives ZIP ne font pas l'objet d'une analyse antivirus. La purge planifiée supprime les fichiers expirés et leurs métadonnées, conformément aux règles de conservation retenues ([HIST-01 #57](https://github.com/jlbokass/datashare/issues/57)). Les fonctionnalités avancées US07 à US10 sont facultatives.

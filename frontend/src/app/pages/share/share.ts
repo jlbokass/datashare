@@ -29,6 +29,7 @@ export class Share {
   readonly loading = signal(true);
   readonly share = signal<PublicShare | null>(null);
   readonly errorMessage = signal<string | null>(null);
+  readonly expired = signal(false);
 
   private readonly token = signal<string | null>(null);
 
@@ -38,6 +39,7 @@ export class Share {
 
       this.share.set(null);
       this.errorMessage.set(null);
+      this.expired.set(false);
       this.loading.set(true);
       this.token.set(token);
 
@@ -55,7 +57,8 @@ export class Share {
         },
         error: (error: HttpErrorResponse) => {
           if (error.status === 410) {
-            this.errorMessage.set('Ce lien de partage a expiré.');
+            this.expired.set(true);
+            this.errorMessage.set("Ce fichier n'est plus disponible en téléchargement car il a expiré.");
           } else if (error.status === 404) {
             this.errorMessage.set('Ce lien de partage est introuvable.');
           } else {
@@ -73,7 +76,32 @@ export class Share {
   }
 
   formatSize(bytes: number): string {
-    return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(bytes / 1_000_000) + ' Mo';
+    const divisor = bytes >= 1_000_000_000 ? 1_000_000_000
+      : bytes >= 1_000_000 ? 1_000_000
+      : bytes >= 1_000 ? 1_000 : 1;
+    const unit = divisor === 1_000_000_000 ? 'Go'
+      : divisor === 1_000_000 ? 'Mo'
+      : divisor === 1_000 ? 'Ko' : 'octet' + (bytes > 1 ? 's' : '');
+
+    return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(bytes / divisor) + ' ' + unit;
+  }
+
+  expiryNotice(iso: string, fileCount: number): string {
+    const expiry = new Date(iso);
+    const today = new Date();
+    const expiryDay = Date.UTC(expiry.getFullYear(), expiry.getMonth(), expiry.getDate());
+    const todayDay = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+    const days = Math.max(0, Math.round((expiryDay - todayDay) / 86_400_000));
+    const subject = fileCount === 1 ? 'Ce fichier expirera' : 'Ces fichiers expireront';
+    const time = new Intl.DateTimeFormat('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).format(expiry);
+
+    if (days === 0) return `${subject} aujourd’hui à ${time}.`;
+    if (days === 1) return `${subject} demain à ${time}.`;
+    return `${subject} dans ${days} jours à ${time}.`;
   }
 
   formatDate(iso: string): string {

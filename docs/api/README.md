@@ -7,7 +7,7 @@ lang: en
 
 # DataShare API — Interface contract
 
-**Status:** Contract reviewed in DESIGN-03 ([issue #3](https://github.com/jlbokass/datashare/issues/3)). **This is a design contract, not implemented Laravel code.**
+**Status:** contract reviewed in [DESIGN-03](https://github.com/jlbokass/datashare/issues/3), used by the US01–US06 MVP merged into `develop`. The YAML retains the design contract; no additional formal OpenAPI validation is claimed.
 
 - [Version française](README.fr.md)
 - [OpenAPI 3.1 specification](openapi.yaml)
@@ -40,7 +40,7 @@ The API contract covers the **mandatory OpenClassrooms MVP US01–US06**. The ba
 
 There is **no** `DELETE /api/transfers/{id}` user endpoint in this MVP draft because the official **US06 concerns a single file**, not the entire transfer. If the final file is deleted, its empty parent transfer is removed as a backend invariant.
 
-## 3. Examples of the planned contract
+## 3. Contract examples
 
 ### Register — US03
 
@@ -90,7 +90,7 @@ Proposed `201` JSON:
 
 The `share_url` is an **Angular route**, not an API endpoint. Angular opens `/share/{token}` and calls `GET /api/shares/{token}`.
 
-The requirement specifies **1 GB maximum** for a file. This draft interprets that as **1,000,000,000 bytes per file**; the combined size limit for a multi-file HTTP request is a separate decision, not explicitly specified by OC. The security file-type policy is also still to be selected.
+The MVP uses **1,000,000,000 bytes per file**, at most five files and **2,000,000,000 total bytes** per transfer. The latter two limits are local choices, not OC requirements. Formats are validated server-side (see [SECURITY](../en/SECURITY.md)).
 
 ### Delete — US06
 
@@ -103,7 +103,7 @@ Returns `204 No Content`. Angular must request confirmation **before sending** t
 
 ## 4. Errors and access-control decisions
 
-| Condition | Proposed response | Explanation |
+| Condition | Response | Explanation |
 | --- | --- | --- |
 | Missing, invalid or expired JWT | **401** | Protected route is unavailable |
 | Invalid or duplicate registration input | **422** | Structured field validation errors |
@@ -118,23 +118,21 @@ No direct file-storage URL may be returned. Downloads must be streamed through t
 
 ## 5. History and expiry
 
-US05 requests a valid/expired link status. US06 specifies that **only non-expired files appear by default**. The [US05 implementation](../us05-personal-history.md) of `GET /api/transfers` excludes expired records by default and supports an optional `include_expired=true` query switch for records awaiting physical purge. Fully purged records cannot reappear. The link status is **derived**, not an additional database column.
+US05 requests a valid/expired link status. US06 specifies that **only non-expired files appear by default**. The [US05](https://github.com/jlbokass/datashare/issues/8) of `GET /api/transfers` excludes expired records by default and supports an optional `include_expired=true` query switch for records awaiting physical purge. Fully purged records cannot reappear. The link status is **derived**, not an additional database column.
 
-US01 requires files **and metadata** to be removed at expiry. The cleanup mechanism was proposed in DESIGN-01, while OpenAPI only documents client-visible behavior.
+US01 requires files **and metadata** to be removed at expiry. The cleanup mechanism is implemented in DESIGN-01, while OpenAPI only documents client-visible behavior.
 
 ## 6. Optional features deliberately excluded
 
 The OpenAPI file does **not** expose US07 anonymous upload, US08 tags, US09 protected downloads, nor optional download-analytics management routes. Optional US10 scheduling is an internal operation; it is not a public API endpoint. These features remain in the backlog, and the MCD marks the optional concepts separately.
 
-## 7. Pending approval decisions
+## 7. Implemented behavior
 
-- [ ] Confirm the route and response naming conventions (`/transfers`, `/shares`, `snake_case`).
-- [ ] Confirm the **one share token for many files** rule from DESIGN-02.
-- [ ] Confirm `DELETE` works on **one file**, not automatically the entire group.
-- [ ] Confirm **1 GB per file** versus any total multipart-request cap; verify frontend/backend/proxy limits later.
-- [ ] Confirm `include_expired` is useful or remove it as unnecessary.
-- [ ] Choose permitted/forbidden file types and document them in `SECURITY.md` before implementation.
-- [ ] Validate `openapi.yaml` syntactically and against an OpenAPI 3.1 validator.
-- [ ] Keep this documentation synchronized with [the French version](README.fr.md) and cross-check DESIGN-01/DESIGN-02.
+- Registration: 201 without JWT; normalized email, duplicate or invalid password → 422. Login: Bearer JWT, generic 401 for invalid credentials. `/api/auth/me` requires a valid JWT.
+- Upload: multipart `files[]`, one relative `/share/{token}` link (64 hexadecimal characters), common expiry, UUIDs and metadata; no private path exposure. On storage or database failure, already written bytes are cleaned up. Expiry 1–7 days (7 by default); five-minute demo restricted to local use.
+- Download: public link without an account, permitted metadata only, forced attachment bytes, `application/octet-stream`, `nosniff` and no shared cache. 410 after expiry while metadata exists; 404 after purge.
+- History: owner only, descending creation time then ID, no pagination; `include_expired=true` includes only records awaiting purge. `Cache-Control: private, no-store, max-age=0`. Status is derived from expiry.
+- Deletion: 204, 404 for unknown or other-account resources; only one file, siblings remain available. Last-file deletion revokes the link. Storage failure returns 500 and retains metadata for recovery (see [architecture](../architecture.md)).
+- [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57) is closed: purge and history unchanged. No permanent retention mechanism was added.
 
-**No endpoint has been implemented in the new repository yet.**
+See [TESTING](../en/TESTING.md) for evidence and limits, and [installation](../installation.md) to run the MVP.

@@ -1,37 +1,40 @@
-# DataShare — Security and access-control record (OC P3)
+# DataShare — Sécurité et audit des dépendances
 
-[Français](SECURITY.fr.md) · [Technical documentation](docs/technical-documentation.md)
+[English](docs/en/SECURITY.md) · [Documentation technique](docs/technical-documentation.fr.md) · [Lot QL-03](https://github.com/jlbokass/datashare/issues/53)
 
-**Status: design/implementation review, not a completed security audit. No dependency vulnerability scan has been recorded.**
+**Audit des dépendances du 23 novembre 2026.** Les contrôles ont été réalisés dans l'environnement Docker local, sur la branche `quality/ql-03-security`, issue de `develop` au commit `36291cd`. **Aucune vulnérabilité connue n'a été signalée par Composer ni par npm.** Les résultats sont consignés dans ce rapport à partir des captures d'exécution. L'identifiant exact du commit local et les versions des outils d'audit n'ont pas été relevés.
 
-## Implemented controls as of US01
+## 1. Audits et décisions
 
-| Surface | Implemented | Remaining limit |
+| Écosystème | Commande exécutée depuis la racine | Résultat |
 | --- | --- | --- |
-| Accounts | Email uniqueness, server validation, Laravel salted password hash | No confirmation email by OC MVP design |
-| JWT | HS256 via `firebase/php-jwt` v7.2.2, issuer/expiry validation, dedicated `JWT_SECRET`, 30-minute expiry | No server-side revocation or refresh; frontend JWT memory-only, refresh requires login |
-| Endpoints | JWT middleware for private `POST /api/transfers` and `GET /api/auth/me`; generic 401 | Other owner-restricted routes (US05/US06) remain to implement |
-| Private files | `storage/app/private/transfers` outside public web root; randomized filename, validated MIME and filename extension | ZIP archives are accepted opaque, **not unpacked or antivirus-scanned** |
-| Upload limits | 1,000,000,000 bytes per file, chosen 5-file / 2GB aggregate caps, PHP/Nginx caps; errors 413/422 | No real 1GB load-test evidence; ZIP may contain executables/bombs |
-| Expiry | 1–7 days, daily purge of bytes and metadata; optional 5-minute local demo gated by server config | Verify scheduler execution/retention in a deployed environment |
-| Transport | Local Nginx binds `127.0.0.1:8080` | **No production HTTPS/TLS deployment** yet |
+| PHP / Composer (`backend/composer.lock`) | `docker compose run --rm php sh -lc 'cd backend && composer audit --locked --format=summary'` | **0 avis de vulnérabilité** |
+| Angular / npm (`frontend/package-lock.json`) | `docker compose run --rm node sh -lc 'cd frontend && npm audit'` | **0 vulnérabilité** |
 
-User-provided Figma handoff includes a password-protected sharing variant. That belongs to optional **US09**, not an implemented security control. Direct folder-tree uploads are unsupported; users may package folders into ZIP as single files.
+Les audits portent sur les dépendances déclarées, y compris celles de développement. **Aucune mise à jour de sécurité n'a été identifiée comme nécessaire à la date du contrôle.** La notification de disponibilité de npm 12.2.3 ne correspond pas à un avis de sécurité. Aucune mise à jour automatique n'a été effectuée.
 
-## Important open risks
+## 2. Protections du MVP
 
-- **Public download not yet implemented (US02)**. Before enabling: require unguessable token, validate expiry, stream through PHP as `Content-Disposition: attachment`, `X-Content-Type-Options: nosniff`, no direct storage URL, safe filenames and correct 404/410 behavior.
-- **ZIP policy:** server does not extract or execute, but it cannot guarantee downloaded content is harmless. [Decision tracked in US02 #5](https://github.com/jlbokass/datashare/issues/5). Decide whether to allow archives without scanning, impose additional restrictions or add scanning.
-- Logout clears browser memory only; issued JWT is valid until its expiration. Document and revisit revocation for production.
-- No deployment TLS, CSP review, backup/incident-response evidence, dependency scan or penetration testing. Do not call the application production-secure yet.
-- Dozzle, if added later, requires an explicit review of privileged Docker API/socket access.
+| Domaine | Mesures implémentées |
+| --- | --- |
+| Comptes et JWT | Adresse électronique unique, validation côté serveur et mot de passe haché. Le JWT est signé et vérifié par Laravel. Les routes publiques d'inscription et de connexion sont soumises à une limitation du nombre de requêtes. Un JWT valide est requis pour accéder aux fonctionnalités privées. |
+| Fichiers et partage | Stockage privé en dehors du répertoire accessible publiquement, noms internes opaques, contrôle du type MIME et de l'extension. Taille maximale de **1 Go par fichier**, avec une limite opérationnelle de **5 fichiers et 2 Go par transfert**. Le lien public repose sur un jeton imprévisible. Les liens invalides ou expirés sont rejetés (HTTP 404 ou 410) ; les fichiers sont transmis en pièce jointe. |
+| Durée de vie | Expiration configurable de **1 à 7 jours**, suppression planifiée des fichiers et des métadonnées expirés. Le mode de démonstration à cinq minutes est réservé à l'environnement local. |
 
-## Required future scans and results
+Les contrôles d'accès applicatifs et les parcours principaux sont également couverts par les [tests](TESTING.md). Ces mesures constituent les protections du MVP ; elles ne permettent pas, à elles seules, d'établir le niveau de sécurité d'un environnement de production.
 
-- [ ] Run `docker compose run --rm php sh -lc 'cd backend && composer audit'`.
-- [ ] Run `docker compose run --rm node sh -lc 'cd frontend && npm audit'`.
-- [ ] Optionally run Trivy or an equivalent container/dependency scan.
-- [ ] Record tool/version/date/SHA, findings (severity, affected dependency), remediation or justified acceptance and **re-scan results**. **Currently: no findings reported because no scan evidence exists.**
-- [ ] Review JWT permissions, invalid tokens, rate limiting, upload types, archive risks, access isolation and secure production HTTPS before delivery.
+## 3. Limites connues
 
-Never paste `JWT_SECRET`, `APP_KEY`, PostgreSQL password, access tokens or uploaded private files into issues or reports.
+- **Déconnexion :** le JWT est supprimé de la mémoire du client Angular, mais reste valide côté serveur jusqu'à son expiration (environ 30 minutes) ; aucune révocation immédiate.
+- **ZIP :** archives acceptées sans extraction, exécution ni analyse antivirus ; leur contenu n'est donc pas vérifié du point de vue des logiciels malveillants.
+- **Déploiement :** une mise en production nécessiterait notamment l'utilisation de HTTPS, une politique de sauvegarde et de restauration, le durcissement de l'environnement et des procédures de sécurité opérationnelle.
+- **Périmètre des audits :** les audits de dépendances détectent des avis connus à la date du contrôle ; ils ne remplacent ni l'analyse du code, ni un audit des conteneurs, ni un test d'intrusion.
+
+**Conclusion :** les audits de dépendances réalisés le 23 novembre 2026 n'ont signalé aucune vulnérabilité connue. Ce résultat s'applique aux versions auditées à cette date et ne constitue pas une certification de sécurité de l'application.
+
+## 4. Règles de validation et d'authentification
+
+- Formats autorisés (extension et type MIME vérifiés côté serveur) : PDF, PNG, JPEG, GIF, WEBP, TXT, MP3, MP4 et ZIP. Le filtre du sélecteur Angular est une aide à la saisie, pas un contrôle de sécurité. L'envoi direct de dossiers n'est pas pris en charge ; les archives ZIP sont stockées sans analyse de leur contenu. Limites décimales : 1 000 000 000 octets par fichier, 2 000 000 000 octets par transfert et cinq fichiers au maximum. Le nombre maximal de fichiers et la taille cumulée par transfert sont des limites opérationnelles propres au MVP, non imposées par le sujet OpenClassrooms.
+- Inscription : adresse électronique normalisée en minuscules et unique en base de données, mot de passe d'au moins huit caractères. Aucun JWT n'est délivré à l'inscription. Limite de dix inscriptions par minute et par client.
+- Connexion : bibliothèque `firebase/php-jwt`, signature HS256, clé `JWT_SECRET` distincte de `APP_KEY`, vérification de la signature, de l'expiration, de l'émetteur et de l'utilisateur. Durée de validité : 1 800 secondes ; limite de cinq tentatives de connexion par minute et par client. Aucun jeton de renouvellement (*refresh token*) ni mécanisme de révocation immédiate. Le garde Angular ne remplace pas les contrôles Laravel.
+- Les jetons de partage public, composés de 64 caractères hexadécimaux, sont distincts des JWT. Les réponses publiques n'exposent ni les chemins de stockage privé ni les données du propriétaire. Les téléchargements sont servis en pièce jointe avec l'en-tête `X-Content-Type-Options: nosniff` et sans mise en cache partagée.

@@ -26,9 +26,11 @@
       }
     </div>
 
-    <p class="register-link">Pas encore de compte ? <a routerLink="/register">Créer un compte</a></p>
-    <button type="submit" [disabled]="submitting()">
-      {{ submitting() ? 'Connexion en cours...' : 'Connexion' }}
-    </button>
+    <div class="form-actions">
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Connexion en cours...' : 'Connexion' }}
+      </button>
+      <a class="secondary-action" routerLink="/register">Créer un compte</a>
+    </div>
   </form>
 </section>

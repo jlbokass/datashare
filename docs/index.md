@@ -1,82 +1,51 @@
 ---
 layout: default
-title: "DataShare — Documentation"
+title: "DataShare — Documentation française"
 permalink: /
-lang: en
+lang: fr
 ---
 
-# DataShare — Technical Documentation
+# DataShare — Documentation technique
 
-[**English**](index.md) · [**Français**](index.fr.md)
+[English](en/index.md) · [Dépôt GitHub](https://github.com/jlbokass/datashare)
 
-Secure file-sharing MVP — OpenClassrooms P3.
+**État au 24 novembre 2026 :** US01–US06, lots qualité QL-01 à QL-04 et recette visuelle UI-01 intégrés dans `develop`. HIST-01 est clôturé : la purge existante est maintenue. L'application fonctionne en local ; GitHub Pages héberge uniquement la documentation.
 
-**Status as of 19 November 2026:** all six mandatory functional stories US01–US06 are merged into `develop`, with developer-reported browser acceptance and green [PR #46 CI](https://github.com/jlbokass/datashare/pull/46). Visual parity and final quality checks remain open.
+## Démarrer
 
-## Install the local MVP
+[Installation locale](installation.fr.md) · [README](https://github.com/jlbokass/datashare/blob/develop/README.md)
 
-[Step-by-step setup guide](installation.md) · [English README and Docker commands](https://github.com/jlbokass/datashare/blob/main/README.md). The application runs locally with Docker Compose at **http://127.0.0.1:8080/**. GitHub Pages **does not host the application**.
+## Dossier technique OpenClassrooms
 
-## Consolidated OpenClassrooms technical dossier
+[Documentation technique consolidée — huit sections](technical-documentation.fr.md)
 
-[Technical documentation — eight OC sections](technical-documentation.md) (evolving draft). Root quality reports: [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md), [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md), [PERF](https://github.com/jlbokass/datashare/blob/develop/PERF.md), [MAINTENANCE](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md). **Plans exist; actual E2E, coverage, scans and measurements remain outstanding.**
+| Sujet | Référence |
+| --- | --- |
+| Architecture | [Description](architecture.fr.md) · [Draw.io](diagrams/architecture.drawio) · [SVG](diagrams/architecture.svg) |
+| Choix technologiques | [Justification et alternatives](technology-choices.fr.md) |
+| Modèle de données | [MCD UML](data-model.fr.md) · [Draw.io](diagrams/data-model.drawio) · [SVG](diagrams/data-model.svg) |
+| API REST | [Guide](api/README.fr.md) · [Contrat OpenAPI](api/openapi.yaml) |
+| Interface | [Recette UI-01 et décisions Figma](design-handoff.fr.md) · [PDF source](design/DataShare_UI_Design_Handoff_v1.pdf) |
+| IA et supervision | [Journal d'utilisation de l'IA](ai-journal.fr.md) |
 
-## Design deliverables
+## Qualité
 
-| Deliverable | Documentation | Supporting assets |
-| --- | --- | --- |
-| **DESIGN-01 — Architecture** | [Application architecture](architecture.md) | [Editable draw.io](diagrams/architecture.drawio) · [SVG diagram](diagrams/architecture.svg) |
-| **DESIGN-02 — Conceptual data model** | [UML domain model](data-model.md) | [Editable draw.io](diagrams/data-model.drawio) · [SVG diagram](diagrams/data-model.svg) |
-| **DESIGN-03 — API interface contract** | [REST API contract](api/README.md) | [OpenAPI 3.1 YAML](api/openapi.yaml) |
-| **DESIGN-04 — Technology rationale** | [Technology choices](technology-choices.md) | Comparison and trade-offs |
-
-All four deliverables have French counterparts accessible within their respective pages. The UML diagram places the optional extensions in the **same drawing** as the required MVP classes, clearly distinguished.
-
-## AI use and supervision
-
-The [AI development journal](ai-journal.md) records delegated tasks, developer decisions, corrections and evidence, with a [French equivalent](ai-journal.fr.md). Its first entries are explicitly retrospective.
-
-## Continuous integration and quality badges
+| Document | Résultat de référence |
+| --- | --- |
+| [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) | Plan de tests, preuves CI, 6 tests E2E couvrant trois parcours critiques et un test de démarrage |
+| [Couverture](coverage.fr.md) | 96,36 % Laravel et 79,58 % Angular (lignes mesurées séparément) |
+| [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md) | Audits Composer/npm : aucune vulnérabilité signalée le 23 novembre |
+| [PERF](https://github.com/jlbokass/datashare/blob/develop/PERF.md) | Mesures locales et limites ; aucune performance de production revendiquée |
+| [MAINTENANCE](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md) | Exploitation locale, purge, mises à jour et reprise |
 
 [![Backend CI](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml?query=branch%3Adevelop)
 [![Frontend CI](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml?query=branch%3Adevelop)
+[![E2E CI](https://github.com/jlbokass/datashare/actions/workflows/e2e-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/e2e-ci.yml?query=branch%3Adevelop)
 
-These badges reflect **real `develop` workflow runs**, not a fabricated coverage score. [CI-01 guide](ci.md) describes Laravel/Pint checks and Angular tests/build. The latest verified functional PR [#46](https://github.com/jlbokass/datashare/pull/46) passed **52 Laravel tests / 364 assertions and 44 Angular tests**. E2E, security audits, measured coverage and performance remain pending.
+## Projet et livraison
 
-## Development environment
+[Issues](https://github.com/jlbokass/datashare/issues) · [Pull requests](https://github.com/jlbokass/datashare/pulls?q=is%3Apr) · [Commits](https://github.com/jlbokass/datashare/commits/develop/)
 
-[Docker-first dependency setup](docker-setup.md) (TECH-02) · [Laravel / Angular integration and hot reload](development.md) (TECH-04, locally verified by developer).
+Le workflow repose sur une branche dédiée, une PR revue vers `develop`, puis une PR distincte de livraison vers `main`. Les documents de référence à la racine sont en français ; leurs [traductions anglaises](en/index.md) sont regroupées dans `docs/en/`. Les liens vers les fichiers à la racine visent explicitement `develop` ; le site publié suit `main/docs`.
 
-## UI design reference
-
-[UI design handoff review and scope decisions](design-handoff.md) — visual tokens, desktop/mobile reference widths and explicit US09 password discrepancy. The [source PDF](design/DataShare_UI_Design_Handoff_v1.pdf) is committed on the TECH-04 branch.
-
-## Functional MVP — US01 through US06
-
-- [US03 — Registration](us03-registration.md) and [US04 — JWT login](us04-jwt-login.md)
-- [US01 — Private upload, expiration and purge](us01-upload.md)
-- [US02 — Public share metadata and download](us02-public-sharing.md) — T01–T05 accepted per developer
-- [US05 — Personal history](us05-personal-history.md) — owner isolation and HTTP 401 accepted
-- [US06 — Individual deletion](us06-file-deletion.md) — T01–T05 accepted per developer
-
-These features are merged into **`develop`**. Publishing `main` and visual/responsive acceptance are separate steps. ZIP archives are not antivirus-scanned.
-
-## MVP requirements
-
-US01 authenticated upload · US02 link-based download · US03 registration · US04 JWT login · US05 personal history · US06 individual file deletion.
-
-US07–US10 remain optional; **US01 already mandates expiry and automatic deletion**. The current architectural choice is one share link per transfer, which may contain multiple individually manageable files.
-
-## Project and delivery
-
-[**GitHub repository**](https://github.com/jlbokass/datashare) · [Issues and user stories](https://github.com/jlbokass/datashare/issues) · [Pull requests](https://github.com/jlbokass/datashare/pulls)
-
-The project uses work branches → `develop` → protected `main`. GitHub Pages publishes **documentation only** from `main/docs`; running the Laravel API requires a separate application runtime.
-
-### Remaining quality deliverables
-
-[Testing evidence](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) separates GitHub-verified results, developer-reported acceptance and remaining work. **Before OC delivery:** representative E2E, measured coverage, security checks, performance, PostgreSQL concurrency and [UI/responsive acceptance](https://github.com/jlbokass/datashare/issues/37).
-
----
-
-**Language:** [Documentation en français](index.fr.md) · [Read the repository README](https://github.com/jlbokass/datashare#readme)
+Pour la soutenance : joindre une capture de couverture, préparer la présentation et la fiche d'autoévaluation, et clarifier les règles OC d'utilisation de l'IA. La concurrence réelle PostgreSQL, l'accessibilité clavier et les performances de production ne sont pas attestées par les résultats actuels.

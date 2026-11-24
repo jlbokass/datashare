@@ -7,7 +7,7 @@ lang: fr
 
 # DataShare — Handoff de conception UI
 
-[**English**](design-handoff.md) · [Documentation technique](index.fr.md)
+[**English**](design-handoff.md) · [Documentation technique](index.md)
 
 **Source :** *DataShare UI Design Handoff*, version 1 du **17 novembre 2026**, **23 pages**, réalisé à partir des exports Figma. [Maquettes Figma originales](https://www.figma.com/design/i4HHiGsL7Kc3kVBo41m7F6).
 
@@ -15,7 +15,7 @@ lang: fr
 
 ## Rôle et périmètre
 
-Le handoff est la **référence visuelle et la grille de recette UI** des prochains écrans Angular ; les **spécifications OC et US01–US06** restent la source des exigences métier. TECH-04 a préparé l'environnement ; US01 comprend désormais un écran de téléversement fonctionnel, **mais le développeur a signalé des écarts visuels avec Figma**. Leur correction est suivie dans [UI-01 #37](https://github.com/jlbokass/datashare/issues/37), distincte de la validation métier.
+Ce document constitue la référence visuelle des écrans Angular et retrace les décisions initiales. Les spécifications OC et US01–US06 définissent les exigences métier. Les écarts constatés initialement ont été traités dans [UI-01 #37](https://github.com/jlbokass/datashare/issues/37), clôturé le 23 novembre 2026 ; voir le bilan ci-dessous.
 
 - Douze exports initiaux regroupés en téléversement, connexion/inscription, espace personnel, composants et variantes de téléchargement public (PDF p. 2–3).
 - Desktop **1440 × 1024**, mobile **393 × 852**. Vérifier aussi **320 / 768 / 1024 px** et la navigation mobile (PDF p. 1 et 21).
@@ -39,11 +39,11 @@ Le handoff est la **référence visuelle et la grille de recette UI** des procha
 
 **Ne pas inventer** des codes d'état précis lorsque le PDF indique seulement des teintes approximatives (p. 4–5).
 
-## Arbitrages avant la réalisation des écrans
+## Arbitrages initiaux de conception
 
 | Priorité | Écart maquette / spécifications | Décision MVP au stade TECH-04 |
 | --- | --- | --- |
-| **P0** | Champ mot de passe à l'envoi et téléchargement protégé | **US09 facultative** : ne pas afficher un champ faussement fonctionnel ni promettre cette API avant décision et implémentation distinctes. Variante UI à arbitrer explicitement. |
+| **P0** | Champ mot de passe à l'envoi et téléchargement protégé | **US09 facultative** : ne pas afficher un champ faussement fonctionnel ni promettre cette API avant décision et implémentation distinctes. Champ omis dans le MVP. |
 | **P1** | Maquettes illustrant souvent **un seul fichier** | Préserver **plusieurs fichiers par transfert**, exigence US01 et contrat API, et adapter la liste si nécessaire. |
 | **P1** | Nom et avatar fictifs (« Claire Marie ») | Afficher les **données réellement renvoyées** par l'API, jamais inventer un profil. |
 | **P1** | Erreurs de téléchargement / expiration | Respecter les statuts et comportements backend en harmonisant leur présentation Figma. |
@@ -51,8 +51,19 @@ Le handoff est la **référence visuelle et la grille de recette UI** des procha
 
 **Attention à la référence historique :** la page 23 du handoff mentionne « PR #32 / FRONT-FINAL » ; ce n'est **pas** l'issue GitHub actuelle #32 (TECH-04) ni un numéro de PR confirmé pour ce projet.
 
-## Recette UI ultérieure — non exécutée
+## Bilan de recette — UI-01 (#37), 23 novembre 2026
 
-Lors des véritables développements Angular, faire les captures DevTools en 393 px et 1440 px, vérifier 320/768/1024 px, typographies, couleurs, espacements, états chargement/erreur/succès/expiration. Contrôler inscription, limite upload, multifichiers, lien public, suppression, navigation responsive et tests/build avant tout statut **conforme**.
+**Résultat : conformité visuelle acceptée par le développeur.** Comparaison des écrans Angular avec les maquettes Figma à **393 × 852** (mobile) et **1440 × 1024** (desktop). Les contrôles visuels complémentaires à **320, 768 et 1024 px** ont été déclarés verts. Les captures ont été partagées pendant la recette ; elles ne sont pas archivées dans le dépôt.
 
-Le procès-verbal du PDF est **vierge** ; ce n'est pas une preuve de recette déjà faite.
+**Écrans revus :** accueil, connexion, inscription, sélection et erreur de téléversement (> 1 Go), confirmation du lien, espace personnel (liste, filtres, menu mobile), téléchargement public direct et lien expiré.
+
+**Écarts fonctionnels acceptés :**
+
+- Depuis **Mon espace**, « Envoyer des fichiers » ouvre directement `/upload` ; depuis l'accueil connecté, l'icône permet d'ouvrir ce formulaire. Avant connexion, l'icône reste décorative et le texte « Connecte-toi » est un lien.
+- Un transfert peut contenir **plusieurs fichiers**, même si Figma illustre généralement un seul fichier.
+- Le **mot de passe de partage (US09)** n'est pas implémenté : téléchargement direct selon la variante Figma, sans champ fictif.
+- Les noms, dates et fichiers proviennent de l'API ; le bouton **« Copier le lien »** est conservé aussi sur mobile (plus explicite que « Téléverser » après succès). L'année du copyright est actualisée.
+
+**À distinguer de la recette UI :** avec la démo de cinq minutes, la purge planifiée supprime les fichiers expirés et leurs métadonnées. L'onglet « Expiré » peut donc être vide. La décision de maintenir la purge actuelle est enregistrée dans [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57), **sans changement de la purge dans UI-01**.
+
+**Preuves et limites :** validation visuelle rapportée par le développeur ; résultats détaillés des derniers tests/build et vérification clavier/accessibilité **non consignés ici**. Les trois workflows CI de la [PR #58](https://github.com/jlbokass/datashare/pull/58) ont réussi ; ils n'attestent pas la validation clavier. Le procès-verbal vierge du PDF source reste une référence historique, pas une preuve d'exécution.

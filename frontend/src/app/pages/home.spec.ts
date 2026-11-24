@@ -2,7 +2,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { AuthService } from '../auth/auth.service';
+import { authGuard } from '../auth/auth.guard';
 import { Home } from './home';
 import { HomeNavigation } from './home-navigation';
 
@@ -13,7 +15,11 @@ describe('Home upload', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Home],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideRouter([{ path: 'upload', component: Home, canActivate: [authGuard] }]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
     }).compileComponents();
 
     http = TestBed.inject(HttpTestingController);
@@ -92,6 +98,139 @@ describe('Home upload', () => {
     expect(fixture.componentInstance.errorMessage()).toContain('1 Go');
   });
 
+  it('keeps the anonymous upload icon decorative and links the login prompt', () => {
+    const fixture = TestBed.createComponent(Home);
+    fixture.detectChanges();
+    http.expectOne('/api/demo/capabilities').flush({ five_minute_expiry: false });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.hero-action--decorative')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('a.hero-action')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.hero-hint a[href="/login"]')?.textContent)
+      .toContain('Connecte-toi');
+  });
+
+  it('links the authenticated home icon to the dedicated upload route', () => {
+    signIn();
+    const fixture = TestBed.createComponent(Home);
+    fixture.detectChanges();
+    http.expectOne('/api/demo/capabilities').flush({ five_minute_expiry: false });
+
+    expect(fixture.nativeElement.querySelector('a.hero-action')?.getAttribute('href')).toBe('/upload');
+    expect(fixture.nativeElement.querySelector('.upload-panel')).toBeNull();
+  });
+
+  it('displays the upload panel immediately on /upload without clicking the icon', async () => {
+    signIn();
+    const harness = await RouterTestingHarness.create();
+    const home = await harness.navigateByUrl('/upload', Home);
+    http.expectOne('/api/demo/capabilities').flush({ five_minute_expiry: false });
+    harness.detectChanges();
+
+    expect(home.uploadPanelOpen()).toBe(true);
+    expect(harness.routeNativeElement?.querySelector('.upload-panel .empty-selection')).not.toBeNull();
+    expect(harness.routeNativeElement?.querySelector('.upload-hero')).toBeNull();
+    expect((harness.routeNativeElement?.querySelector('button[type="submit"]') as HTMLButtonElement).disabled).toBe(true);
+
+    home.setFiles([new File(['content'], 'report.pdf', { type: 'application/pdf' })]);
+    harness.detectChanges();
+    expect(harness.routeNativeElement?.querySelector('.selected-files .file-name')?.textContent)
+      .toContain('report.pdf');
+
+    home.removeFile(0);
+    harness.detectChanges();
+    expect(harness.routeNativeElement?.querySelector('.upload-panel .empty-selection')).not.toBeNull();
+
+    home.reset();
+    harness.detectChanges();
+    expect(harness.routeNativeElement?.querySelector('.upload-panel .empty-selection')).not.toBeNull();
+  });
+
+  it('shows oversized selection inside the panel, disables upload, and allows replacement', () => {
+    signIn();
+    const fixture = TestBed.createComponent(Home);
+    fixture.detectChanges();
+    http.expectOne('/api/demo/capabilities').flush({ five_minute_expiry: false });
+
+    const tooLarge = new File(['content'], 'oversized.zip', { type: 'application/zip' });
+    Object.defineProperty(tooLarge, 'size', { value: 3_100_000_000 });
+    fixture.componentInstance.setFiles([tooLarge]);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.files()).toHaveLength(0);
+    expect(fixture.nativeElement.querySelector('.upload-panel .file-name')?.textContent)
+      .toContain('oversized.zip');
+    expect(fixture.nativeElement.querySelector('.upload-panel [role="alert"]')?.textContent)
+      .toContain('1 Go');
+    expect((fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement).disabled)
+      .toBe(true);
+    http.expectNone('/api/transfers');
+
+    fixture.componentInstance.setFiles([new File(['PDF'], 'valid.pdf', { type: 'application/pdf' })]);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.rejectedFiles()).toHaveLength(0);
+    expect(fixture.nativeElement.querySelector('.upload-panel [role="alert"]')).toBeNull();
+    expect((fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement).disabled)
+      .toBe(false);
+
+    const form = fixture.nativeElement.querySelector('.upload-panel form') as HTMLFormElement;
+    expect(Array.from(form.children).map(child => child.className)).toEqual([
+      'selected-files', 'field', 'primary-action',
+    ]);
+    expect(form.querySelector('button[type="submit"] svg.button-icon')).not.toBeNull();
+  });
+
+  it('displays uploaded file details and a copy action in the confirmation panel', () => {
+    signIn();
+    const fixture = TestBed.createComponent(Home);
+    fixture.detectChanges();
+    http.expectOne('/api/demo/capabilities').flush({ five_minute_expiry: false });
+
+    fixture.componentInstance.transfer.set({
+      id: 'transfer-id',
+      share_url: '/share/generated',
+      expires_at: '2026-11-25T10:00:00Z',
+      files: [{
+        id: 'uploaded-id',
+        original_name: 'report.pdf',
+        mime_type: 'application/pdf',
+        size_bytes: 1_500_000,
+        uploaded_at: '2026-11-23T10:00:00Z',
+      }],
+    });
+    fixture.componentInstance.shareUrl.set('http://127.0.0.1:8080/share/generated');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.upload-panel--success .file-name')?.textContent)
+      .toContain('report.pdf');
+    expect(fixture.nativeElement.querySelector('.upload-panel--success .primary-action')?.textContent)
+      .toContain('Copier le lien');
+
+    const panel = fixture.nativeElement.querySelector('.upload-panel--success') as HTMLElement;
+    const childOrder = Array.from(panel.children).map((child) => child.classList.item(0));
+    expect(childOrder).toEqual([
+      'panel-title', 'selected-files', 'success-message', 'field-label',
+      'share-link', 'primary-action', 'secondary-action',
+    ]);
+    expect(panel.querySelector('.panel-title')?.textContent).toContain('Ajouter un fichier');
+    expect(panel.querySelector('.success-message')?.textContent)
+      .toContain('Félicitations, ton fichier sera conservé chez nous pendant une semaine !');
+    expect(panel.querySelector('label[for="share-link"]')?.classList.contains('sr-only')).toBe(true);
+    expect(panel.querySelector<HTMLInputElement>('#share-link')?.value)
+      .toBe('http://127.0.0.1:8080/share/generated');
+
+    expect(fixture.componentInstance.formatSize(512)).toBe('512 octets');
+    expect(fixture.componentInstance.formatSize(5400)).toBe('5,4 Ko');
+    fixture.componentInstance.expiresInDays.set(2);
+    expect(fixture.componentInstance.confirmationMessage())
+      .toContain('pendant 2 jours !');
+    fixture.componentInstance.demoEnabled.set(true);
+    fixture.componentInstance.demoSelected.set(true);
+    expect(fixture.componentInstance.confirmationMessage())
+      .toContain('pendant 5 minutes !');
+  });
+
   it('starts a fresh transfer when the header brand is clicked on the current home route', () => {
     const fixture = TestBed.createComponent(Home);
     const home = fixture.componentInstance;
@@ -112,11 +251,11 @@ describe('Home upload', () => {
     fixture.detectChanges();
 
     http.expectOne('/api/demo/capabilities').flush({ five_minute_expiry: true });
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('option[value="demo5"]')).not.toBeNull();
 
     const home = fixture.componentInstance;
     home.setFiles([new File(['%PDF-1.4'], 'demo.pdf', { type: 'application/pdf' })]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('option[value="demo5"]')).not.toBeNull();
     home.changeExpiry({ target: { value: 'demo5' } } as unknown as Event);
     home.upload();
 
@@ -145,6 +284,8 @@ describe('Home upload', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.demoEnabled()).toBe(false);
+    fixture.componentInstance.setFiles([new File(['%PDF-1.4'], 'demo.pdf', { type: 'application/pdf' })]);
+    fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('option[value="demo5"]')).toBeNull();
   });
 

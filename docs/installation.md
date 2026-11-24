@@ -7,7 +7,7 @@ lang: en
 
 # Install DataShare locally
 
-[**Français**](installation.fr.md) · [Documentation home](index.md) · [Full README](https://github.com/jlbokass/datashare/blob/main/README.md)
+[**Français**](installation.fr.md) · [Documentation home](en/index.md) · [Full README](en/README.md)
 
 **Functional US01–US06 MVP.** Use this guide on a development computer with Docker. It runs Laravel 13, Angular 22 and PostgreSQL 18 **locally** at **http://127.0.0.1:8080/**. GitHub Pages hosts static documentation only.
 
@@ -25,7 +25,7 @@ cd datashare
 git switch develop
 ```
 
-`develop` currently contains all six stories; `main` will represent the published version after the reviewed release merge. **Preserve existing `.env` files** on previously configured machines.
+`develop` contains all six stories and quality batches; `main` represents the latest published release. **Preserve existing `.env` files** on previously configured machines.
 
 **2. Configure local environments:**
 
@@ -70,4 +70,30 @@ Open **http://127.0.0.1:8080/**. The `/api/health` response alone does not prove
 
 A temporary Nginx `502` may indicate first-boot Angular installation; inspect `docker compose logs -f frontend app web`. Do not overwrite configured environment files or delete volumes. Stop while keeping the database using `docker compose down` (**not `down -v`**).
 
-[Quality badges](index.md) track GitHub Actions Laravel/Pint and Angular tests/build. Measured coverage, E2E, security, performance and [visual acceptance](https://github.com/jlbokass/datashare/issues/37) remain pending before final OC delivery. This development stack must not be exposed to the public Internet.
+All three CI workflows and quality batches have been validated; see [TESTING](en/TESTING.md). Do not expose this development configuration to the public Internet.
+
+## Services and diagnostics
+
+| Service | Role |
+| --- | --- |
+| `db` | PostgreSQL 18, private Docker network, persistent volume mounted at `/var/lib/postgresql` |
+| `app` | Laravel via PHP-FPM 8.4, private network |
+| `frontend` | Angular 22 development server and HMR |
+| `web` | Nginx, sole local HTTP entry point on port 8080; API and `/up` routes to Laravel |
+| `scheduler` | Laravel cleanup |
+| `php`, `node` | On-demand CLI tools, `tools` profile |
+
+Compose project `datashare-p3` isolates its containers and volumes. Source files are mounted; Angular detects changes with `--poll 1000` and Nginx proxies HMR WebSockets. Node dependencies use a dedicated volume; lockfile changes may require `npm ci`. Compose-injected PostgreSQL variables override old local SQLite values.
+
+```bash
+docker compose exec -T db sh -lc 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+docker compose exec -T app php artisan migrate:status
+curl -fsS http://127.0.0.1:8080/up
+docker compose run --rm php php -v
+docker compose run --rm php composer --version
+docker compose run --rm php php -m
+docker compose run --rm node node --version
+docker compose run --rm node npm --version
+```
+
+Use these diagnostics when needed. Never publish interpolated Compose secrets. See [MAINTENANCE](en/MAINTENANCE.md) for purge demonstration and operating procedures.

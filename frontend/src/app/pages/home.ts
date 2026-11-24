@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { HomeNavigation } from './home-navigation';
 
@@ -30,8 +30,11 @@ export class Home implements OnInit {
   readonly auth = inject(AuthService);
   private readonly http = inject(HttpClient);
   private readonly navigation = inject(HomeNavigation);
+  private readonly route = inject(ActivatedRoute);
 
   readonly files = signal<File[]>([]);
+  readonly uploadPanelOpen = signal(this.route.snapshot.routeConfig?.path === 'upload');
+  readonly rejectedFiles = signal<File[]>([]);
   readonly expiresInDays = signal(7);
   readonly demoEnabled = signal(false);
   readonly demoSelected = signal(false);
@@ -74,38 +77,43 @@ export class Home implements OnInit {
   onDrop(event: DragEvent): void {
     event.preventDefault();
 
-    if (!this.busy()) {
+    if (this.auth.signedIn() && !this.busy()) {
       this.setFiles(Array.from(event.dataTransfer?.files ?? []));
     }
   }
 
   setFiles(files: File[]): void {
+    this.uploadPanelOpen.set(true);
     this.transfer.set(null);
     this.shareUrl.set(null);
     this.copied.set(false);
     this.errorMessage.set(null);
+    this.rejectedFiles.set([]);
+
+    // Keep invalid files visible in the panel so they can be replaced immediately.
+    const reject = (message: string): void => {
+      this.files.set([]);
+      this.rejectedFiles.set(files);
+      this.errorMessage.set(message);
+    };
 
     if (files.length > 5) {
-      this.files.set([]);
-      this.errorMessage.set('Tu peux envoyer jusqu’à 5 fichiers par transfert.');
+      reject('Tu peux envoyer jusqu’à 5 fichiers par transfert.');
       return;
     }
 
     if (files.some((file) => file.size > this.maxFileBytes)) {
-      this.files.set([]);
-      this.errorMessage.set('La taille de chaque fichier est limitée à 1 Go.');
+      reject('La taille de chaque fichier est limitée à 1 Go.');
       return;
     }
 
     if (files.reduce((total, file) => total + file.size, 0) > this.maxTotalBytes) {
-      this.files.set([]);
-      this.errorMessage.set('La taille totale est limitée à 2 Go.');
+      reject('La taille totale est limitée à 2 Go.');
       return;
     }
 
     if (files.some((file) => !this.allowedExtensions.has(file.name.split('.').pop()?.toLowerCase() ?? ''))) {
-      this.files.set([]);
-      this.errorMessage.set('Type de fichier non autorisé. Consulte les formats acceptés.');
+      reject('Type de fichier non autorisé. Consulte les formats acceptés.');
       return;
     }
 
@@ -138,7 +146,31 @@ export class Home implements OnInit {
   }
 
   formatSize(bytes: number): string {
-    return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(bytes / 1_000_000) + ' Mo';
+    const divisor = bytes >= 1_000_000_000 ? 1_000_000_000
+      : bytes >= 1_000_000 ? 1_000_000
+      : bytes >= 1_000 ? 1_000 : 1;
+    const unit = divisor === 1_000_000_000 ? 'Go'
+      : divisor === 1_000_000 ? 'Mo'
+      : divisor === 1_000 ? 'Ko' : 'octet' + (bytes > 1 ? 's' : '');
+    return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }).format(bytes / divisor) + ' ' + unit;
+  }
+
+  confirmationMessage(): string {
+    const transfer = this.transfer();
+    if (!transfer) return '';
+
+    const subject = transfer.files.length === 1
+      ? 'ton fichier sera conservé'
+      : 'tes fichiers seront conservés';
+
+    // Use the chosen retention period; the exact server expiry remains available on the link.
+    const duration = this.demoEnabled() && this.demoSelected()
+      ? '5 minutes'
+      : this.expiresInDays() === 7 ? 'une semaine'
+      : this.expiresInDays() === 1 ? 'une journée'
+      : this.expiresInDays() + ' jours';
+
+    return `Félicitations, ${subject} chez nous pendant ${duration} !`;
   }
 
   onSubmit(event: SubmitEvent): void {
@@ -220,6 +252,8 @@ export class Home implements OnInit {
     }
 
     this.files.set([]);
+    this.rejectedFiles.set([]);
+    this.uploadPanelOpen.set(this.route.snapshot.routeConfig?.path === 'upload');
     this.transfer.set(null);
     this.shareUrl.set(null);
     this.errorMessage.set(null);
