@@ -96,3 +96,7 @@ Three GitHub Actions workflows check PRs targeting `develop` and `main`: [backen
 | US06 | Single deletion, multiple files, cancellation, non-owner rejection and last-link revocation: five passing scenarios ([PR #46](https://github.com/jlbokass/datashare/pull/46)). |
 
 These acceptance reports do not replace the CI evidence above. The current suite does not demonstrate real PostgreSQL concurrency or a 1 GB load test.
+
+### Swagger UI interactive acceptance
+
+On 25 November 2026, the developer reported all 17 checks of [QA-API #76](https://github.com/jlbokass/datashare/issues/76) passing: Authentication (4), Transfers (7), Public sharing (4) and System (2). All ten documented operations were exercised, including single- and multiple-file multipart uploads and public downloads without JWT. This local acceptance complements automated tests; it is neither a new coverage measurement nor an exhaustive OpenAPI conformance audit.
