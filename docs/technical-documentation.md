@@ -133,7 +133,19 @@ The application is served at `http://127.0.0.1:8080/`. E2E tests use **`compose.
 
 [AI development journal](ai-journal.md) · [French journal](ai-journal.fr.md)
 
-AI assisted with scoped implementations, tests and documentation; the developer defined tasks, ran acceptance checks, requested corrections and approved changes. The journal distinguishes AI work from human verification and links relevant issues/PRs.
+AI contributions cover implementation, testing and documentation tasks. Task definition, trade-offs, correction requests and acceptance of changes are part of human supervision. The AI journal distinguishes contributions, decisions and verification, with references to issues and pull requests.
+
+### Technical review of AI-generated code
+
+The summary below presents examples of review and acceptance from the [AI journal](ai-journal.md). It documents requested corrections, decisions and verification results.
+
+| Feature | Finding and decision | Verification |
+| --- | --- | --- |
+| Registration (US03, [PR #34](https://github.com/jlbokass/datashare/pull/34)) | Validation messages were initially in English; a correction was requested to match the interface language. | Local acceptance and regression tests were reported successful after correction; detailed output was not archived. |
+| Public download (US02, [PR #43](https://github.com/jlbokass/datashare/pull/43)) | Routes lost during a merge conflict were identified with Codex; routes were restored and formatting corrected. | Successful CI: 33 Laravel tests, 217 assertions, Pint and frontend checks. Five local acceptance scenarios passed. |
+| Individual deletion (US06, [PR #46](https://github.com/jlbokass/datashare/pull/46)) | Ownership checks, file-scoped deletion and parent-transfer locking were retained. | [Backend CI](https://github.com/jlbokass/datashare/actions/runs/44446497875): 52 tests and 364 assertions; [frontend CI](https://github.com/jlbokass/datashare/actions/runs/44446497731): 44 tests and successful build. Five local scenarios passed. Storage/database atomicity remains a documented limitation. |
+
+These examples illustrate supervision of AI contributions through review of changes, automated tests and functional acceptance. The journal provides the detailed record of these decisions; this summary is not an exhaustive code audit.
 
 **To clarify before the assessment:** the written mission limits AI-developed work to one User Story, while the journal records contributions spanning multiple stories. Confirm the applicable guidance and accurately present those contributions without altering the history.
 
