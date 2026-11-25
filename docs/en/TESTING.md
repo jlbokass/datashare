@@ -39,31 +39,7 @@ Reference: [PR #100](https://github.com/jlbokass/datashare/pull/100), commit [be
 
 The indicative 70% target is met separately for both applications. Coverage artifacts expire on **9 December 2026** and the E2E summary on **2 December 2026**. Download these reports and include release-specific screenshots in the assessment submission; screenshots are not versioned here.
 
-### Historical results — 22 November 2026
-
-**Verified reference:** commit `9810a88`, PR #52, GitHub Actions on **22 November 2026**.
-
-| Level | CI result | Line coverage | Evidence |
-| --- | --- | --- | --- |
-| **Laravel / PHPUnit + Pint** | **52 tests PASS**, 364 assertions; formatting PASS | **96.36%** (318/330) | [Backend run](https://github.com/jlbokass/datashare/actions/runs/45076254553) |
-| **Angular / Vitest + build** | **44 tests PASS**; production build PASS | **79.58%** | [Frontend run](https://github.com/jlbokass/datashare/actions/runs/45076254559) |
-| **Playwright / Chromium** | **6 tests PASS**, one worker, 5.8 s | Not applicable | [E2E run](https://github.com/jlbokass/datashare/actions/runs/45076254577) |
-
-The indicative OpenClassrooms **70%** line-coverage target is met on both codebases; **do not add or average the two percentages**. Measurement details: [QL-01 coverage report](../coverage.md). The developer also reported **6/6 local E2E PASS** on 22 November 2026; the GitHub Actions runs provide independently checked evidence.
-
-CI coverage artifacts are retained for **14 days**, and the E2E summary for **7 days**, subject to GitHub retention. Coverage report screenshots belong in the assessment submission, as requested in the specifications; they are not versioned here.
-
-### Historical release — 24 November 2026
-
-Reference: [97abebd](https://github.com/jlbokass/datashare/commit/97abebd7fc704821e0f8c5bbcedf7f7e0b58590b), `main` branch, release [PR #68](https://github.com/jlbokass/datashare/pull/68). Earlier measurements remain dated historical results.
-
-| Check | Result | Line coverage | Evidence |
-| --- | --- | --- | --- |
-| Laravel / PHPUnit + Pint | 52 tests passed, 364 assertions; formatting compliant | **96.36%** (318/330) | [Backend CI](https://github.com/jlbokass/datashare/actions/runs/45302509975) |
-| Angular / Vitest + build | 52 tests passed (7 files); build passed | **85.97%** | [Frontend CI](https://github.com/jlbokass/datashare/actions/runs/45302510070) |
-| Playwright / Chromium | 6 tests passed (7.7 s) | Not applicable | [E2E CI](https://github.com/jlbokass/datashare/actions/runs/45302509992) |
-
-Both line-coverage measurements independently exceed the 70% target. Coverage screenshots were reported prepared for the assessment submission; they are not versioned here. HTML reports can be downloaded from GitHub Actions runs subject to retention.
+The 19, 22 and 24 November results, CI evidence and measurement scope are grouped in the [coverage report](../coverage.md).
 
 ## 3. Running the checks
 

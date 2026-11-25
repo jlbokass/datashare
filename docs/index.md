@@ -50,4 +50,4 @@ Les trois workflows CI et la [publication GitHub Pages](https://github.com/jlbok
 
 Le workflow repose sur une branche dédiée, une PR revue vers `develop`, puis une PR distincte de livraison vers `main`. Les documents de référence à la racine sont en français ; leurs [traductions anglaises](en/index.md) sont regroupées dans `docs/en/`. Les liens vers les fichiers à la racine visent `main` ; le site publié suit `main/docs`.
 
-Pour la soutenance : joindre les captures de coverage de la release et finaliser la présentation. Six contrôles manuels au clavier ont été validés le 24 novembre ([compte rendu](design-handoff.fr.md)) ; il ne s'agit pas d'un audit d'accessibilité complet. La concurrence réelle PostgreSQL et les performances de production ne sont pas démontrées.
+Six contrôles manuels au clavier ont été validés le 24 novembre ([compte rendu](design-handoff.fr.md)) ; il ne s'agit pas d'un audit d'accessibilité complet. La concurrence réelle PostgreSQL et les performances de production ne sont pas démontrées.

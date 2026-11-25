@@ -63,41 +63,9 @@ PROFILE-01 implements `nom` / `prenom` as `users.name` (existing nullable column
 | **US10 — automatic expiry** | Adds scheduling requirements; the basic expiry and automatic deletion already belong to mandatory US01. | Cleanup implemented under US01; no separate work package |
 | **Download analytics (proposal)** | Optional DOWNLOAD EVENT class; useful for download counts and transferred-byte totals. Not required by any of the official MVP US. | Not implemented |
 
-A download event records a **successful actual download**, not a visit to the share page. `totalOctetsTelecharges` and `nbFichiers` describe **what was actually transferred in the event**, not the full size or file count of the original share.
+## 4. Download analytics — unimplemented proposal
 
-## 4. Optional download statistics after deletion — historical proposal
-
-**Unimplemented proposal:** retain useful anonymous download-volume/activity statistics while deleting expired transfers, files, and their associated operational metadata.
-
-1. **Before deletion:** a DOWNLOAD EVENT is attached to **exactly one** existing TRANSFER. A future implementation would enforce this at creation.
-2. **When the transfer is deleted:** the event survives, but its relationship to the deleted TRANSFER is removed. The UML historical multiplicity is therefore **0..1**.
-3. **Analytic measurements retained:** downloaded-byte total and actual number of files downloaded, plus a time bucket suitable for reporting (e.g. day/month), provided the retained dataset is truly anonymous.
-4. **Personal data:** do not retain user IDs, file names, share tokens, raw IP addresses, IP hashes or user-agent strings in the post-purge analytics dataset. Remove other indirectly identifying details; coarsen or aggregate event timing if necessary. A mere hash is **pseudonymisation**, not automatically anonymisation.
-5. **Retention:** define the lawful purpose and retention policy before implementing tracking. If true anonymisation cannot be demonstrated, apply the GDPR to the remaining data and delete it within a defined period.
-
-A null foreign key is only **referential integrity**, not proof of GDPR compliance. A highly detailed per-event combination of timestamp and byte counts may still be identifying in context; **daily/monthly aggregation is preferable** if long-term statistics are the objective.
-
-Official background: [CNIL — Identifying personal data](https://www.cnil.fr/fr/identifier-les-donnees-personnelles) and [CNIL — Data retention periods](https://www.cnil.fr/fr/passer-laction/les-durees-de-conservation-des-donnees).
-
-### Future physical PostgreSQL translation (illustrative only)
-
-The MCD has **no foreign keys or SQL-specific constraints**. If optional tracking is implemented later, a nullable column and `ON DELETE SET NULL` can preserve download events when their TRANSFER disappears:
-
-```sql
--- Future schema only; do not execute during DESIGN-02.
-ALTER TABLE telechargements
-    ALTER COLUMN transfert_id DROP NOT NULL;
-
-ALTER TABLE telechargements
-    DROP CONSTRAINT IF EXISTS telechargements_transfert_id_fkey;
-
-ALTER TABLE telechargements
-    ADD CONSTRAINT telechargements_transfert_id_fkey
-    FOREIGN KEY (transfert_id) REFERENCES transferts(id)
-    ON DELETE SET NULL;
-```
-
-The table and column names above are illustrative. This SQL does **not** itself anonymise the remaining rows.
+In the historical model, an event would have belonged to a transfer when created and survived its deletion through a nullable FK (`ON DELETE SET NULL`). Referential integrity would not guarantee anonymization; any future implementation would need aggregates and a retention policy. No analytics table exists in the release.
 
 ## 5. Physical model and purge decision
 
