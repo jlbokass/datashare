@@ -46,7 +46,21 @@ docker compose exec -T app php artisan tinker --execute='logger()->info("datasha
 
 Le message JSON de cette commande apparaît sur la sortie d'erreur du processus exécuté par `docker compose exec` ; il ne constitue pas à lui seul une preuve de collecte du service PHP-FPM. Les journaux des processus permanents restent consultables avec `docker compose logs`. Utiliser la commande de test uniquement en local.
 
-Pour analyser les métriques, comparer le statut et `request_time_s` lors d'un transfert ou d'un téléchargement de test ; `response_body_bytes` mesure le corps de la réponse et non la taille du fichier pour toutes les routes. Voir [PERF.md](PERF.md) pour les mesures chronométrées. La recette locale de la journalisation structurée Nginx et Laravel, décrite ci-dessus, a été déclarée réussie le 24 novembre 2026 ([PR #72](https://github.com/jlbokass/datashare/pull/72)). Les sorties détaillées et la version exacte de Nginx ne sont pas archivées ; ce résultat ne constitue pas un audit de confidentialité exhaustif. Dozzle reste une [évolution facultative](https://github.com/jlbokass/datashare/issues/64).
+Pour analyser les métriques, comparer le statut et `request_time_s` lors d'un transfert ou d'un téléchargement de test ; `response_body_bytes` mesure le corps de la réponse et non la taille du fichier pour toutes les routes. Voir [PERF.md](PERF.md) pour les mesures chronométrées. La recette locale de la journalisation structurée Nginx et Laravel, décrite ci-dessus, a été déclarée réussie le 24 novembre 2026 ([PR #72](https://github.com/jlbokass/datashare/pull/72)). Les sorties détaillées et la version exacte de Nginx ne sont pas archivées ; ce résultat ne constitue pas un audit de confidentialité exhaustif.
+
+### Dozzle — consultation facultative des journaux
+
+Le service Dozzle ([OPS-01 #64](https://github.com/jlbokass/datashare/issues/64)) appartient au profil `observability` ; le démarrage normal ne l'active pas. Sur l'environnement déjà configuré :
+
+```bash
+make dozzle-up    # docker compose up -d dozzle
+make health
+make dozzle-stop  # docker compose stop dozzle (après consultation)
+```
+
+Entre le démarrage et l'arrêt, ouvrir **http://127.0.0.1:9999/**. Les journaux Docker de `app`, `frontend`, `web`, `db` et `scheduler` y sont accessibles s'ils sont émis sur stdout/stderr. Le filtre limite les conteneurs affichés au projet Compose ; Dozzle dispose d'un réseau dédié, sans publication hors localhost.
+
+**Sécurité :** terminal, actions sur les conteneurs et MCP désactivés ; aucune authentification prévue pour cet usage local individuel. Le socket Docker monté avec `:ro` reste un accès privilégié à l'API Docker : ce montage ne garantit pas un accès API en lecture seule et le filtre n'est pas une frontière de sécurité. Les logs ne sont pas automatiquement expurgés ; vérifier l'absence de secrets avant toute capture ou démonstration. Ne pas exposer ce service ni l'utiliser avec des données réelles ; l'arrêter après usage. [Configuration officielle](https://dozzle.dev/guide/supported-env-vars).
 
 ## Mise à jour des dépendances — fréquence proposée
 
@@ -72,7 +86,7 @@ Effectuer les mises à jour **sur une branche dédiée**. Versionner les fichier
 - Avant une mise en production avec des données réelles, définir la durée de conservation, les droits d'accès, le chiffrement et l'automatisation des sauvegardes.
 - Avant une migration, vérifier les données existantes, éviter la commande destructive `migrate:fresh` et documenter les possibilités et limites du retour arrière.
 - L'application n'est pas déployée en production et aucune procédure automatisée de livraison applicative n'est opérationnelle.
-- L'intégration éventuelle d'un outil de consultation des journaux, tel que Dozzle, nécessite une évaluation des accès privilégiés au socket et à l'API Docker.
+- Toute utilisation de Dozzle hors du poste de développement nécessite une nouvelle évaluation des accès privilégiés à Docker et des mesures de protection.
 
 ## Fiche d'opération
 

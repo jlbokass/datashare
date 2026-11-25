@@ -104,6 +104,26 @@ services:
       - app
       - frontend
 
+  # Optional local log viewer; never started with the normal MVP stack.
+  dozzle:
+    image: amir20/dozzle:v10.9.2
+    profiles: ["observability"]
+    ports:
+      - "127.0.0.1:9999:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      DOZZLE_FILTER: "label=com.docker.compose.project=${COMPOSE_PROJECT_NAME:-datashare-p3}"
+      DOZZLE_ENABLE_ACTIONS: "false"
+      DOZZLE_ENABLE_SHELL: "false"
+      DOZZLE_ENABLE_MCP: "false"
+      DOZZLE_NO_ANALYTICS: "true"
+    networks:
+      - dozzle_net
+
+networks:
+  dozzle_net:
+
 volumes:
   postgres_data:
   frontend_node_modules:

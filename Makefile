@@ -1,7 +1,7 @@
 # DataShare — shortcuts for an already configured local environment.
 .DEFAULT_GOAL := help
 
-.PHONY: help up down ps logs health qa qa-backend qa-frontend status
+.PHONY: help up down ps logs health qa qa-backend qa-frontend status dozzle-up dozzle-stop
 
 help:
 	@printf '%s\n' 'make up          Start the local stack' \
@@ -12,7 +12,9 @@ help:
 	  'make qa          Run Laravel/Pint and Angular tests/build' \
 	  'make qa-backend  Run Laravel tests and Pint' \
 	  'make qa-frontend Run Angular tests and build' \
-	  'make status      Check local/remote Git synchronization'
+	  'make status      Check local/remote Git synchronization' \
+	  'make dozzle-up   Start the optional local log viewer' \
+	  'make dozzle-stop Stop the log viewer'
 
 up:
 	docker compose up -d
@@ -40,3 +42,9 @@ qa-frontend:
 
 status:
 	bash scripts/qa.sh status
+
+dozzle-up:
+	docker compose up -d dozzle
+
+dozzle-stop:
+	docker compose stop dozzle
