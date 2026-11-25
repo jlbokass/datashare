@@ -63,7 +63,7 @@ Routes are defined in `frontend/src/app/app.routes.ts`. `/upload` reuses the hom
 
 [UML conceptual model](data-model.md) · [Diagram](diagrams/data-model.svg)
 
-Three main entities: **User** (unique email, password hash), **Transfer** (owner, public token, expiry) and **File** (name, type, size and private storage locator). A user owns many transfers; each transfer contains one or more files. PostgreSQL migrations are versioned in `backend/database/migrations/`. Optional US08 tags are not implemented.
+Three main entities: **User** (unique email, password hash), **Transfer** (owner, public token, expiry) and **File** (name, type, size and private storage locator). A user owns many transfers; each transfer contains one or more files. PostgreSQL migrations are versioned in `backend/database/migrations/`. Optional US08 associates zero or more private tags with each file (maximum 30 characters, per-file uniqueness, cascade deletion).
 
 ## 4. REST API documentation
 
@@ -80,6 +80,7 @@ The local-only interface groups ten operations into Authentication, Transfers, P
 | US02 — public sharing/download | `GET /api/shares/{token}`, `GET /api/shares/{token}/files/{fileId}` |
 | US05 — owner history | `GET /api/transfers` |
 | US06 — individual file deletion | `DELETE /api/transfers/{transferId}/files/{fileId}` |
+| US08 — private tags (optional) | `PUT /api/transfers/{transferId}/files/{fileId}/tags` |
 
 These routes are implemented; request/response schemas and statuses are documented in OpenAPI. Private owner actions require a JWT, whereas a valid public share is accessible anonymously.
 

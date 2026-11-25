@@ -513,6 +513,100 @@
           ]
         },
         {
+          "name": "Replace private file tags — disposable upload",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tags\": [\"Project\", \"Invoices\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transfers/{{transferId}}/files/{{fileId}}/tags",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transfers",
+                "{{transferId}}",
+                "files",
+                "{{fileId}}",
+                "tags"
+              ]
+            },
+            "description": "US08: replace the whole list of private tags on the last disposable upload. Send {\"tags\": []} to remove all tags.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!/^postman-[a-z0-9-]+@example\\.com$/i.test(pm.environment.get(\"email\") || \"\") || !pm.environment.get(\"password\")) {",
+                  "    console.warn(\"Set disposable email postman-...@example.com and password in local environment values.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "if (!pm.environment.get(\"jwt\")) {",
+                  "    console.warn(\"Run Obtain an access token first.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "const transferId = pm.environment.get(\"transferId\");",
+                  "const transferId = pm.environment.get(\"transferId\");",
+                  "const fileId = pm.environment.get(\"fileId\");",
+                  "if (!transferId || !fileId ||",
+                  "    pm.variables.get(\"transferId\") !== transferId ||",
+                  "    pm.variables.get(\"fileId\") !== fileId ||",
+                  "    transferId !== pm.environment.get(\"createdTransferId\") ||",
+                  "    fileId !== pm.environment.get(\"createdFileId\") ||",
+                  "    pm.environment.get(\"email\") !== pm.environment.get(\"createdForEmail\")) {",
+                  "    console.warn(\"Tag update skipped. Use only the captured disposable upload.\");",
+                  "    pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Persisted tags match request\", function () {",
+                  "        pm.expect(pm.response.json().tags).to.eql(JSON.parse(pm.request.body.raw).tags);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "DELETE — disposable uploaded file only (manual)",
           "request": {
             "method": "DELETE",

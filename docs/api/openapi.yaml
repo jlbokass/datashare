@@ -6,7 +6,8 @@ info:
     DESIGN-03 — Design contract for the implemented OpenClassrooms MVP (US01–US06),
     reconciled with Laravel on 24 November 2026 (DELIVERY-API #75). Scramble
     generates a complementary OpenAPI document at /docs/api.json in local only.
-    Optional US07–US10 are not exposed. See README.md for inference limitations.
+    Optional US08 adds private file tags. US07, US09 and separate US10 extensions are not exposed.
+    See README.md for inference limitations.
 servers:
   - url: /api
     description: API path prefix on the same origin as the Angular application
@@ -14,7 +15,7 @@ tags:
   - name: Authentication
     description: Account registration and JWT authentication (US03, US04)
   - name: Transfers
-    description: Authenticated upload, personal history and individual file deletion (US01, US05, US06)
+    description: Authenticated upload, personal history and individual file deletion and tags (US01, US05, US06, US08)
   - name: Public sharing
     description: Unauthenticated metadata lookup and file download using a share token (US02)
 security: []
@@ -209,6 +210,45 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 
+  /transfers/{transferId}/files/{fileId}/tags:
+    put:
+      tags: [Transfers]
+      summary: Replace the private tags of one owned file
+      description: |
+        US08. Replace the entire list atomically; an empty list clears all tags.
+        Labels are trimmed, case-sensitive, non-empty, at most 30 characters,
+        and unique per file. Unknown or non-owned resources return 404.
+        Tags are not exposed through public sharing.
+      operationId: replaceMyFileTags
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TransferId'
+        - $ref: '#/components/parameters/FileId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileTags'
+            example:
+              tags: [Projet, Factures]
+      responses:
+        '200':
+          description: Persisted private tags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileTags'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
   /shares/{token}:
     get:
       tags: [Public sharing]
@@ -396,6 +436,42 @@ components:
         uploaded_at:
           type: string
           format: date-time
+    OwnedFileMetadata:
+      type: object
+      additionalProperties: false
+      required: [id, original_name, size_bytes, mime_type, uploaded_at, tags]
+      properties:
+        id:
+          type: string
+          format: uuid
+        original_name:
+          type: string
+        size_bytes:
+          type: integer
+          format: int64
+          minimum: 0
+        mime_type:
+          type: string
+        uploaded_at:
+          type: string
+          format: date-time
+        tags:
+          $ref: '#/components/schemas/TagList'
+    TagList:
+      type: array
+      uniqueItems: true
+      items:
+        type: string
+        minLength: 1
+        maxLength: 30
+      description: Private labels, trimmed and unique per file; exact case is retained.
+    FileTags:
+      type: object
+      additionalProperties: false
+      required: [tags]
+      properties:
+        tags:
+          $ref: '#/components/schemas/TagList'
     Transfer:
       type: object
       additionalProperties: false
@@ -422,7 +498,7 @@ components:
           type: array
           minItems: 1
           items:
-            $ref: '#/components/schemas/FileMetadata'
+            $ref: '#/components/schemas/OwnedFileMetadata'
     PublicShare:
       type: object
       additionalProperties: false
