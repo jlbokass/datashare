@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AuthorizeDownloadRequest;
 use App\Services\PublicShareAccess;
+use Dedoc\Scramble\Attributes\BodyParameter;
 use Dedoc\Scramble\Attributes\Group;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Http\JsonResponse;
@@ -26,6 +27,7 @@ final class AuthorizePublicDownloadController extends Controller
      * Attempts are limited to five per minute per client IP.
      */
     #[Group('Public sharing', weight: 30)]
+    #[BodyParameter('password', description: 'File password: 6 characters minimum, 72 UTF-8 bytes maximum.', required: true, type: 'string', format: 'password')]
     #[Response(200, type: 'array{download_url: string}')]
     public function __invoke(AuthorizeDownloadRequest $request, string $token, string $fileId, PublicShareAccess $access): JsonResponse
     {

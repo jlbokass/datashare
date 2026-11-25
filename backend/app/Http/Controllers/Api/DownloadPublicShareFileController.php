@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\PublicShareAccess;
 use Dedoc\Scramble\Attributes\Group;
+use Dedoc\Scramble\Attributes\QueryParameter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -23,6 +24,8 @@ class DownloadPublicShareFileController extends Controller
      * require a valid, short-lived relative signature obtained through POST /authorize.
      */
     #[Group('Public sharing', weight: 30)]
+    #[QueryParameter('expires', description: 'Expiration timestamp from the signed URL, required for protected files only.', required: false, type: 'int')]
+    #[QueryParameter('signature', description: 'Signature from the authorization response, required for protected files only.', required: false, type: 'string')]
     public function __invoke(Request $request, string $token, string $fileId, PublicShareAccess $access): StreamedResponse|JsonResponse
     {
         $transfer = $access->resolve($token);

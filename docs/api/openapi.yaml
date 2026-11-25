@@ -7,7 +7,7 @@ info:
     reconciled with Laravel on 24 November 2026 (DELIVERY-API #75). Scramble
     generates a complementary OpenAPI document at /docs/api.json in local only.
     Optional US08 adds private file tags; PROFILE-01 adds optional names and profile editing.
-    US07, US09 and separate US10 extensions are not exposed.
+    US09 adds optional per-file password protection. US07 and separate US10 extensions are not exposed.
     See README.md for inference limitations.
 servers:
   - url: /api
@@ -137,6 +137,7 @@ paths:
         days. A separate five-minute expiry is opt-in for local/testing only.
         Files are private. Content and extension are checked against pdf, png,
         jpg, jpeg, gif, webp, txt, mp3, mp4 and zip. See SECURITY.md.
+        US09: optionally supply passwords[] in file order, including empty entries for unprotected files.
       operationId: createTransfer
       security:
         - bearerAuth: []
@@ -148,6 +149,9 @@ paths:
               $ref: '#/components/schemas/CreateTransferRequest'
             encoding:
               'files[]':
+                style: form
+                explode: true
+              'passwords[]':
                 style: form
                 explode: true
       responses:
@@ -286,8 +290,8 @@ paths:
       description: |
         US02. No JWT is required. A valid, unpredictable token is necessary.
         Expose only file metadata needed to decide whether to download:
-        filename, type, size and expiry date. Never disclose the owner,
-        credentials, storage path or private object key.
+        filename, type, size, expiry date and password_protected boolean.
+        Never disclose the owner, password, password hash, storage path or private object key.
       operationId: getPublicShare
       parameters:
         - $ref: '#/components/parameters/ShareToken'
@@ -315,11 +319,23 @@ paths:
         the API. The storage itself must never be publicly accessible.
         An expired but not-yet-purged share responds 410; a purged/unknown
         share or mismatched file responds 404. This route is intentionally
-        per-file, consistent with individual deletion in US06.
+        per-file, consistent with individual deletion in US06. US09 protected files
+        additionally require the relative URL signature obtained through POST /authorize.
+        A missing, expired or invalid signature returns 403.
       operationId: downloadSharedFile
       parameters:
         - $ref: '#/components/parameters/ShareToken'
         - $ref: '#/components/parameters/FileId'
+        - name: expires
+          in: query
+          description: Unix expiration timestamp from the signed URL; required only for protected files.
+          schema:
+            type: integer
+        - name: signature
+          in: query
+          description: Signature from the signed URL; required only for protected files.
+          schema:
+            type: string
       responses:
         '200':
           description: File bytes streamed as an attachment
@@ -346,8 +362,68 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '410':
           $ref: '#/components/responses/ExpiredShareError'
+        '403':
+          description: Password-protected file without a valid signed URL (password_required)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         '500':
           $ref: '#/components/responses/DownloadServerError'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsError'
+
+  /shares/{token}/files/{fileId}/authorize:
+    post:
+      tags: [Public sharing]
+      summary: Authorize a password-protected download
+      description: |
+        US09. No JWT. Verify share token, file membership, expiry and password.
+        Return a relative signed URL valid for 60 seconds for the selected file only.
+        Five attempts per minute per client IP; no password or hash in the response.
+        Use the returned URL as-is, before expiry.
+      operationId: authorizeProtectedDownload
+      parameters:
+        - $ref: '#/components/parameters/ShareToken'
+        - $ref: '#/components/parameters/FileId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password:
+                  type: string
+                  format: password
+                  writeOnly: true
+                  minLength: 6
+                  maxLength: 72
+                  description: Exact password, at most 72 UTF-8 bytes; not blank or NUL-containing.
+      responses:
+        '200':
+          description: Temporary signed download URL (relative to the application origin)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [download_url]
+                properties:
+                  download_url:
+                    type: string
+        '403':
+          description: Incorrect password or file not protected (invalid_password)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '410':
+          $ref: '#/components/responses/ExpiredShareError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
         '429':
           $ref: '#/components/responses/TooManyRequestsError'
 
@@ -477,7 +553,7 @@ components:
     FileMetadata:
       type: object
       additionalProperties: false
-      required: [id, original_name, size_bytes, mime_type, uploaded_at]
+      required: [id, original_name, size_bytes, mime_type, uploaded_at, password_protected]
       properties:
         id:
           type: string
@@ -493,10 +569,12 @@ components:
         uploaded_at:
           type: string
           format: date-time
+        password_protected:
+          type: boolean
     OwnedFileMetadata:
       type: object
       additionalProperties: false
-      required: [id, original_name, size_bytes, mime_type, uploaded_at, tags]
+      required: [id, original_name, size_bytes, mime_type, uploaded_at, tags, password_protected]
       properties:
         id:
           type: string
@@ -514,6 +592,8 @@ components:
           format: date-time
         tags:
           $ref: '#/components/schemas/TagList'
+        password_protected:
+          type: boolean
     TagList:
       type: array
       uniqueItems: true
@@ -586,6 +666,22 @@ components:
           items:
             type: string
             format: binary
+        'passwords[]':
+          type: array
+          description: |
+            Optional repeated multipart text parts, exactly one per file in the same order.
+            Empty string means unprotected. Otherwise 6 characters minimum, 72 UTF-8 bytes
+            maximum, no NUL or whitespace-only value. Leading/trailing spaces are significant.
+          maxItems: 5
+          items:
+            anyOf:
+              - type: string
+                const: ''
+              - type: string
+                format: password
+                minLength: 6
+                maxLength: 72
+                writeOnly: true
         expires_in_days:
           type: integer
           minimum: 1
@@ -711,7 +807,7 @@ components:
             message: Unable to complete the operation.
             code: server_error
     TooManyRequestsError:
-      description: Rate limit exceeded (register 10/min, login 5/min, each public share route 60/min)
+      description: Rate limit exceeded (register 10/min, login 5/min, public share reads/downloads 60/min, password authorization 5/min per IP)
       headers:
         Retry-After:
           description: Seconds until retry is permitted

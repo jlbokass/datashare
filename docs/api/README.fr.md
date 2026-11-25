@@ -7,7 +7,7 @@ lang: fr
 
 # DataShare API — Contrat d'interface
 
-L'API REST couvre les fonctionnalités obligatoires US01–US06 et les extensions facultatives US08 (tags privés) et PROFILE-01 (profil). Elle est documentée à partir du code Laravel et du contrat de conception [DESIGN-03](https://github.com/jlbokass/datashare/issues/3).
+L'API REST couvre les fonctionnalités obligatoires US01–US06 et les extensions facultatives US08 (tags privés), US09 (mot de passe par fichier) et PROFILE-01 (profil). Elle est documentée à partir du code Laravel et du contrat de conception [DESIGN-03](https://github.com/jlbokass/datashare/issues/3).
 
 [English version](README.md) · [Documentation technique](../technical-documentation.fr.md) · [Installation](../installation.fr.md)
 
@@ -57,6 +57,12 @@ L'inscription accepte facultativement `name` (nom) et `first_name` (prénom), ch
 
 `PUT /transfers/{transferId}/files/{fileId}/tags` remplace la liste complète (`{"tags":["Projet","Factures"]}`), ou la vide avec `{"tags":[]}`. Le JWT et la propriété du fichier sont contrôlés. Les libellés sont nettoyés des espaces en bordure, sensibles à la casse, non vides, uniques par fichier et limités à 30 caractères. Les erreurs de validation renvoient 422 ; un fichier inconnu ou non possédé renvoie 404. Les réponses privées de téléversement et d'historique contiennent `tags` ; le partage public n'en contient pas. Pas de filtre par tag.
 
+## Mot de passe par fichier (US09 — #12)
+
+À l'envoi, omettre `passwords[]` pour ne rien protéger ou joindre autant de parties texte `passwords[]` que de fichiers `files[]`, dans le même ordre (chaîne vide pour un fichier non protégé). Un mot de passe non vide comporte 6 caractères minimum et 72 octets UTF-8 maximum (limite bcrypt), sans caractère NUL ni valeur composée uniquement d'espaces ; les espaces en bordure sont conservés. Le serveur ne persiste que le hash. Les métadonnées exposent uniquement `password_protected`.
+
+Pour un fichier protégé, envoyer `POST /shares/{token}/files/{fileId}/authorize` avec le corps JSON `{"password":"..."}`, sans JWT. Un mot de passe incorrect renvoie 403 (`invalid_password`), une saisie invalide 422, et la sixième tentative dans la fenêtre d'une minute 429. La réponse 200 contient `download_url`, URL relative signée valable 60 secondes et liée au fichier. Ouvrir cette URL exacte depuis l'origine de l'application ; le serveur revérifie le token, l'expiration du transfert, l'appartenance et la signature. Un GET non signé d'un fichier protégé renvoie 403 (`password_required`). Les fichiers non protégés restent accessibles par le GET habituel. L'URL signée est réutilisable jusqu'à son expiration : ne pas la publier ni la journaliser. Aucun mot de passe en clair, hash ni récupération ; l'upload anonyme reste hors périmètre.
+
 ## Recette interactive
 
 Utiliser un compte fictif et deux petits fichiers autorisés. Les requêtes créent de vrais enregistrements locaux ; ne pas utiliser de données privées ni publier de JWT.
@@ -80,5 +86,7 @@ Importer les deux fichiers [collection v2.1](postman/DataShare.postman_collectio
 Renseigner uniquement les valeurs locales (non partagées) `email` (par ex. `postman-20261125-01@example.com`, unique) et `password` (mot de passe fictif d'au moins huit caractères). Ne jamais exporter un environnement renseigné, un JWT ou un token réel. Utiliser des fichiers jetables sans données privées.
 
 Exécuter individuellement avec Send : System (2 requêtes), Authentication (4, dont la modification du profil du compte jetable), Transfers (envoi d'un fichier puis de deux fichiers avec les champs File `files[]`, puis historique), Public sharing (métadonnées puis téléchargement). Le JWT et les identifiants sont enregistrés automatiquement dans l'environnement local ; les assertions vérifient les statuts et les réponses utiles. Vérifier le fichier téléchargé si nécessaire avec Send and Download. La requête de mise à jour des tags utilise uniquement les identifiants capturés du dernier envoi jetable ; envoyer une liste de tags puis `{"tags":[]}` pour vérifier leur retrait. Le DELETE est réservé à un fichier issu du dernier envoi de recette : il est ignoré par défaut ; ne définir `allowDelete=true` qu'après le partage, si une suppression manuelle de cette donnée jetable est souhaitée. Ne pas exécuter sur des données existantes.
+
+Après les contrôles habituels, le dossier Postman **US09 — Password protected (manual)** permet d'envoyer un fichier jetable protégé, vérifier le GET non signé, le mauvais mot de passe, puis autoriser et télécharger. Renseigner uniquement la valeur locale `filePassword` avec un mot de passe fictif alphanumérique (6 caractères minimum). Envoyer la dernière requête dans les 60 secondes ; la variable d'URL signée est effacée après utilisation. Ne pas exporter de variables renseignées.
 
 Pour actualiser la collection après une évolution de l'API, importer le JSON Scramble depuis `/docs/api.json` (ou l'export ci-dessus), regrouper par tags et reporter les changements dans la collection existante en conservant les variables, scripts, autorisations et protections ; exporter en v2.1 sans secrets. Swagger UI et le contrat de conception restent les références. Aucun Newman ni nouveau contrôle CI n'est nécessaire.
