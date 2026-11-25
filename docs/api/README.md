@@ -11,6 +11,8 @@ The REST API covers the required US01–US06 features and optional US08 (private
 
 [Version française](README.fr.md) · [Technical documentation](../technical-documentation.md) · [Installation](../installation.md)
 
+Release #100 has **13 API operations** in Laravel: 4 Authentication, 4 Transfers, 3 Public sharing and 2 System (`GET /health`, `GET /demo/capabilities`). The YAML contract contains the 11 business operations; Scramble also documents the two support routes by design. The Postman collection contains 18 requests, including multiple scenarios for individual operations. The historical 10-operation acceptance does not validate all 13 final operations.
+
 ## Access and use the API
 
 | Resource | Purpose |

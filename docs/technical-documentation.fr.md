@@ -17,7 +17,7 @@ lang: fr
 
 [Description](architecture.fr.md) · [Source draw.io](diagrams/architecture.drawio)
 
-**Navigateur Angular → Nginx → API Laravel → PostgreSQL et stockage privé.** Nginx fournit une origine unique en développement (HTTP ou HTTPS local facultatif) ; Docker Compose orchestre l'application, la base et le planificateur d'expiration. Le téléchargement public utilise un lien unique, distinct du JWT requis pour les actions du propriétaire. La terminaison TLS locale utilise mkcert et Nginx ; elle ne constitue pas une preuve d'HTTPS en production.
+**Navigateur Angular → Nginx → API Laravel → PostgreSQL et stockage privé.** Nginx fournit une origine unique en développement (HTTP ou HTTPS local facultatif) ; Docker Compose orchestre l'application, la base et le planificateur d'expiration. Le téléchargement public utilise un lien unique, distinct du JWT requis pour les actions du propriétaire. La terminaison TLS locale utilise mkcert et Nginx ; elle ne constitue pas une preuve d'HTTPS en production. Garage constitue un mode de stockage alternatif sur une instance locale distincte, avec un bucket privé et une base dédiée. Le scheduler exécute le code Laravel sans appel HTTP à l'API.
 
 ### Organisation du dépôt
 
@@ -41,10 +41,11 @@ docs/                Livrables techniques, API et maquettes
 ├── /login        Connexion
 ├── /upload       Téléversement (connexion requise)
 ├── /account      Historique et suppression (connexion requise)
+├── /profile      Profil (connexion requise)
 └── /share/:token Lien de téléchargement public
 ```
 
-Les chemins sont déclarés dans `frontend/src/app/app.routes.ts`. `/upload` réutilise le composant d'accueil et affiche directement le formulaire ; les pages `/upload` et `/account` sont protégées par `authGuard`. Les URLs non reconnues redirigent vers `/`.
+Les chemins sont déclarés dans `frontend/src/app/app.routes.ts`. `/upload` réutilise le composant d'accueil et affiche directement le formulaire ; les pages `/upload`, `/account` et `/profile` sont protégées par `authGuard`. Les URLs non reconnues redirigent vers `/`.
 
 ## 2. Choix technologiques justifiés
 
@@ -55,7 +56,7 @@ Les chemins sont déclarés dans `frontend/src/app/app.routes.ts`. `/upload` ré
 | Frontend | Angular 22, TypeScript | Composants et formulaires structurés, typage |
 | Backend | PHP 8.4, Laravel 13 | API, validation, stockage et planification intégrés |
 | Base de données | PostgreSQL 18 | Relations entre utilisateurs, transferts et fichiers |
-| Stockage | Système de fichiers local privé | Solution MVP simple, autorisée par les spécifications |
+| Stockage | Disque local privé ; Garage S3 (démo isolée) | MVP simple autorisé par OC ; stockage objet via l'abstraction Laravel, sans changer l'API |
 | Authentification | JWT HS256 | API stateless, contrôle des accès côté serveur |
 | Outillage | Docker Compose, Nginx, GitHub Actions | Développement reproductible, tests de PR automatisés |
 
@@ -63,7 +64,7 @@ Les chemins sont déclarés dans `frontend/src/app/app.routes.ts`. `/upload` ré
 
 [Schéma UML/MCD](data-model.fr.md) · [Diagramme](diagrams/data-model.svg)
 
-Trois entités principales : **Utilisateur** (email unique, mot de passe hashé), **Transfert** (propriétaire, token public et expiration) et **Fichier** (nom, type, taille et chemin de stockage privé). Un utilisateur possède plusieurs transferts ; un transfert contient un ou plusieurs fichiers. Les migrations PostgreSQL se trouvent dans `backend/database/migrations/`. L'extension facultative US08 associe zéro ou plusieurs tags privés à chaque fichier (30 caractères maximum, unicité par fichier, suppression en cascade). PROFILE-01 complète le compte avec un nom et un prénom facultatifs ; seul `first_name` est ajouté au schéma existant pour ce profil. US09 ajoute `transfer_files.password_hash`, nullable, par fichier.
+Trois entités principales : **Utilisateur** (email unique, mot de passe hashé), **Transfert** (propriétaire, token public et expiration) et **Fichier** (nom, type, taille et chemin de stockage privé). Un utilisateur possède plusieurs transferts ; un transfert contient un ou plusieurs fichiers. Les migrations PostgreSQL se trouvent dans `backend/database/migrations/`. L'extension facultative US08 associe zéro ou plusieurs tags privés à chaque fichier (30 caractères maximum, unicité par fichier, suppression en cascade). PROFILE-01 complète le compte avec un nom et un prénom facultatifs ; seul `first_name` est ajouté au schéma existant pour ce profil. US09 ajoute `transfer_files.password_hash`, nullable, par fichier. `users.id` et `tags.id` sont des clés internes BIGINT ; l'API expose l'UUID `users.public_id`, tandis que les transferts et fichiers utilisent des UUID.
 
 ## 4. Documentation de l'API
 
@@ -71,7 +72,7 @@ Trois entités principales : **Utilisateur** (email unique, mot de passe hashé)
 
 La documentation est générée à partir de Laravel : les **PHPDoc** décrivent les comportements, les **attributs PHP 8** regroupent les opérations et **Scramble** produit la spécification OpenAPI 3.1. Des corrections ciblées complètent les schémas de fichiers et les réponses que l'inférence ne suffit pas à décrire. **Swagger UI** exploite directement le JSON généré pour la consultation et les essais, sans seconde spécification d'exécution. Cette approche limite les écarts entre le code et la documentation ; le YAML conserve le contrat de conception.
 
-L'interface, réservée à l'environnement local, organise les dix opérations en quatre domaines : Authentication, Transfers, Public sharing et System. Les deux routes de support concernent la disponibilité et les capacités de démonstration. Les ressources Swagger UI nécessitent un accès au CDN ; les règles de sécurité et limites de génération sont précisées dans le guide API.
+Laravel déclare 13 opérations : Authentication (4), Transfers (4), Public sharing (3) et System (2). Le YAML couvre les 11 opérations métier ; la documentation générée par Scramble, réservée à l'environnement local, inclut également les deux routes de support (`GET /api/health` et `GET /api/demo/capabilities`). Les ressources Swagger UI nécessitent un accès au CDN ; les règles de sécurité et limites de génération sont précisées dans le guide API.
 
 | Fonctionnalité | Endpoints principaux |
 | --- | --- |
@@ -83,6 +84,7 @@ L'interface, réservée à l'environnement local, organise les dix opérations e
 | US05 — historique personnel | `GET /api/transfers` |
 | US06 — suppression individuelle | `DELETE /api/transfers/{transferId}/files/{fileId}` |
 | US08 — tags privés (facultatif) | `PUT /api/transfers/{transferId}/files/{fileId}/tags` |
+| System — support | `GET /api/health`, `GET /api/demo/capabilities` |
 
 Ces routes sont implémentées ; les statuts et schémas de requêtes/réponses figurent dans OpenAPI. Les transferts privés nécessitent un JWT, tandis que la consultation d'un lien public valide est anonyme.
 
@@ -91,16 +93,16 @@ Ces routes sont implémentées ; les statuts et schémas de requêtes/réponses 
 - **Comptes :** mots de passe hashés/salés, email unique. JWT signé, vérifié côté Laravel et conservé uniquement en mémoire Angular ; la déconnexion efface la session locale mais **ne révoque pas** un JWT déjà émis (durée d'environ 30 minutes).
 - **Fichiers :** stockage hors racine publique, nom interne opaque ; contrôles du type MIME et de l'extension, limite de 1 Go par fichier (5 fichiers et 2 Go par transfert choisis pour le MVP). Le téléchargement est forcé en pièce jointe.
 - **Partages :** token non prédictible, expiration entre 1 et 7 jours, refus des liens invalides/expirés ; purge planifiée des fichiers et métadonnées. Les ZIP ne sont **pas analysés par antivirus**.
-- **Limites :** aucun hébergement public HTTPS, sauvegarde/restauration testée ou audit de sécurité complet n'est démontré. Les audits de dépendances **Composer et npm ont été réalisés** dans [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md), sans vulnérabilité signalée à la date du contrôle ; ils ne remplacent pas un audit complet.
+- **Limites :** aucun hébergement public HTTPS, sauvegarde/restauration testée ou audit de sécurité complet n'est démontré. Les audits de dépendances **Composer et npm ont été réalisés** dans [SECURITY](https://github.com/jlbokass/datashare/blob/main/SECURITY.md), sans vulnérabilité signalée à la date du contrôle ; ils ne remplacent pas un audit complet.
 
 ## 6. Qualité, tests et maintenance
 
 | Livrable demandé | État et renvoi |
 | --- | --- |
-| **TESTING.md** | [Tests et preuves](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) : couverture des lignes **96,36 %** Laravel et **85,97 %** Angular, **6 tests E2E réussis** sur la version livrée le 24 novembre ; [preuves et mesures datées](coverage.fr.md) |
-| **SECURITY.md** | [Audits Composer et npm](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md) réalisés le 23/11/2026 : **aucune vulnérabilité signalée** (QL-03) |
-| **PERF.md** | [Mesures QL-04](https://github.com/jlbokass/datashare/blob/develop/PERF.md) : téléchargement local, bundle Angular et relevé Lighthouse sur serveur de développement ; **aucune garantie de performance en production** |
-| **MAINTENANCE.md** | [Procédures locales](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md), mises à jour et risques ; aucune reprise de production testée |
+| **TESTING.md** | [Tests et preuves](https://github.com/jlbokass/datashare/blob/main/TESTING.md) : couverture des lignes **96,36 %** Laravel et **85,97 %** Angular, **6 tests E2E réussis** sur la version livrée le 24 novembre ; [preuves et mesures datées](coverage.fr.md) |
+| **SECURITY.md** | [Audits Composer et npm](https://github.com/jlbokass/datashare/blob/main/SECURITY.md) réalisés le 23/11/2026 : **aucune vulnérabilité signalée** (QL-03) |
+| **PERF.md** | [Mesures QL-04](https://github.com/jlbokass/datashare/blob/main/PERF.md) : téléchargement local, bundle Angular et relevé Lighthouse sur serveur de développement ; **aucune garantie de performance en production** |
+| **MAINTENANCE.md** | [Procédures locales](https://github.com/jlbokass/datashare/blob/main/MAINTENANCE.md), mises à jour et risques ; aucune reprise de production testée |
 
 La couverture dépasse l'objectif indicatif de 70 % séparément pour Laravel et Angular. Les captures des rapports ont été déclarées préparées pour le dossier de soutenance. Les méthodes, dates et limites des mesures figurent dans les documents liés ci-dessus.
 
@@ -122,7 +124,7 @@ La couverture dépasse l'objectif indicatif de 70 % séparément pour Laravel et
 
 ## 7. Installation et exécution
 
-[README](https://github.com/jlbokass/datashare/blob/develop/README.md) · [Installation pas à pas](installation.fr.md)
+[README](https://github.com/jlbokass/datashare/blob/main/README.md) · [Installation pas à pas](installation.fr.md)
 
 **Prérequis :** Git, Docker et Compose. Pour une installation neuve, initialiser les fichiers `.env` privés selon le [guide d'installation](installation.fr.md) (secrets PostgreSQL, Laravel et JWT) ; ne jamais les commiter.
 
