@@ -25,7 +25,7 @@ final class ListTransfersController extends Controller
      * returned. Files of a transfer stay grouped. Purged records are never returned.
      */
     #[Group('Transfers', weight: 20)]
-    #[Response(200, type: "array{transfers: list<array{id: string, share_url: string, created_at: string, expires_at: string, status: 'valid'|'expired', files: list<array{id: string, original_name: string, size_bytes: int, mime_type: string, uploaded_at: string}>}>, pagination: array{current_page: int, per_page: int, last_page: int, total: int}}")]
+    #[Response(200, type: "array{transfers: list<array{id: string, share_url: string, created_at: string, expires_at: string, status: 'valid'|'expired', files: list<array{id: string, original_name: string, size_bytes: int, mime_type: string, uploaded_at: string, tags: list<string>}>}>, pagination: array{current_page: int, per_page: int, last_page: int, total: int}}")]
     public function __invoke(ListTransfersRequest $request): JsonResponse
     {
         $status = $request->validated('status') ?? ($request->boolean('include_expired') ? 'all' : 'active');

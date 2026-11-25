@@ -54,7 +54,8 @@ class TransferUploadTest extends TestCase
                 'files' => [['id', 'original_name', 'mime_type', 'size_bytes', 'uploaded_at']],
             ]])
             ->assertJsonPath('transfer.status', 'valid')
-            ->assertJsonPath('transfer.files.0.original_name', 'report.pdf');
+            ->assertJsonPath('transfer.files.0.original_name', 'report.pdf')
+            ->assertJsonPath('transfer.files.0.tags', []);
 
         $transfer = Transfer::query()->with('files')->firstOrFail();
 

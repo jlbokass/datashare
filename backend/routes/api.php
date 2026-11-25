@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\ShowPublicShareController;
+use App\Http\Controllers\Api\UpdateFileTagsController;
 use App\Http\Middleware\AuthenticateJwt;
 use Illuminate\Support\Facades\Route;
 
@@ -55,6 +56,10 @@ Route::get('/transfers', ListTransfersController::class)->middleware(Authenticat
 
 // US06: owner-authorized individual file deletion.
 Route::delete('/transfers/{transferId}/files/{fileId}', DeleteTransferFileController::class)
+    ->middleware(AuthenticateJwt::class);
+
+// US08: owner-authorized replacement of private file tags.
+Route::put('/transfers/{transferId}/files/{fileId}/tags', UpdateFileTagsController::class)
     ->middleware(AuthenticateJwt::class);
 
 // US02: public share metadata and file download, authorized by share token (no JWT).

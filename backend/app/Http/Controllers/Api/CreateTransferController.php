@@ -127,7 +127,7 @@ class CreateTransferController extends Controller
                     ]);
                 }
 
-                return $transfer->load('files');
+                return $transfer->load('files.tags');
             });
         } catch (Throwable $exception) {
             // File writes are not transactional; remove any partial bytes.
