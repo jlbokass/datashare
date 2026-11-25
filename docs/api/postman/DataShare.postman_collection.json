@@ -42,7 +42,7 @@
                 "register"
               ]
             },
-            "description": "Public endpoint. Email addresses are trimmed and normalized before registration.\nCreating an account does not sign the user in or issue a token; use the login\nendpoint to obtain a Bearer JWT.\nUse the same disposable email and password in the local environment.",
+            "description": "Public endpoint. Email addresses are trimmed and normalized before registration.\nCreating an account does not sign the user in or issue a token; use the login\nendpoint to obtain a Bearer JWT.\nUse the same disposable email and password in the local environment.\nOptional name and first_name fields may be provided; omitted fields remain null.",
             "auth": {
               "type": "noauth"
             }
@@ -207,6 +207,94 @@
                   "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
                   "if (pm.response.code === 200) {",
                   "    pm.test(\"Current account matches test account\", function () { pm.expect(pm.response.json().user.email.toLowerCase()).to.equal(pm.environment.get(\"email\").toLowerCase()); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update current account profile — disposable account",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Demo\",\n  \"first_name\": \"Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "PROFILE-01: update only the authenticated disposable account's optional names. Null clears a value; omitted fields are unchanged.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const email = pm.environment.get(\"email\") || \"\";",
+                  "const jwt = pm.environment.get(\"jwt\");",
+                  "if (!/^postman-[a-z0-9-]+@example\\.com$/i.test(email) || !jwt || pm.variables.get(\"jwt\") !== jwt) {",
+                  "    console.warn(\"Use the disposable account and its captured JWT.\");",
+                  "    pm.execution.skipRequest();",
+                  "} else {",
+                  "    pm.sendRequest({ url: pm.variables.get(\"baseUrl\") + \"/auth/me\", method: \"GET\", header: { Authorization: \"Bearer \" + jwt, Accept: \"application/json\" } }, function (error, response) {",
+                  "        if (error || response.code !== 200 || response.json().user.email.toLowerCase() !== email.toLowerCase()) {",
+                  "            console.warn(\"Profile update skipped: JWT does not match the disposable account.\");",
+                  "            pm.execution.skipRequest();",
+                  "        }",
+                  "    });",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Current account and updated names\", function () {",
+                  "        const user = pm.response.json().user;",
+                  "        const payload = JSON.parse(pm.request.body.raw);",
+                  "        pm.expect(user.email.toLowerCase()).to.equal(pm.environment.get(\"email\").toLowerCase());",
+                  "        if (\"name\" in payload) pm.expect(user.name).to.eql(payload.name);",
+                  "        if (\"first_name\" in payload) pm.expect(user.first_name).to.eql(payload.first_name);",
+                  "    });",
                   "}"
                 ]
               }
@@ -513,6 +601,99 @@
           ]
         },
         {
+          "name": "Replace private file tags — disposable upload",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tags\": [\"Project\", \"Invoices\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transfers/{{transferId}}/files/{{fileId}}/tags",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transfers",
+                "{{transferId}}",
+                "files",
+                "{{fileId}}",
+                "tags"
+              ]
+            },
+            "description": "US08: replace the whole list of private tags on the last disposable upload. Send {\"tags\": []} to remove all tags.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!/^postman-[a-z0-9-]+@example\\.com$/i.test(pm.environment.get(\"email\") || \"\") || !pm.environment.get(\"password\")) {",
+                  "    console.warn(\"Set disposable email postman-...@example.com and password in local environment values.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "if (!pm.environment.get(\"jwt\")) {",
+                  "    console.warn(\"Run Obtain an access token first.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "const transferId = pm.environment.get(\"transferId\");",
+                  "const fileId = pm.environment.get(\"fileId\");",
+                  "if (!transferId || !fileId ||",
+                  "    pm.variables.get(\"transferId\") !== transferId ||",
+                  "    pm.variables.get(\"fileId\") !== fileId ||",
+                  "    transferId !== pm.environment.get(\"createdTransferId\") ||",
+                  "    fileId !== pm.environment.get(\"createdFileId\") ||",
+                  "    pm.environment.get(\"email\") !== pm.environment.get(\"createdForEmail\")) {",
+                  "    console.warn(\"Tag update skipped. Use only the captured disposable upload.\");",
+                  "    pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Persisted tags match request\", function () {",
+                  "        pm.expect(pm.response.json().tags).to.eql(JSON.parse(pm.request.body.raw).tags);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "DELETE — disposable uploaded file only (manual)",
           "request": {
             "method": "DELETE",
@@ -789,6 +970,363 @@
                   "if (pm.response.code === 200) {",
                   "    pm.test(\"Demo capability is boolean\", function () { pm.expect(pm.response.json().five_minute_expiry).to.be.a(\"boolean\"); });",
                   "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "US09 — Password protected (manual)",
+      "item": [
+        {
+          "name": "Upload one disposable protected file",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files[]",
+                  "type": "file",
+                  "src": [],
+                  "description": "Select a small non-private allowed file locally."
+                },
+                {
+                  "key": "expires_in_days",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "passwords[]",
+                  "value": "{{filePassword}}",
+                  "type": "text",
+                  "description": "Disposable US09 password, not the account password."
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transfers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transfers"
+              ]
+            },
+            "description": "US09. Upload one disposable file with a fictional alphanumeric filePassword in the local environment.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!/^postman-[a-z0-9-]+@example\\.com$/i.test(pm.environment.get(\"email\") || \"\") || !pm.environment.get(\"password\")) {",
+                  "    console.warn(\"Set disposable email postman-...@example.com and password in local environment values.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "if (!pm.environment.get(\"jwt\")) {",
+                  "    console.warn(\"Run Obtain an access token first.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "[\"transferId\", \"fileId\", \"shareToken\", \"createdTransferId\", \"createdFileId\", \"createdForEmail\"].forEach(function (key) { pm.environment.set(key, \"\"); });",
+                  "pm.environment.set(\"allowDelete\", \"false\");",
+                  "pm.environment.set(\"singleTransferId\", \"\");",
+                  "pm.environment.set(\"signedDownloadUrl\", \"\");",
+                  "if (!/^[a-zA-Z0-9]{6,72}$/.test(pm.environment.get(\"filePassword\") || \"\")) {",
+                  "    console.warn(\"Set a fictional alphanumeric filePassword in local values.\");",
+                  "    pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "if (pm.response.code === 201) {",
+                  "    const transfer = pm.response.json().transfer;",
+                  "    const match = transfer && typeof transfer.share_url === \"string\" && transfer.share_url.match(/\\/share\\/([a-f0-9]{64})$/);",
+                  "    pm.test(\"Transfer contains 1 file(s) and a share token\", function () {",
+                  "        pm.expect(transfer.id).to.be.a(\"string\").and.not.be.empty;",
+                  "        pm.expect(transfer.files).to.have.lengthOf(1);",
+                  "        pm.expect(match).to.not.equal(null);",
+                  "        pm.expect(transfer.files[0].id).to.be.a(\"string\").and.not.be.empty;",
+                  "    });",
+                  "    if (transfer && transfer.id && match && transfer.files && transfer.files.length === 1 && transfer.files[0].id) {",
+                  "        pm.environment.set(\"transferId\", transfer.id);",
+                  "        pm.environment.set(\"fileId\", transfer.files[0].id);",
+                  "        pm.environment.set(\"shareToken\", match[1]);",
+                  "        pm.environment.set(\"singleTransferId\", transfer.id);",
+                  "        pm.environment.set(\"createdTransferId\", transfer.id);",
+                  "        pm.environment.set(\"createdFileId\", transfer.files[0].id);",
+                  "        pm.environment.set(\"createdForEmail\", pm.environment.get(\"email\"));",
+                  "    }",
+                  "}",
+                  "if (pm.response.code === 201) { pm.test(\"File is protected\", function () { pm.expect(pm.response.json().transfer.files[0].password_protected).to.equal(true); }); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject unsigned protected download",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shares/{{shareToken}}/files/{{fileId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shares",
+                "{{shareToken}}",
+                "files",
+                "{{fileId}}"
+              ]
+            },
+            "description": "Run only after the protected disposable upload.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get(\"shareToken\") || !pm.environment.get(\"fileId\")) {",
+                  "    console.warn(\"Run a successful upload first.\");",
+                  "    pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 403\", function () { pm.response.to.have.status(403); pm.expect(pm.response.json().code).to.equal(\"password_required\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reject wrong file password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shares/{{shareToken}}/files/{{fileId}}/authorize",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shares",
+                "{{shareToken}}",
+                "files",
+                "{{fileId}}",
+                "authorize"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"password\":\"invalid-demo-password\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "US09: public password authorization; no JWT."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get(\"shareToken\") || !pm.environment.get(\"fileId\") || !pm.environment.get(\"filePassword\")) {",
+                  "    console.warn(\"Run the protected disposable upload first.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "pm.environment.set(\"signedDownloadUrl\", \"\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 403\", function () { pm.response.to.have.status(403); pm.expect(pm.response.json().code).to.equal(\"invalid_password\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Authorize protected download",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shares/{{shareToken}}/files/{{fileId}}/authorize",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shares",
+                "{{shareToken}}",
+                "files",
+                "{{fileId}}",
+                "authorize"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"password\":\"{{filePassword}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "US09: public password authorization; no JWT."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get(\"shareToken\") || !pm.environment.get(\"fileId\") || !pm.environment.get(\"filePassword\")) {",
+                  "    console.warn(\"Run the protected disposable upload first.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "pm.environment.set(\"signedDownloadUrl\", \"\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const url = pm.response.json().download_url;",
+                  "    const expected = \"/api/shares/\" + pm.environment.get(\"shareToken\") + \"/files/\" + pm.environment.get(\"fileId\") + \"?\";",
+                  "    pm.test(\"Signed URL is relative and file scoped\", function () { pm.expect(url.startsWith(expected)).to.equal(true); });",
+                  "    if (url.startsWith(expected)) pm.environment.set(\"signedDownloadUrl\", pm.variables.get(\"baseUrl\").replace(/\\/api\\/?$/, \"\") + url);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Download with signed URL (within 60 seconds)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/octet-stream"
+              }
+            ],
+            "url": {
+              "raw": "{{signedDownloadUrl}}",
+              "host": [
+                "{{signedDownloadUrl}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "Use the complete URL returned by authorization; send within 60 seconds."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const url = pm.environment.get(\"signedDownloadUrl\");",
+                  "const expected = pm.variables.get(\"baseUrl\") + \"/shares/\" + pm.environment.get(\"shareToken\") + \"/files/\" + pm.environment.get(\"fileId\") + \"?\";",
+                  "if (!url || !url.startsWith(expected) || pm.variables.get(\"signedDownloadUrl\") !== url) {",
+                  "    console.warn(\"Authorize the protected download again.\");",
+                  "    pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) { pm.test(\"Attachment\", function () { pm.expect(pm.response.headers.get(\"Content-Disposition\") || \"\").to.match(/^attachment\\b/i); }); }",
+                  "pm.environment.set(\"signedDownloadUrl\", \"\");"
                 ]
               }
             }

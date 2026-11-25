@@ -1,6 +1,7 @@
 <?php
 
 use App\Documentation\ClosureGroup;
+use App\Http\Controllers\Api\AuthorizePublicDownloadController;
 use App\Http\Controllers\Api\CreateTransferController;
 use App\Http\Controllers\Api\DeleteTransferFileController;
 use App\Http\Controllers\Api\DownloadPublicShareFileController;
@@ -9,6 +10,8 @@ use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\ShowPublicShareController;
+use App\Http\Controllers\Api\UpdateFileTagsController;
+use App\Http\Controllers\Api\UpdateProfileController;
 use App\Http\Middleware\AuthenticateJwt;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +33,8 @@ Route::post('/auth/register', RegisterController::class)->middleware('throttle:1
 // US04: login returns JWT, /me requires a valid bearer token.
 Route::post('/auth/login', LoginController::class)->middleware('throttle:5,1');
 Route::get('/auth/me', MeController::class)->middleware(AuthenticateJwt::class);
+// PROFILE-01: authenticated account name and first name only.
+Route::patch('/auth/me', UpdateProfileController::class)->middleware(AuthenticateJwt::class);
 
 Route::get(
     '/demo/capabilities',
@@ -57,6 +62,14 @@ Route::get('/transfers', ListTransfersController::class)->middleware(Authenticat
 Route::delete('/transfers/{transferId}/files/{fileId}', DeleteTransferFileController::class)
     ->middleware(AuthenticateJwt::class);
 
+// US08: owner-authorized replacement of private file tags.
+Route::put('/transfers/{transferId}/files/{fileId}/tags', UpdateFileTagsController::class)
+    ->middleware(AuthenticateJwt::class);
+
 // US02: public share metadata and file download, authorized by share token (no JWT).
 Route::get('/shares/{token}', ShowPublicShareController::class)->middleware('throttle:60,1');
-Route::get('/shares/{token}/files/{fileId}', DownloadPublicShareFileController::class)->middleware('throttle:60,1');
+Route::get('/shares/{token}/files/{fileId}', DownloadPublicShareFileController::class)
+    ->middleware('throttle:60,1')->name('shares.download');
+// US09: password verification is separately rate limited.
+Route::post('/shares/{token}/files/{fileId}/authorize', AuthorizePublicDownloadController::class)
+    ->middleware('throttle:5,1,share-password');

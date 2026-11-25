@@ -67,6 +67,30 @@ bash scripts/qa.sh all
 Visiter **http://127.0.0.1:8080/**. La route `/api/health` ne vérifie pas à elle seule PostgreSQL ; la migration et son statut l'attestent séparément. La CI Laravel exécute ses tests avec SQLite en mémoire.
 
 
+## Démonstration Garage S3 facultative (OPS-03 — #98)
+
+Le stockage local du MVP reste celui de `make up` / `make https-up`. Garage sert uniquement à démontrer le stockage objet via le même disque Laravel `transfers` et les mêmes endpoints. La surcharge Compose utilise le projet **datashare-garage**, le port HTTPS local **8444** (HTTP 8081 redirigé vers HTTPS), une nouvelle base `datashare_garage` dans un volume dédié et un bucket privé `datashare-transfers`. Elle n'utilise ni les fichiers ni les données de la base habituelle. Le service S3 reste interne au réseau Docker ; le navigateur continue de télécharger via Laravel, avec les contrôles JWT/partage, expiration et US09 existants.
+
+Prérequis : Docker Compose ≥ 2.24.4 (directive `!override`), OpenSSL, les certificats mkcert du projet (voir [HTTPS local](#https-local-facultatif)) et les dépendances Laravel installées via Composer. L'adaptateur officiel `league/flysystem-aws-s3-v3:^3.0` est inclus dans le manifeste et le lock Composer ; utiliser `composer install` pour reproduire les versions verrouillées.
+
+```bash
+make garage-init
+make garage-up
+make garage-migrate
+make garage-status
+make garage-health
+```
+
+`garage-init` génère une seule fois `.env.garage` (permissions privées, ignoré par Git) sans modifier les deux fichiers `.env` existants. Conserver ce fichier avec les volumes Garage : ne pas régénérer les clés d'un stockage existant. `garage-migrate` applique les migrations ordinaires **uniquement** à la base de démonstration ; aucune réinitialisation.
+
+Si Nginx renvoie 502 après recréation du conteneur PHP-FPM, redémarrer uniquement le service web du projet Garage : `docker compose --env-file .env.garage -p datashare-garage -f compose.yaml -f compose.garage.yaml restart web`, puis `make garage-health`.
+
+Ouvrir [https://127.0.0.1:8444/](https://127.0.0.1:8444/) et créer un compte jetable. Vérifier l'envoi, le téléchargement direct et protégé, la suppression et l'expiration/purge (option locale cinq minutes activée). Vérifier également un fichier jetable de plusieurs dizaines de Mo pour exercer l'envoi multipart S3. `make qa` reste la recette de non-régression du projet normal, pas un test d'intégration Garage.
+
+Pour arrêter l'environnement de démonstration : `make garage-stop`. Les volumes restent intacts ; le projet principal n'est pas arrêté. Arrêter la démonstration avant de changer de branche (répertoire source monté en commun). Ne pas associer `DATASHARE_GARAGE_DEMO=true` à la base habituelle, ni lancer la surcharge avec le nom du projet principal. Aucune migration de fichiers existants. Un seul nœud Garage (réplication 1), pas de redondance ni garantie de disponibilité : démonstration locale uniquement. Cette surcharge réutilise les certificats mkcert existants avec une redirection dédiée à 8444 ; ne pas ajouter `compose.https.yaml` (réservée au projet principal). La liaison Laravel → Garage reste interne en HTTP. Pour une éventuelle production, reprendre la conception des sauvegardes et du stockage ; cette démonstration ne constitue pas une validation de production.
+
+Sources : [Garage Quick Start](https://github.com/deuxfleurs-org/garage/blob/main-v2/doc/book/quick-start/_index.md), [Laravel 13 Filesystem](https://laravel.com/docs/13.x/filesystem).
+
 ## HTTPS local facultatif
 
 Après l'installation HTTP, sur macOS avec Homebrew, installer [mkcert](https://github.com/FiloSottile/mkcert) si nécessaire, puis créer un certificat réservé au poste de développement, depuis la racine du dépôt :

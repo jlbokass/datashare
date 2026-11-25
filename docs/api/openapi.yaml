@@ -6,15 +6,17 @@ info:
     DESIGN-03 — Design contract for the implemented OpenClassrooms MVP (US01–US06),
     reconciled with Laravel on 24 November 2026 (DELIVERY-API #75). Scramble
     generates a complementary OpenAPI document at /docs/api.json in local only.
-    Optional US07–US10 are not exposed. See README.md for inference limitations.
+    Optional US08 adds private file tags; PROFILE-01 adds optional names and profile editing.
+    US09 adds optional per-file password protection. US07 and separate US10 extensions are not exposed.
+    See README.md for inference limitations.
 servers:
   - url: /api
     description: API path prefix on the same origin as the Angular application
 tags:
   - name: Authentication
-    description: Account registration and JWT authentication (US03, US04)
+    description: Account registration, JWT authentication and profile editing (US03, US04, PROFILE-01)
   - name: Transfers
-    description: Authenticated upload, personal history and individual file deletion (US01, US05, US06)
+    description: Authenticated upload, personal history and individual file deletion and tags (US01, US05, US06, US08)
   - name: Public sharing
     description: Unauthenticated metadata lookup and file download using a share token (US02)
 security: []
@@ -26,7 +28,8 @@ paths:
       description: |
         Public registration (US03). Email must be unique and valid; password
         must contain at least eight characters. No administrator role and no
-        confirmation email are required for this MVP.
+        confirmation email are required for this MVP. Optional name (family name)
+        and first_name fields may be supplied, each up to 255 characters.
       operationId: registerUser
       requestBody:
         required: true
@@ -92,6 +95,34 @@ paths:
         '401':
           $ref: '#/components/responses/AuthenticationError'
 
+    patch:
+      tags: [Authentication]
+      summary: Update the authenticated user's name and first name
+      description: |
+        PROFILE-01. Requires a valid JWT. Only name and first_name are updated.
+        Omitted fields remain unchanged; null clears a name. Email, password
+        and identifiers are not modifiable through this endpoint.
+      operationId: updateCurrentUserProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Updated authenticated profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEnvelope'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
   /transfers:
     post:
       tags: [Transfers]
@@ -106,6 +137,7 @@ paths:
         days. A separate five-minute expiry is opt-in for local/testing only.
         Files are private. Content and extension are checked against pdf, png,
         jpg, jpeg, gif, webp, txt, mp3, mp4 and zip. See SECURITY.md.
+        US09: optionally supply passwords[] in file order, including empty entries for unprotected files.
       operationId: createTransfer
       security:
         - bearerAuth: []
@@ -117,6 +149,9 @@ paths:
               $ref: '#/components/schemas/CreateTransferRequest'
             encoding:
               'files[]':
+                style: form
+                explode: true
+              'passwords[]':
                 style: form
                 explode: true
       responses:
@@ -209,6 +244,45 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
 
+  /transfers/{transferId}/files/{fileId}/tags:
+    put:
+      tags: [Transfers]
+      summary: Replace the private tags of one owned file
+      description: |
+        US08. Replace the entire list atomically; an empty list clears all tags.
+        Labels are trimmed, case-sensitive, non-empty, at most 30 characters,
+        and unique per file. Unknown or non-owned resources return 404.
+        Tags are not exposed through public sharing.
+      operationId: replaceMyFileTags
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TransferId'
+        - $ref: '#/components/parameters/FileId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileTags'
+            example:
+              tags: [Projet, Factures]
+      responses:
+        '200':
+          description: Persisted private tags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileTags'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
   /shares/{token}:
     get:
       tags: [Public sharing]
@@ -216,8 +290,8 @@ paths:
       description: |
         US02. No JWT is required. A valid, unpredictable token is necessary.
         Expose only file metadata needed to decide whether to download:
-        filename, type, size and expiry date. Never disclose the owner,
-        credentials, storage path or private object key.
+        filename, type, size, expiry date and password_protected boolean.
+        Never disclose the owner, password, password hash, storage path or private object key.
       operationId: getPublicShare
       parameters:
         - $ref: '#/components/parameters/ShareToken'
@@ -245,11 +319,23 @@ paths:
         the API. The storage itself must never be publicly accessible.
         An expired but not-yet-purged share responds 410; a purged/unknown
         share or mismatched file responds 404. This route is intentionally
-        per-file, consistent with individual deletion in US06.
+        per-file, consistent with individual deletion in US06. US09 protected files
+        additionally require the relative URL signature obtained through POST /authorize.
+        A missing, expired or invalid signature returns 403.
       operationId: downloadSharedFile
       parameters:
         - $ref: '#/components/parameters/ShareToken'
         - $ref: '#/components/parameters/FileId'
+        - name: expires
+          in: query
+          description: Unix expiration timestamp from the signed URL; required only for protected files.
+          schema:
+            type: integer
+        - name: signature
+          in: query
+          description: Signature from the signed URL; required only for protected files.
+          schema:
+            type: string
       responses:
         '200':
           description: File bytes streamed as an attachment
@@ -276,8 +362,68 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '410':
           $ref: '#/components/responses/ExpiredShareError'
+        '403':
+          description: Password-protected file without a valid signed URL (password_required)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
         '500':
           $ref: '#/components/responses/DownloadServerError'
+        '429':
+          $ref: '#/components/responses/TooManyRequestsError'
+
+  /shares/{token}/files/{fileId}/authorize:
+    post:
+      tags: [Public sharing]
+      summary: Authorize a password-protected download
+      description: |
+        US09. No JWT. Verify share token, file membership, expiry and password.
+        Return a relative signed URL valid for 60 seconds for the selected file only.
+        Five attempts per minute per client IP; no password or hash in the response.
+        Use the returned URL as-is, before expiry.
+      operationId: authorizeProtectedDownload
+      parameters:
+        - $ref: '#/components/parameters/ShareToken'
+        - $ref: '#/components/parameters/FileId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password:
+                  type: string
+                  format: password
+                  writeOnly: true
+                  minLength: 6
+                  maxLength: 72
+                  description: Exact password, at most 72 UTF-8 bytes; not blank or NUL-containing.
+      responses:
+        '200':
+          description: Temporary signed download URL (relative to the application origin)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [download_url]
+                properties:
+                  download_url:
+                    type: string
+        '403':
+          description: Incorrect password or file not protected (invalid_password)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '410':
+          $ref: '#/components/responses/ExpiredShareError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
         '429':
           $ref: '#/components/responses/TooManyRequestsError'
 
@@ -321,7 +467,7 @@ components:
     User:
       type: object
       additionalProperties: false
-      required: [id, email, created_at]
+      required: [id, email, name, first_name, created_at]
       properties:
         id:
           type: [string, "null"]
@@ -329,6 +475,14 @@ components:
         email:
           type: string
           format: email
+        name:
+          type: [string, "null"]
+          maxLength: 255
+          description: Optional family name; null if not supplied.
+        first_name:
+          type: [string, "null"]
+          maxLength: 255
+          description: Optional given name; null if not supplied.
         created_at:
           type: [string, "null"]
           format: date-time
@@ -345,6 +499,25 @@ components:
           format: password
           minLength: 8
           writeOnly: true
+        name:
+          type: [string, "null"]
+          maxLength: 255
+          description: Optional family name; null if not supplied.
+        first_name:
+          type: [string, "null"]
+          maxLength: 255
+          description: Optional given name; null if not supplied.
+    UpdateProfileRequest:
+      type: object
+      properties:
+        name:
+          type: [string, "null"]
+          maxLength: 255
+          description: Optional family name; null if not supplied.
+        first_name:
+          type: [string, "null"]
+          maxLength: 255
+          description: Optional given name; null if not supplied.
     LoginRequest:
       type: object
       required: [email, password]
@@ -380,7 +553,7 @@ components:
     FileMetadata:
       type: object
       additionalProperties: false
-      required: [id, original_name, size_bytes, mime_type, uploaded_at]
+      required: [id, original_name, size_bytes, mime_type, uploaded_at, password_protected]
       properties:
         id:
           type: string
@@ -396,6 +569,46 @@ components:
         uploaded_at:
           type: string
           format: date-time
+        password_protected:
+          type: boolean
+    OwnedFileMetadata:
+      type: object
+      additionalProperties: false
+      required: [id, original_name, size_bytes, mime_type, uploaded_at, tags, password_protected]
+      properties:
+        id:
+          type: string
+          format: uuid
+        original_name:
+          type: string
+        size_bytes:
+          type: integer
+          format: int64
+          minimum: 0
+        mime_type:
+          type: string
+        uploaded_at:
+          type: string
+          format: date-time
+        tags:
+          $ref: '#/components/schemas/TagList'
+        password_protected:
+          type: boolean
+    TagList:
+      type: array
+      uniqueItems: true
+      items:
+        type: string
+        minLength: 1
+        maxLength: 30
+      description: Private labels, trimmed and unique per file; exact case is retained.
+    FileTags:
+      type: object
+      additionalProperties: false
+      required: [tags]
+      properties:
+        tags:
+          $ref: '#/components/schemas/TagList'
     Transfer:
       type: object
       additionalProperties: false
@@ -422,7 +635,7 @@ components:
           type: array
           minItems: 1
           items:
-            $ref: '#/components/schemas/FileMetadata'
+            $ref: '#/components/schemas/OwnedFileMetadata'
     PublicShare:
       type: object
       additionalProperties: false
@@ -453,6 +666,22 @@ components:
           items:
             type: string
             format: binary
+        'passwords[]':
+          type: array
+          description: |
+            Optional repeated multipart text parts, exactly one per file in the same order.
+            Empty string means unprotected. Otherwise 6 characters minimum, 72 UTF-8 bytes
+            maximum, no NUL or whitespace-only value. Leading/trailing spaces are significant.
+          maxItems: 5
+          items:
+            anyOf:
+              - type: string
+                const: ''
+              - type: string
+                format: password
+                minLength: 6
+                maxLength: 72
+                writeOnly: true
         expires_in_days:
           type: integer
           minimum: 1
@@ -578,7 +807,7 @@ components:
             message: Unable to complete the operation.
             code: server_error
     TooManyRequestsError:
-      description: Rate limit exceeded (register 10/min, login 5/min, each public share route 60/min)
+      description: Rate limit exceeded (register 10/min, login 5/min, public share reads/downloads 60/min, password authorization 5/min per IP)
       headers:
         Retry-After:
           description: Seconds until retry is permitted

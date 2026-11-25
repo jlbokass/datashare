@@ -12,7 +12,7 @@ final class TransferHistory
     public function forUser(User $user, string $status, int $page): array
     {
         $at = now();
-        $query = Transfer::query()->where('user_id', $user->getKey())->with('files');
+        $query = Transfer::query()->where('user_id', $user->getKey())->with('files.tags');
 
         if ($status === 'active') {
             $query->where('expires_at', '>', $at);

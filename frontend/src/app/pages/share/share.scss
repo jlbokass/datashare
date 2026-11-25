@@ -105,6 +105,31 @@ h2 {
   text-align: center;
 }
 
+.protected-download {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.protected-download label {
+  font: 400 0.875rem/1.25rem 'DM Sans', sans-serif;
+  overflow-wrap: anywhere;
+}
+
+.protected-download input {
+  min-width: 0;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  font: 400 1rem/1.5 'DM Sans', sans-serif;
+}
+
+.protected-download button { cursor: pointer; }
+.protected-download button:disabled { opacity: 0.6; cursor: wait; }
+.protected-download p { margin: 0; }
+
 .download-link span {
   min-width: 0;
   overflow-wrap: anywhere;
@@ -171,7 +196,9 @@ h2 {
   text-underline-offset: 3px;
 }
 
-a:focus-visible {
+a:focus-visible,
+.protected-download input:focus-visible,
+.protected-download button:focus-visible {
   outline: 3px solid #e27f29;
   outline-offset: 3px;
 }

@@ -11,7 +11,8 @@
     </div>
     <nav aria-label="Navigation de l'espace personnel">
       <a class="sidebar-link current" routerLink="/account" aria-current="page" (click)="menuOpen.set(false)">Mes fichiers</a>
-      <a class="sidebar-link" routerLink="/upload" (click)="menuOpen.set(false)">Envoyer des fichiers</a>
+      <a class="sidebar-link" routerLink="/profile" (click)="menuOpen.set(false)">Mon profil</a>
+      <a class="sidebar-link upload-nav" routerLink="/upload" (click)="menuOpen.set(false)">Envoyer des fichiers</a>
     </nav>
     <span class="sidebar-footer">Copyright DataShare© {{ year }}</span>
   </aside>
@@ -34,7 +35,7 @@
       @if (auth.user(); as user) {
         <div class="account-identity">
           <a class="upload-action" routerLink="/upload">Ajouter des fichiers</a>
-          <span class="account-email">{{ user.email }}</span>
+          <span class="account-email">{{ user.first_name || user.email }}</span>
           <button class="logout-action" type="button" (click)="logout()">Déconnexion</button>
         </div>
       }
@@ -49,15 +50,15 @@
         <div class="history-filters" role="group" aria-label="Filtrer les transferts">
           <button type="button" [class.selected]="historyFilter() === 'all'"
             [attr.aria-pressed]="historyFilter() === 'all'"
-            [disabled]="historyLoading() || deletingFileId() !== null"
+            [disabled]="historyLoading() || deletingFileId() !== null || savingTagsFileId() !== null"
             (click)="setHistoryFilter('all')">Tous</button>
           <button type="button" [class.selected]="historyFilter() === 'active'"
             [attr.aria-pressed]="historyFilter() === 'active'"
-            [disabled]="historyLoading() || deletingFileId() !== null"
+            [disabled]="historyLoading() || deletingFileId() !== null || savingTagsFileId() !== null"
             (click)="setHistoryFilter('active')">Actifs</button>
           <button type="button" [class.selected]="historyFilter() === 'expired'"
             [attr.aria-pressed]="historyFilter() === 'expired'"
-            [disabled]="historyLoading() || deletingFileId() !== null"
+            [disabled]="historyLoading() || deletingFileId() !== null || savingTagsFileId() !== null"
             (click)="setHistoryFilter('expired')">Expiré</button>
         </div>
         @if (historyFilter() !== 'active') {
@@ -70,7 +71,7 @@
         @if (deletionError(); as message) {
           <p class="feedback error" role="alert">{{ message }}</p>
           <button class="inline-action" type="button" (click)="refreshHistory()"
-            [disabled]="historyLoading() || deletingFileId() !== null">Actualiser l’historique</button>
+            [disabled]="historyLoading() || deletingFileId() !== null || savingTagsFileId() !== null">Actualiser l’historique</button>
         }
 
         @if (historyLoading()) {
@@ -111,16 +112,48 @@
                             </time>
                           </span>
                           <span>{{ formatSize(file.size_bytes) }}</span>
+                          @if (file.password_protected) {
+                            <span>Protégé par mot de passe</span>
+                          }
                           <span class="sent-date">Envoyé le
                             <time [attr.datetime]="file.uploaded_at">{{ formatDate(file.uploaded_at) }}</time>
                           </span>
+                        </div>
+                        <div class="file-tags" [attr.aria-busy]="savingTagsFileId() === file.id">
+                          @if (file.tags.length) {
+                            <ul class="tag-list" [attr.aria-label]="'Tags de ' + file.original_name">
+                              @for (tag of file.tags; track tag) {
+                                <li>
+                                  <button type="button" class="tag-chip"
+                                    [attr.aria-label]="'Retirer le tag ' + tag + ' de ' + file.original_name"
+                                    [disabled]="deletingFileId() !== null || savingTagsFileId() !== null"
+                                    (click)="removeTag(transfer, file, tag)">
+                                    <span>{{ tag }}</span><span aria-hidden="true">×</span>
+                                  </button>
+                                </li>
+                              }
+                            </ul>
+                          }
+                          <form class="tag-form" (submit)="$event.preventDefault(); addTag(transfer, file, tagInput)">
+                            <input #tagInput type="text" placeholder="Nouveau tag"
+                              [attr.aria-label]="'Nouveau tag pour ' + file.original_name"
+                              [readOnly]="deletingFileId() !== null || savingTagsFileId() !== null">
+                            <button class="tag-add" type="submit"
+                              [attr.aria-label]="'Ajouter un tag à ' + file.original_name"
+                              [disabled]="deletingFileId() !== null || savingTagsFileId() !== null">Ajouter</button>
+                          </form>
+                          @if (tagError(); as error) {
+                            @if (error.fileId === file.id) {
+                              <p class="tag-error" role="alert">{{ error.message }}</p>
+                            }
+                          }
                         </div>
                       </div>
 
                       <div class="file-actions">
                         <button class="delete-file" type="button" (click)="deleteFile(transfer, file)"
                           [attr.aria-label]="'Supprimer ' + file.original_name"
-                          [disabled]="deletingFileId() !== null">
+                          [disabled]="deletingFileId() !== null || savingTagsFileId() !== null">
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round" aria-hidden="true">
@@ -154,10 +187,10 @@
         @if (pagination().last_page > 1 && !errorMessage()) {
           <nav class="history-pagination" aria-label="Pagination des transferts">
             <button class="inline-action" type="button" (click)="changePage(page() - 1)"
-              [disabled]="historyLoading() || deletingFileId() !== null || page() <= 1">Précédent</button>
+              [disabled]="historyLoading() || deletingFileId() !== null || savingTagsFileId() !== null || page() <= 1">Précédent</button>
             <span aria-live="polite">Page {{ page() }} / {{ pagination().last_page }}</span>
             <button class="inline-action" type="button" (click)="changePage(page() + 1)"
-              [disabled]="historyLoading() || deletingFileId() !== null || page() >= pagination().last_page">Suivant</button>
+              [disabled]="historyLoading() || deletingFileId() !== null || savingTagsFileId() !== null || page() >= pagination().last_page">Suivant</button>
           </nav>
         }
       }

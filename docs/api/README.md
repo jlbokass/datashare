@@ -7,7 +7,7 @@ lang: en
 
 # DataShare API — Interface contract
 
-The REST API covers the required US01–US06 features. Its documentation is derived from the Laravel code and the [DESIGN-03](https://github.com/jlbokass/datashare/issues/3) design contract.
+The REST API covers the required US01–US06 features and optional US08 (private file tags), US09 (file password) and PROFILE-01 (account profile). Its documentation is derived from the Laravel code and the [DESIGN-03](https://github.com/jlbokass/datashare/issues/3) design contract.
 
 [Version française](README.fr.md) · [Technical documentation](../technical-documentation.md) · [Installation](../installation.md)
 
@@ -49,6 +49,20 @@ In HTTP mode, use `APP_URL=http://127.0.0.1:8080` instead. `--fail-on-unknown` f
 
 `GET /transfers` returns 10 transfers per page, with their files grouped together and `pagination` metadata (`current_page`, `per_page`, `last_page`, `total`). Use `page=2` for the next page and `status=active|all|expired` to filter before pagination. Without `status`, `include_expired` retains its original behavior. Out-of-range pages return an empty list; Angular returns to the last available page automatically.
 
+## Account profile (PROFILE-01 — #65)
+
+Registration accepts optional `name` (family name) and `first_name` (given name), strings up to 255 characters or `null`. Registration, login and `GET /auth/me` responses include both fields. Authenticated `PATCH /auth/me` updates only those fields on the current account; omitted fields are unchanged and `null` clears a value. Email and password are not editable here. Angular's `/profile` route uses the existing auth guard.
+
+## Private tags (US08 — #11)
+
+`PUT /transfers/{transferId}/files/{fileId}/tags` replaces the full list (`{"tags":["Project","Invoices"]}`), or clears it with `{"tags":[]}`. JWT and file ownership are checked. Labels are trimmed, case-sensitive, non-empty, unique per file and limited to 30 characters. Invalid input returns 422; unknown or non-owned files return 404. Private upload and history responses include `tags`; public sharing does not. No tag filter is provided.
+
+## Per-file password (US09 — #12)
+
+On upload, omit `passwords[]` for unprotected files or send one repeated text part `passwords[]` per `files[]` in the same order (empty string for unprotected). A nonempty password must have at least 6 characters and at most 72 UTF-8 bytes (bcrypt limit), with no NUL or whitespace-only value; leading/trailing spaces are preserved. Only the hash is persisted. Metadata exposes only `password_protected`.
+
+For protected files, send `POST /shares/{token}/files/{fileId}/authorize` with JSON `{"password":"..."}`, without JWT. Wrong passwords return 403 (`invalid_password`), invalid input returns 422, and the sixth attempt within the one-minute window returns 429. HTTP 200 returns `download_url`, a file-specific relative signed URL valid for 60 seconds. Open that exact URL on the application origin; the server rechecks the token, transfer expiry, file membership and signature. Unsigned GET on a protected file returns 403 (`password_required`). Unprotected files retain direct GET. Signed URLs are reusable until expiry: do not publish or log them. No plaintext password, hash disclosure or password recovery; anonymous upload remains out of scope.
+
 ## Interactive acceptance
 
 Use a disposable account and two small allowed files. Requests create real local records; never use private data or publish JWTs.
@@ -71,6 +85,8 @@ Import the [v2.1 collection](postman/DataShare.postman_collection.json) and [loc
 
 Set only local (not shared) values for `email` (e.g. unique `postman-20261125-01@example.com`) and `password` (disposable password of at least eight characters). Never export populated environments, JWTs or real share tokens. Use disposable files without private content.
 
-Send individual requests in order: System (2), Authentication (3), Transfers (one-file upload then two-file upload using File fields named `files[]`, then history), Public sharing (metadata then download). JWT and identifiers are stored automatically in the local environment; assertions verify status codes and useful response data. Use Send and Download to inspect the downloaded file if needed. DELETE is limited to the last uploaded acceptance file and skipped by default; only set `allowDelete=true` after public sharing if explicitly deleting this disposable data. Never run it on existing data.
+Send individual requests in order: System (2), Authentication (4, including the disposable account profile update), Transfers (one-file upload then two-file upload using File fields named `files[]`, then history), Public sharing (metadata then download). JWT and identifiers are stored automatically in the local environment; assertions verify status codes and useful response data. Use Send and Download to inspect the downloaded file if needed. The tag update is guarded by the captured identifiers from the last disposable upload; send a list of tags, then `{"tags":[]}` to check removal. DELETE is limited to the last uploaded acceptance file and skipped by default; only set `allowDelete=true` after public sharing if explicitly deleting this disposable data. Never run it on existing data.
+
+After the standard checks, use the Postman folder **US09 — Password protected (manual)**: upload a disposable protected file, test unsigned GET and wrong password, then authorize and download. Set the local `filePassword` value to a fictional alphanumeric password of at least 6 characters. Send the final request within 60 seconds; the signed URL variable is cleared after use. Never export populated variables.
 
 To update the collection after an API change, import Scramble's JSON at `/docs/api.json` (or use the export above), group by tags and reconcile changes in the existing collection while preserving variables, scripts, authentication and safeguards; export v2.1 without secrets. Swagger UI and the design contract remain the references. No Newman or new CI check is required.

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Documentation;
 
+use App\Http\Controllers\Api\AuthorizePublicDownloadController;
 use App\Http\Controllers\Api\CreateTransferController;
 use App\Http\Controllers\Api\DownloadPublicShareFileController;
 use App\Http\Controllers\Api\ShowPublicShareController;
@@ -34,7 +35,7 @@ final class DataShareOperationTransformer implements OperationTransformer
         foreach ($operation->responses as $index => $response) {
             $resolved = $response instanceof Response ? $response : $response->resolve();
             if ($resolved->code === 422) {
-                $operation->responses[$index] = $this->error(422, 'validation_error', 'Invalid input, file type or expiration.')
+                $operation->responses[$index] = $this->error(422, 'validation_error', 'Invalid input, file type, expiration, tags or password.')
                     ->setContent('application/json', Schema::fromType(
                         $this->errorType('validation_error')
                             ->addProperty('errors', (new ObjectType)->additionalProperties(
@@ -44,12 +45,17 @@ final class DataShareOperationTransformer implements OperationTransformer
             }
         }
 
-        if (in_array($controller, [ShowPublicShareController::class, DownloadPublicShareFileController::class], true)) {
+        if (in_array($controller, [ShowPublicShareController::class, DownloadPublicShareFileController::class, AuthorizePublicDownloadController::class], true)) {
             $operation->addResponse($this->error(404, 'not_found', 'Unknown token, missing file or file outside this share.'));
             $operation->addResponse($this->error(410, 'share_expired', 'Expired share awaiting purge; purged shares return 404.'));
         }
 
+        if ($controller === AuthorizePublicDownloadController::class) {
+            $operation->addResponse($this->error(403, 'invalid_password', 'Incorrect password or unprotected file.'));
+        }
+
         if ($controller === DownloadPublicShareFileController::class) {
+            $operation->addResponse($this->error(403, 'password_required', 'Protected file without a valid signed URL.'));
             // Storage::download() is inferred as a generic JSON response through the union return type.
             $operation->responses = array_values(array_filter(
                 $operation->responses,
@@ -110,6 +116,12 @@ final class DataShareOperationTransformer implements OperationTransformer
         // PHP requires bracketed field names to receive multiple uploaded files as an array.
         unset($schema->properties['files']);
         $schema->properties['files[]'] = $files;
+        if (isset($schema->properties['passwords'])) {
+            $passwords = $schema->properties['passwords'];
+            $passwords->setDescription('Optional repeated passwords[] text parts, one per files[] part in the same order. Empty entries mean unprotected; 6 characters minimum and 72 UTF-8 bytes maximum otherwise.');
+            unset($schema->properties['passwords']);
+            $schema->properties['passwords[]'] = $passwords;
+        }
         $schema->required = array_map(fn (string $name) => $name === 'files' ? 'files[]' : $name, $schema->required);
         $schema->properties['expires_in_days']->default(7)
             ->setDescription('1–7 days; defaults to 7 when neither expiry field is supplied. Mutually exclusive with expires_in_minutes.');

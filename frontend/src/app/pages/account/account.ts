@@ -12,6 +12,8 @@ interface HistoryFile {
   size_bytes: number;
   mime_type: string;
   uploaded_at: string;
+  tags: string[];
+  password_protected: boolean;
 }
 
 interface HistoryTransfer {
@@ -59,6 +61,8 @@ export class Account implements OnInit {
   readonly deletingFileId = signal<string | null>(null);
   readonly deletionError = signal<string | null>(null);
   readonly deletionSuccess = signal<string | null>(null);
+  readonly savingTagsFileId = signal<string | null>(null);
+  readonly tagError = signal<{ fileId: string; message: string } | null>(null);
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.requests.unsubscribe());
@@ -76,7 +80,7 @@ export class Account implements OnInit {
   }
 
   loadHistory(page = this.page()): void {
-    if (this.historyLoading() || this.deletingFileId()) return;
+    if (this.historyLoading() || this.deletingFileId() || this.savingTagsFileId()) return;
     if (!this.auth.signedIn()) {
       this.endSession('/login');
       return;
@@ -84,6 +88,7 @@ export class Account implements OnInit {
 
     this.historyLoading.set(true);
     this.errorMessage.set(null);
+    this.tagError.set(null);
     this.transfers.set([]);
     this.page.set(page);
     const params = new URLSearchParams();
@@ -117,7 +122,7 @@ export class Account implements OnInit {
   }
 
   deleteFile(transfer: HistoryTransfer, file: HistoryFile): void {
-    if (this.deletingFileId() || this.historyLoading()) return;
+    if (this.deletingFileId() || this.historyLoading() || this.savingTagsFileId()) return;
     if (!this.auth.signedIn()) {
       this.endSession('/login');
       return;
@@ -150,13 +155,65 @@ export class Account implements OnInit {
     }));
   }
 
+  addTag(transfer: HistoryTransfer, file: HistoryFile, input: HTMLInputElement): void {
+    if (this.historyLoading() || this.deletingFileId() || this.savingTagsFileId()) return;
+    const tag = input.value.trim();
+    if (!tag || Array.from(tag).length > 30 || file.tags.includes(tag)) {
+      const message = !tag ? 'Saisis un tag.' : Array.from(tag).length > 30
+        ? 'Un tag ne peut pas dépasser 30 caractères.' : 'Ce tag existe déjà pour ce fichier.';
+      this.tagError.set({ fileId: file.id, message });
+      return;
+    }
+
+    this.saveTags(transfer, file, [...file.tags, tag], input);
+  }
+
+  removeTag(transfer: HistoryTransfer, file: HistoryFile, tag: string): void {
+    this.saveTags(transfer, file, file.tags.filter((name) => name !== tag));
+  }
+
+  private saveTags(transfer: HistoryTransfer, file: HistoryFile, tags: string[], input?: HTMLInputElement): void {
+    if (this.historyLoading() || this.deletingFileId() || this.savingTagsFileId()) return;
+    if (!this.auth.signedIn()) {
+      this.endSession('/login');
+      return;
+    }
+
+    this.savingTagsFileId.set(file.id);
+    this.tagError.set(null);
+    const url = `/api/transfers/${encodeURIComponent(transfer.id)}/files/${encodeURIComponent(file.id)}/tags`;
+    this.requests.add(this.http.put<{ tags: string[] }>(url, { tags }, {
+      headers: this.auth.authorizationHeaders(),
+    }).subscribe({
+      next: (response) => {
+        this.transfers.update((transfers) => transfers.map((current) => current.id !== transfer.id ? current : {
+          ...current,
+          files: current.files.map((item) => item.id === file.id ? { ...item, tags: response.tags } : item),
+        }));
+        if (input) input.value = '';
+        this.savingTagsFileId.set(null);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.savingTagsFileId.set(null);
+        if (error.status === 401) {
+          this.endSession('/login');
+        } else {
+          const message = error.status === 404 ? 'Ce fichier est introuvable. Actualise ton historique.'
+            : error.status === 422 ? 'Vérifie les tags : 30 caractères maximum, sans doublon.'
+            : 'Impossible de modifier les tags. Réessaie plus tard.';
+          this.tagError.set({ fileId: file.id, message });
+        }
+      },
+    }));
+  }
+
   refreshHistory(): void {
     this.deletionError.set(null);
     this.loadHistory();
   }
 
   setHistoryFilter(filter: HistoryFilter): void {
-    if (this.historyLoading() || this.deletingFileId()) return;
+    if (this.historyLoading() || this.deletingFileId() || this.savingTagsFileId()) return;
 
     if (filter === this.historyFilter()) return;
     this.historyFilter.set(filter);
@@ -209,6 +266,8 @@ export class Account implements OnInit {
     this.deletingFileId.set(null);
     this.deletionError.set(null);
     this.deletionSuccess.set(null);
+    this.savingTagsFileId.set(null);
+    this.tagError.set(null);
     this.auth.logout();
     void this.router.navigateByUrl(destination);
   }

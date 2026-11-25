@@ -61,7 +61,7 @@ Do **not** invent exact status colors where the PDF only shows approximations (P
 
 - From **My space**, “Send files” opens `/upload` directly; the signed-in home icon opens the same form. Before login, the icon is decorative and the “Sign in” text is a link.
 - Transfers support **multiple files** even though Figma usually shows one.
-- Optional **US09 share passwords are not implemented**: direct download follows the unprotected Figma variant, without a nonfunctional password input.
+- At MVP acceptance, optional **US09 share passwords were omitted**. US09 subsequently adds optional per-file password input at upload and a password prompt for protected downloads; direct download is unchanged for unprotected files.
 - File names, dates and contents come from the API; **“Copy link”** remains the mobile confirmation action rather than the ambiguous “Upload” label. The copyright year is current.
 
 **Separate decision:** the local five-minute demo enables frequent cleanup, deleting expired file bytes **and** database metadata; the “Expired” history tab can therefore be empty. The decision to retain the current purge is recorded in [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57), **outside UI-01**.

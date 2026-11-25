@@ -20,7 +20,9 @@ class RegistrationTest extends TestCase
         ]);
 
         $response->assertCreated()
-            ->assertJsonStructure(['user' => ['id', 'email', 'created_at']])
+            ->assertJsonStructure(['user' => ['id', 'email', 'name', 'first_name', 'created_at']])
+            ->assertJsonPath('user.name', null)
+            ->assertJsonPath('user.first_name', null)
             ->assertJsonPath('user.email', 'new.user@example.com')
             ->assertJsonMissingPath('user.password')
             ->assertJsonMissingPath('access_token');
@@ -31,6 +33,36 @@ class RegistrationTest extends TestCase
         $this->assertSame($user->public_id, $response->json('user.id'));
         $this->assertNotSame('SecurePass123!', $user->password);
         $this->assertTrue(Hash::check('SecurePass123!', $user->password));
+    }
+
+    public function test_optional_names_are_trimmed_and_persisted(): void
+    {
+        $this->postJson('/api/auth/register', [
+            'email' => 'named@example.com',
+            'password' => 'SecurePass123!',
+            'name' => ' Dupont ',
+            'first_name' => ' Élodie ',
+        ])->assertCreated()
+            ->assertJsonPath('user.name', 'Dupont')
+            ->assertJsonPath('user.first_name', 'Élodie');
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'named@example.com',
+            'name' => 'Dupont',
+            'first_name' => 'Élodie',
+        ]);
+    }
+
+    public function test_invalid_optional_names_are_rejected(): void
+    {
+        $this->postJson('/api/auth/register', [
+            'email' => 'named@example.com',
+            'password' => 'SecurePass123!',
+            'name' => str_repeat('a', 256),
+            'first_name' => ['invalid'],
+        ])->assertUnprocessable()->assertJsonValidationErrors(['name', 'first_name']);
+
+        $this->assertDatabaseCount('users', 0);
     }
 
     public function test_invalid_email_is_rejected(): void

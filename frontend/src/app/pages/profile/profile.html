@@ -1,0 +1,51 @@
+<section class="register-card" aria-labelledby="profile-title">
+  <h1 id="profile-title">Mon profil</h1>
+  @if (loading()) {
+    <p role="status">Chargement de ton profil...</p>
+  }
+  @if (errorMessage(); as message) {
+    <p class="form-message" role="alert">{{ message }}</p>
+  }
+  @if (saved()) {
+    <p class="success-message" role="status">Ton profil a bien été mis à jour.</p>
+  }
+  @if (loaded()) {
+    @if (auth.user(); as user) {
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="field">
+          <label for="profile-email">Email (non modifiable)</label>
+          <input id="profile-email" type="email" [value]="user.email" readonly />
+        </div>
+        <div class="field">
+          <label for="profile-first-name">Prénom (facultatif)</label>
+          <input id="profile-first-name" type="text" autocomplete="given-name"
+            formControlName="first_name" maxlength="255" [readOnly]="saving()"
+            [attr.aria-invalid]="form.controls.first_name.invalid && form.controls.first_name.touched ? 'true' : null"
+            [attr.aria-describedby]="form.controls.first_name.invalid && form.controls.first_name.touched ? 'profile-first-name-error' : null" />
+          @if (form.controls.first_name.invalid && form.controls.first_name.touched) {
+            <small id="profile-first-name-error" class="field-error">255 caractères maximum.</small>
+          }
+        </div>
+        <div class="field">
+          <label for="profile-name">Nom (facultatif)</label>
+          <input id="profile-name" type="text" autocomplete="family-name"
+            formControlName="name" maxlength="255" [readOnly]="saving()"
+            [attr.aria-invalid]="form.controls.name.invalid && form.controls.name.touched ? 'true' : null"
+            [attr.aria-describedby]="form.controls.name.invalid && form.controls.name.touched ? 'profile-name-error' : null" />
+          @if (form.controls.name.invalid && form.controls.name.touched) {
+            <small id="profile-name-error" class="field-error">255 caractères maximum.</small>
+          }
+        </div>
+        <div class="form-actions">
+          <button type="submit" [disabled]="saving()">{{ saving() ? 'Enregistrement...' : 'Enregistrer' }}</button>
+          <a class="secondary-action" routerLink="/account">Retour à mes fichiers</a>
+        </div>
+      </form>
+    }
+  } @else if (!loading() && auth.signedIn()) {
+    <div class="form-actions">
+      <button type="button" (click)="load()">Réessayer</button>
+      <a class="secondary-action" routerLink="/account">Retour à mes fichiers</a>
+    </div>
+  }
+</section>

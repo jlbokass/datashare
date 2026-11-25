@@ -29,7 +29,7 @@ lang: fr
 | **TRANSFERT** | `idTransfert`, `tokenPartage` unique et non prédictible, `dateCreation`, `dateExpiration`, `/statut` calculé | US01, US02, US05 |
 | **FICHIER** | `idFichier`, `nomOriginal`, `tailleOctets`, `typeMime`, `dateEnvoi` | US01, US02, US05, US06 |
 
-`nom` / `prenom` (UTILISATEUR) et `titre` / `message` (TRANSFERT) restent des **choix facultatifs de conception**, non exigés par les US du MVP. Le préfixe UML `/statut` désigne un **attribut dérivé**, calculé à partir de l'expiration, pas un statut à enregistrer obligatoirement.
+`nom` / `prenom` (UTILISATEUR) et `titre` / `message` (TRANSFERT) sont des **choix facultatifs de conception**, non exigés par les US du MVP. PROFILE-01 met en œuvre les deux premiers via `users.name` (colonne nullable préexistante, valeurs conservées) et `users.first_name` (nouvelle colonne nullable). Le préfixe UML `/statut` désigne un **attribut dérivé**, calculé à partir de l'expiration, pas un statut à enregistrer obligatoirement.
 
 ### Associations et multiplicités UML
 
@@ -101,6 +101,6 @@ Les noms des tables et colonnes ci-dessus sont illustratifs. **Ces instructions 
 
 ## 5. Modèle physique et arbitrage sur la purge
 
-Le stockage privé, les clés, les index, les migrations et les classes ORM relèvent du modèle physique (voir `backend/database/migrations/`). Le statut est dérivé de l'expiration. Les statistiques de téléchargement, les tags et la protection par mot de passe ne font pas partie de l'implémentation.
+Le stockage privé, les clés, les index, les migrations et les classes ORM relèvent du modèle physique (voir `backend/database/migrations/`). Le statut est dérivé de l'expiration. L'extension US08 utilise une table `tags` liée à `transfer_files` par une clé étrangère avec suppression en cascade, et une contrainte unique (`transfer_file_id`, `name`). US09 ajoute une colonne nullable `transfer_files.password_hash` (hash irréversible, jamais exposé) ; `null` conserve le téléchargement direct. Les statistiques de téléchargement ne font pas partie de l'implémentation.
 
 [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57) confirme la conservation de la purge existante : fichiers et métadonnées sont supprimés à expiration par la tâche planifiée. L'historique peut uniquement inclure les enregistrements expirés non encore purgés. Les statistiques facultatives ci-dessus restent une hypothèse de conception, pas une politique de conservation en vigueur.

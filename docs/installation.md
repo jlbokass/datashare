@@ -67,6 +67,30 @@ bash scripts/qa.sh all
 Open **http://127.0.0.1:8080/**. The `/api/health` response alone does not prove PostgreSQL connectivity; the migration checks that separately. Laravel CI unit tests use in-memory SQLite.
 
 
+## Optional Garage S3 demonstration (OPS-03 — #98)
+
+The MVP keeps local storage with `make up` / `make https-up`. Garage demonstrates object storage using the same Laravel `transfers` disk and endpoints. The Compose override uses the **datashare-garage** project, loopback HTTPS port **8444** (HTTP 8081 redirects to HTTPS), a new `datashare_garage` database in a dedicated volume, and a private `datashare-transfers` bucket. It does not use existing files or database records. S3 stays internal to the Docker network; browsers download through Laravel with the existing JWT/share, expiry and US09 controls.
+
+Prerequisites: Docker Compose ≥ 2.24.4 (`!override`), OpenSSL, the existing project mkcert certificates (see [local HTTPS](#optional-local-https)) and Composer-installed Laravel dependencies. The official `league/flysystem-aws-s3-v3:^3.0` adapter is included in the Composer manifest and lockfile; use `composer install` to reproduce the locked versions.
+
+```bash
+make garage-init
+make garage-up
+make garage-migrate
+make garage-status
+make garage-health
+```
+
+`garage-init` creates `.env.garage` once (private permissions, ignored by Git) without modifying the existing two `.env` files. Preserve it with the Garage volumes: do not regenerate keys for existing storage. `garage-migrate` applies ordinary migrations **only** to the demo database, without resetting anything.
+
+If Nginx returns 502 after PHP-FPM container recreation, restart only the Garage project's web service: `docker compose --env-file .env.garage -p datashare-garage -f compose.yaml -f compose.garage.yaml restart web`, then `make garage-health`.
+
+Open [https://127.0.0.1:8444/](https://127.0.0.1:8444/) and create a disposable account. Verify upload, direct and protected download, individual deletion, expiry and purge (five-minute local demo enabled). Also try a disposable file of several tens of MB to exercise S3 multipart upload. `make qa` remains the normal project's regression check, not a Garage integration test.
+
+Stop the demonstration with `make garage-stop`. Volumes are preserved; the main project is not stopped. Stop the demo before switching branches (shared source bind mount). Never set `DATASHARE_GARAGE_DEMO=true` for the ordinary database or run the override under the main project name. No existing-file migration. Single-node Garage (replication 1) has no redundancy or availability guarantees: local demonstration only. This override reuses the existing mkcert certificates with a dedicated redirect to 8444; do not add `compose.https.yaml` (reserved for the main project). Laravel → Garage remains internal HTTP. Production would require separate storage and backup design; this demonstration is not production validation.
+
+Sources: [Garage Quick Start](https://github.com/deuxfleurs-org/garage/blob/main-v2/doc/book/quick-start/_index.md), [Laravel 13 Filesystem](https://laravel.com/docs/13.x/filesystem).
+
 ## Optional local HTTPS
 
 After HTTP installation, on macOS with Homebrew, install [mkcert](https://github.com/FiloSottile/mkcert) if needed and create a development-only certificate from the repository root:

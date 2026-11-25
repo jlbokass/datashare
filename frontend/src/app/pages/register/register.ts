@@ -9,6 +9,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import type { PublicUser } from '../../auth/auth.service';
 
 type FieldErrors = Record<string, string[]>;
 
@@ -30,6 +31,8 @@ export class Register {
 
   readonly form = new FormGroup(
     {
+      first_name: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(255)] }),
+      name: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(255)] }),
       email: new FormControl('', {
         nonNullable: true,
         validators: [Validators.required, Validators.email, Validators.maxLength(255)],
@@ -61,12 +64,16 @@ export class Register {
     this.fieldErrors.set({});
     this.submitting.set(true);
 
-    const { email, password } = this.form.getRawValue();
+    const { email, password, name, first_name } = this.form.getRawValue();
 
     this.http
-      .post<{ user: { id: string; email: string; created_at: string } }>(
+      .post<{ user: PublicUser }>(
         '/api/auth/register',
-        { email: email.trim().toLowerCase(), password },
+        {
+          email: email.trim().toLowerCase(), password,
+          ...(name.trim() ? { name: name.trim() } : {}),
+          ...(first_name.trim() ? { first_name: first_name.trim() } : {}),
+        },
       )
       .subscribe({
         next: () => {

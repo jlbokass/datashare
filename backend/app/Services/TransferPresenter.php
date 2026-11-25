@@ -22,6 +22,8 @@ class TransferPresenter
                 'size_bytes' => $file->size_bytes,
                 'mime_type' => $file->mime_type,
                 'uploaded_at' => $file->created_at->toIso8601String(),
+                'tags' => $file->tags->pluck('name')->values()->all(),
+                'password_protected' => $file->password_hash !== null,
             ])->values()->all(),
         ];
     }

@@ -29,7 +29,7 @@ lang: en
 | **TRANSFERT / TRANSFER** | `idTransfert`, unique unpredictable `tokenPartage`, `dateCreation`, `dateExpiration`, derived `/statut` | US01, US02, US05 |
 | **FICHIER / FILE** | `idFichier`, `nomOriginal`, `tailleOctets`, `typeMime`, `dateEnvoi` | US01, US02, US05, US06 |
 
-`nom` / `prenom` (USER) and `titre` / `message` (TRANSFER) are marked **optional design choices**; the official MVP stories do not require them. The `/statut` leading slash is UML notation for a **derived attribute** (calculated from expiry), not a column to persist.
+`nom` / `prenom` (USER) and `titre` / `message` (TRANSFER) are marked **optional design choices**; the official MVP stories do not require them. PROFILE-01 implements the former two as `users.name` (existing nullable column, values preserved) and `users.first_name` (new nullable column). The `/statut` leading slash is UML notation for a **derived attribute** (calculated from expiry), not a column to persist.
 
 ### Associations and UML multiplicities
 
@@ -101,6 +101,6 @@ The table and column names above are illustrative. This SQL does **not** itself 
 
 ## 5. Physical model and purge decision
 
-Private storage, keys, indexes, migrations and ORM classes belong to the physical model (see `backend/database/migrations/`). Status is derived from expiry. Download statistics, tags and password-protected shares are not implemented.
+Private storage, keys, indexes, migrations and ORM classes belong to the physical model (see `backend/database/migrations/`). Status is derived from expiry. US08 adds a `tags` table linked to `transfer_files` by a cascading foreign key and a unique constraint on (`transfer_file_id`, `name`). US09 adds nullable `transfer_files.password_hash` (one-way hash, never exposed); `null` preserves direct downloads. Download statistics are not implemented.
 
 [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57) confirms the existing purge: files and metadata are removed at expiry by the scheduled task. History can only include expired records that have not yet been purged. The optional statistics above remain a design hypothesis, not an active retention policy.
