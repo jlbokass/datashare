@@ -9,7 +9,7 @@ lang: fr
 
 [**English**](technical-documentation.md) · [Accueil](index.md) · [Dépôt GitHub](https://github.com/jlbokass/datashare)
 
-**État au 24 novembre 2026.** Le MVP US01–US06, les validations QL-01 à QL-04 et la recette visuelle UI-01 sont livrés sur `main` ([PR #68](https://github.com/jlbokass/datashare/pull/68), [97abebd](https://github.com/jlbokass/datashare/commit/97abebd7fc704821e0f8c5bbcedf7f7e0b58590b)). Les trois contrôles CI de la livraison et la publication GitHub Pages ont réussi. Le prototype s'exécute en local ; GitHub Pages publie uniquement la documentation.
+**Release fonctionnelle du 25 novembre 2026 — [PR #100](https://github.com/jlbokass/datashare/pull/100), [bec72e3](https://github.com/jlbokass/datashare/commit/bec72e39ff80a9c89df600aea6f060e905591b80) (`main`).** Le MVP US01–US06 est livré avec les extensions US08 (tags privés), US09 (mot de passe par fichier), PROFILE-01, pagination de l'historique et OPS-03 (Garage S3 isolé). US07 n'est pas implémentée ; la purge quotidienne relève d'US01, sans lot US10 distinct. Les trois CI et la publication GitHub Pages ont réussi. Le prototype fonctionne en local, sans déploiement en production.
 
 ## 1. Architecture de l'application
 
@@ -93,18 +93,19 @@ Ces routes sont implémentées ; les statuts et schémas de requêtes/réponses 
 - **Comptes :** mots de passe hashés/salés, email unique. JWT signé, vérifié côté Laravel et conservé uniquement en mémoire Angular ; la déconnexion efface la session locale mais **ne révoque pas** un JWT déjà émis (durée d'environ 30 minutes).
 - **Fichiers :** stockage hors racine publique, nom interne opaque ; contrôles du type MIME et de l'extension, limite de 1 Go par fichier (5 fichiers et 2 Go par transfert choisis pour le MVP). Le téléchargement est forcé en pièce jointe.
 - **Partages :** token non prédictible, expiration entre 1 et 7 jours, refus des liens invalides/expirés ; purge planifiée des fichiers et métadonnées. Les ZIP ne sont **pas analysés par antivirus**.
+- **Protection par fichier (US09) :** hash bcrypt, vérification serveur et rate limiting (5 tentatives/minute/IP). Après validation, URL relative signée valable 60 secondes et réutilisable pendant cette durée, limitée au fichier. Le token, l'expiration et la signature sont vérifiés au download. Aucun hash exposé ni mécanisme de récupération ; pas de chiffrement des fichiers au repos.
 - **Limites :** aucun hébergement public HTTPS, sauvegarde/restauration testée ou audit de sécurité complet n'est démontré. Les audits de dépendances **Composer et npm ont été réalisés** dans [SECURITY](https://github.com/jlbokass/datashare/blob/main/SECURITY.md), sans vulnérabilité signalée à la date du contrôle ; ils ne remplacent pas un audit complet.
 
 ## 6. Qualité, tests et maintenance
 
 | Livrable demandé | État et renvoi |
 | --- | --- |
-| **TESTING.md** | [Tests et preuves](https://github.com/jlbokass/datashare/blob/main/TESTING.md) : couverture des lignes **96,36 %** Laravel et **85,97 %** Angular, **6 tests E2E réussis** sur la version livrée le 24 novembre ; [preuves et mesures datées](coverage.fr.md) |
+| **TESTING.md** | [Tests et preuves](https://github.com/jlbokass/datashare/blob/main/TESTING.md) : [Laravel](https://github.com/jlbokass/datashare/actions/runs/45548826977) **79,72 %** (83 tests, 576 assertions), [Angular](https://github.com/jlbokass/datashare/actions/runs/45548827002) **88,00 %** (65 tests), [Playwright](https://github.com/jlbokass/datashare/actions/runs/45548827035) **6/6** ; release du 25 novembre. [Coverage et limites](coverage.fr.md) |
 | **SECURITY.md** | [Audits Composer et npm](https://github.com/jlbokass/datashare/blob/main/SECURITY.md) réalisés le 23/11/2026 : **aucune vulnérabilité signalée** (QL-03) |
-| **PERF.md** | [Mesures QL-04](https://github.com/jlbokass/datashare/blob/main/PERF.md) : téléchargement local, bundle Angular et relevé Lighthouse sur serveur de développement ; **aucune garantie de performance en production** |
-| **MAINTENANCE.md** | [Procédures locales](https://github.com/jlbokass/datashare/blob/main/MAINTENANCE.md), mises à jour et risques ; aucune reprise de production testée |
+| **PERF.md** | [Mesures](https://github.com/jlbokass/datashare/blob/main/PERF.md) : endpoint de download et Lighthouse mesurés localement les 22–23 novembre ; bundle final 370,94 ko, sous le seuil de 500 ko, deux avertissements SCSS. Aucune garantie de performance en production |
+| **MAINTENANCE.md** | [Procédures locales](https://github.com/jlbokass/datashare/blob/main/MAINTENANCE.md) : logs structurés, Dozzle, scheduler, mises à jour et risques ; aucune reprise de production testée |
 
-La couverture dépasse l'objectif indicatif de 70 % séparément pour Laravel et Angular. Les captures des rapports ont été déclarées préparées pour le dossier de soutenance. Les méthodes, dates et limites des mesures figurent dans les documents liés ci-dessus.
+Le line coverage dépasse séparément l'objectif indicatif de 70 %. Les captures doivent correspondre à la release de référence ; les mesures antérieures restent historiques. Les six contrôles manuels de navigation clavier du 24 novembre sont validés ([recette UI-01](design-handoff.fr.md)), sans audit RGAA/WCAG complet. SonarQube Cloud complète les CI avec un Quality Gate informatif, distinct des mesures PHPUnit et Vitest.
 
 ### Workflow et conventions de développement
 
@@ -126,7 +127,7 @@ La couverture dépasse l'objectif indicatif de 70 % séparément pour Laravel et
 
 [README](https://github.com/jlbokass/datashare/blob/main/README.md) · [Installation pas à pas](installation.fr.md)
 
-**Prérequis :** Git, Docker et Compose. Pour une installation neuve, initialiser les fichiers `.env` privés selon le [guide d'installation](installation.fr.md) (secrets PostgreSQL, Laravel et JWT) ; ne jamais les commiter.
+**Prérequis :** Git, Docker et Compose ; PHP 8.4 et Node.js 24 sont fournis par les containers. GNU Make est facultatif ; mkcert est nécessaire uniquement pour HTTPS local. Pour une installation neuve, initialiser les fichiers `.env` privés selon le [guide d'installation](installation.fr.md) (secrets PostgreSQL, Laravel et JWT) ; ne jamais les commiter.
 
 Depuis la racine, une fois les dépendances initialisées :
 
@@ -138,11 +139,15 @@ bash scripts/qa.sh all
 
 L'application est accessible sur `http://127.0.0.1:8080/` ou, avec le [mode TLS local](installation.fr.md#https-local-facultatif), sur `https://127.0.0.1:8443/`. Les E2E utilisent **`compose.test.yaml`**, séparé des données de développement (voir TESTING). Ne pas utiliser `docker compose down -v` sur une base utile. Le déploiement en production n'a pas été réalisé.
 
+**Raccourcis et outils de démonstration :** `make up`, `make qa`, `make down` (volumes conservés) ; `make scheduler-stop`, `make scheduler-start` et `make scheduler-status` pour la purge dans la stack principale. `make dozzle-up` ouvre le service de logs sur [localhost:9999](http://127.0.0.1:9999/), à arrêter avec `make dozzle-stop`. Swagger UI et la collection Postman sont décrits dans le [guide API](api/README.fr.md). Le [guide d'installation](installation.fr.md) décrit aussi Garage isolé (HTTPS 8444) et ses commandes `make garage-*`.
+
 ## 8. Utilisation de l'IA
 
 [Journal de développement IA](ai-journal.fr.md) · [Version anglaise](ai-journal.md)
 
-Les contributions de l'IA portent sur des tâches d'implémentation, de test et de documentation. Le cadrage des tâches, les arbitrages, les demandes de correction et la validation des changements relèvent de la supervision humaine. Le journal IA distingue les contributions, les décisions et les vérifications, avec les références aux issues et pull requests.
+**Posture.** J'ai utilisé l'IA comme assistant de développement dans une démarche de délégation supervisée : cadrage des tâches, choix d'architecture, arbitrages, demandes de correction et validation des livrables sous ma responsabilité.
+
+**Tâches confiées.** ChatGPT et Codex ont contribué à la conception, à l'implémentation de plusieurs US, à la génération de tests, au debugging et à la documentation. Les issues, commits et Pull Requests retracent les contributions. Le journal IA distingue les propositions, décisions et vérifications.
 
 ### Revue technique du code généré par l'IA
 
@@ -154,10 +159,10 @@ La synthèse ci-dessous présente des exemples de revue et de validation issus d
 | Téléchargement public (US02, [PR #43](https://github.com/jlbokass/datashare/pull/43)) | Routes perdues lors d'un conflit de fusion, identifiées avec Codex ; restauration des routes et correction du formatage. | CI réussie : 33 tests Laravel, 217 assertions, Pint et contrôles frontend. Cinq scénarios de recette locale validés. |
 | Suppression individuelle (US06, [PR #46](https://github.com/jlbokass/datashare/pull/46)) | Contrôle de propriété, suppression limitée au fichier et verrouillage du transfert parent retenus. | [CI backend](https://github.com/jlbokass/datashare/actions/runs/44446497875) : 52 tests et 364 assertions ; [CI frontend](https://github.com/jlbokass/datashare/actions/runs/44446497731) : 44 tests et compilation réussis. Cinq scénarios locaux validés. L'atomicité entre stockage et base de données reste une limite documentée. |
 
-Ces exemples illustrent la supervision des contributions de l'IA par la revue des changements, les tests automatisés et la recette fonctionnelle. Le journal constitue la trace détaillée de ces décisions ; cette synthèse ne constitue pas un audit exhaustif du code.
+**Supervision.** Revue des diffs, validation fonctionnelle locale et CI permettent de contrôler les contributions ; cette synthèse n'est pas un audit exhaustif du code.
 
-**Point à clarifier avant la soutenance :** la mission écrite limite le développement confié à l'IA à une User Story ; le journal décrit des interventions sur plusieurs US. La règle applicable et la manière de présenter ces contributions doivent être confirmées, sans effacer l'historique.
+**Apports et limites.** L'IA accélère la préparation du code, des tests et des documents, sans mesure chiffrée de gain de temps. Les erreurs de contexte ou d'exécution exigent une revue humaine. Lors d'un blocage de l'accès Docker, une exécution de PHPUnit dans le service applicatif a réinitialisé le schéma PostgreSQL local via `RefreshDatabase`. Le correctif impose SQLite en mémoire et vérifie la configuration avant les traits de tests ; il a été validé dans la livraison [PR #78](https://github.com/jlbokass/datashare/pull/78). Cet incident illustre la nécessité d'un environnement de test isolé et de procédures non destructives. Les détails et limites sont consignés dans le journal IA.
 
 ## Travaux restant avant la remise
 
-**À finaliser avant la soutenance :** joindre les captures de couverture préparées, finaliser le support de présentation et la fiche d'autoévaluation ; clarifier la règle OC applicable à l'usage de l'IA (section 8). Les audits QL-03, mesures QL-04 et la recette UI-01 sont terminés. [HIST-01 — purge/historique](https://github.com/jlbokass/datashare/issues/57) est clôturé : purge actuelle maintenue sans changement de code ; la [pagination facultative](https://github.com/jlbokass/datashare/issues/59) est implémentée (10 transferts par page, filtres serveur).
+**Avant la soutenance :** joindre les captures de coverage de la release du 25 novembre, finaliser le support de présentation et le scénario de démonstration. Le développement fonctionnel est gelé.
