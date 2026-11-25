@@ -27,7 +27,9 @@ DataShare permet de téléverser des fichiers privés et de les partager tempora
 - création de compte et authentification par JWT ;
 - historique personnel et suppression individuelle des fichiers.
 
-**État fonctionnel au 23 novembre 2026 :** le MVP, les travaux de validation de la qualité (QL-01 à QL-04) et la recette visuelle des interfaces (UI-01) sont intégrés à `develop`. Les contrôles backend, frontend et de bout en bout (E2E) de la [PR UI-01 #58](https://github.com/jlbokass/datashare/pull/58) ont réussi. L'application fonctionne en environnement local ; elle n'est pas déployée en production.
+**Release du 25 novembre 2026 — [PR #100](https://github.com/jlbokass/datashare/pull/100), [bec72e3](https://github.com/jlbokass/datashare/commit/bec72e39ff80a9c89df600aea6f060e905591b80) (`main`).** Les US01–US06 sont livrées avec US08 (tags privés), US09 (mot de passe par fichier), PROFILE-01 (profil), la pagination de l'historique et OPS-03 (Garage compatible S3, démonstration isolée). Le stockage local privé reste le mode par défaut. US07 (upload anonyme) n'est pas implémentée ; US10 ne fait pas l'objet d'un lot distinct, l'expiration et la purge quotidienne étant déjà couvertes par US01. Le développement fonctionnel est gelé. L'application s'exécute en local, sans déploiement en production.
+
+Les trois workflows ont réussi : [backend](https://github.com/jlbokass/datashare/actions/runs/45548826977) (83 tests, 79,72 % de coverage des lignes), [frontend](https://github.com/jlbokass/datashare/actions/runs/45548827002) (65 tests, 88,00 %) et [E2E](https://github.com/jlbokass/datashare/actions/runs/45548827035) (6 tests). Voir [TESTING.md](TESTING.md).
 
 **Environnement technique :** Angular 22, Laravel 13 / PHP, PostgreSQL 18, Nginx, Docker Compose et GitHub Actions.
 
@@ -91,4 +93,4 @@ La documentation technique bilingue est publiée sur [GitHub Pages](https://jlbo
 
 [Documentation OC](docs/technical-documentation.fr.md) · [Architecture](docs/architecture.fr.md) · [Contrat API](docs/api/openapi.yaml) · [Tests](TESTING.md) · [Sécurité](SECURITY.md) · [Performances](PERF.md) · [Maintenance](MAINTENANCE.md) · [Journal IA](docs/ai-journal.fr.md)
 
-Le mode HTTPS local est facultatif et utilise une autorité de certification de développement ; aucun déploiement HTTPS public n'est revendiqué. Le JWT est conservé uniquement en mémoire ; l'actualisation de la page nécessite donc une nouvelle authentification. Les archives ZIP ne font pas l'objet d'une analyse antivirus. La purge planifiée supprime les fichiers expirés et leurs métadonnées, conformément aux règles de conservation retenues ([HIST-01 #57](https://github.com/jlbokass/datashare/issues/57)). Les fonctionnalités avancées US07 à US10 sont facultatives.
+Le mode HTTPS local est facultatif et utilise une autorité de certification de développement ; aucun déploiement HTTPS public n'est revendiqué. Le JWT est conservé uniquement en mémoire ; l'actualisation de la page nécessite donc une nouvelle authentification. Les archives ZIP ne font pas l'objet d'une analyse antivirus. La purge planifiée supprime les fichiers expirés et leurs métadonnées, conformément aux règles de conservation retenues ([HIST-01 #57](https://github.com/jlbokass/datashare/issues/57)).

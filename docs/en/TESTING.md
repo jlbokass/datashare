@@ -7,9 +7,9 @@ lang: en
 
 # DataShare — Test plan and results
 
-[Français](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) · [Technical documentation](../technical-documentation.md) · [QL-02 tracking](https://github.com/jlbokass/datashare/issues/51)
+[Français](https://github.com/jlbokass/datashare/blob/main/TESTING.md) · [Technical documentation](../technical-documentation.md) · [QL-02 tracking](https://github.com/jlbokass/datashare/issues/51)
 
-**Status as of 22 November 2026.** Mandatory MVP features US01–US06 are covered by backend, frontend and three critical E2E business scenarios. All three GitHub Actions workflows on [PR #52](https://github.com/jlbokass/datashare/pull/52) are **passing**. The PR was merged into `develop` on 22 November 2026.
+**Reference release: 25 November 2026 ([PR #100](https://github.com/jlbokass/datashare/pull/100)).** The test plan prioritizes required US01–US06. The release also includes automated checks for the delivered extensions; the six E2E tests retain their MVP scope.
 
 ## 1. Scope and acceptance criteria
 
@@ -27,6 +27,20 @@ Detailed validation (file types and sizes, expiry, JWT, ownership and error cond
 
 ## 2. Results and evidence
 
+### Final release — 25 November 2026
+
+Reference: [PR #100](https://github.com/jlbokass/datashare/pull/100), commit [bec72e3](https://github.com/jlbokass/datashare/commit/bec72e39ff80a9c89df600aea6f060e905591b80) on `main`. Results verified in the logs of all three release workflows.
+
+| Check | Result | Line coverage | Evidence |
+| --- | --- | --- | --- |
+| Laravel / PHPUnit + Pint | 83 tests passed, 576 assertions; Pint passed | **79.72%** (456/572) | [Backend CI](https://github.com/jlbokass/datashare/actions/runs/45548826977) · [Report](https://github.com/jlbokass/datashare/actions/runs/45548826977/artifacts/14992641842) |
+| Angular / Vitest + build | 65 tests passed (8 files); build passed | **88.00%** | [Frontend CI](https://github.com/jlbokass/datashare/actions/runs/45548827002) · [Report](https://github.com/jlbokass/datashare/actions/runs/45548827002/artifacts/14993031980) |
+| Playwright / Chromium | 6 tests passed (8.0 s) | Not applicable | [E2E CI](https://github.com/jlbokass/datashare/actions/runs/45548827035) · [Summary](https://github.com/jlbokass/datashare/actions/runs/45548827035/artifacts/14992712719) |
+
+The indicative 70% target is met separately for both applications. Coverage artifacts expire on **9 December 2026** and the E2E summary on **2 December 2026**. Download these reports and include release-specific screenshots in the assessment submission; screenshots are not versioned here.
+
+### Historical results — 22 November 2026
+
 **Verified reference:** commit `9810a88`, PR #52, GitHub Actions on **22 November 2026**.
 
 | Level | CI result | Line coverage | Evidence |
@@ -39,7 +53,7 @@ The indicative OpenClassrooms **70%** line-coverage target is met on both codeba
 
 CI coverage artifacts are retained for **14 days**, and the E2E summary for **7 days**, subject to GitHub retention. Coverage report screenshots belong in the assessment submission, as requested in the specifications; they are not versioned here.
 
-### Released version results — 24 November 2026
+### Historical release — 24 November 2026
 
 Reference: [97abebd](https://github.com/jlbokass/datashare/commit/97abebd7fc704821e0f8c5bbcedf7f7e0b58590b), `main` branch, release [PR #68](https://github.com/jlbokass/datashare/pull/68). Earlier measurements remain dated historical results.
 
@@ -73,7 +87,7 @@ docker compose -f compose.test.yaml exec -T app sh -ec '
 docker compose -f compose.test.yaml --profile e2e run --rm --no-deps playwright
 ```
 
-The [E2E CI workflow](https://github.com/jlbokass/datashare/blob/develop/.github/workflows/e2e-ci.yml) shows clean installation and readiness checks. **Never run mutating E2E checks against `compose.yaml` or delete development volumes.**
+The [E2E CI workflow](https://github.com/jlbokass/datashare/blob/main/.github/workflows/e2e-ci.yml) shows clean installation and readiness checks. **Never run mutating E2E checks against `compose.yaml` or delete development volumes.**
 
 ## 4. Limits and remaining deliverables
 
@@ -85,7 +99,7 @@ The [E2E CI workflow](https://github.com/jlbokass/datashare/blob/develop/.github
 
 ## 5. Continuous integration and functional acceptance
 
-Three GitHub Actions workflows check PRs targeting `develop` and `main`: [backend](https://github.com/jlbokass/datashare/blob/develop/.github/workflows/backend-ci.yml) (PHP 8.4, Composer, PHPUnit, Pint, PCOV), [frontend](https://github.com/jlbokass/datashare/blob/develop/.github/workflows/frontend-ci.yml) (Node 24, npm, Vitest/V8, build) and [E2E](https://github.com/jlbokass/datashare/blob/develop/.github/workflows/e2e-ci.yml) (Playwright/Chromium, isolated Docker). Reports are temporary artifacts. GitHub Pages publishes documentation only, not the application.
+Three GitHub Actions workflows check PRs targeting `develop` and `main`: [backend](https://github.com/jlbokass/datashare/blob/main/.github/workflows/backend-ci.yml) (PHP 8.4, Composer, PHPUnit, Pint, PCOV), [frontend](https://github.com/jlbokass/datashare/blob/main/.github/workflows/frontend-ci.yml) (Node 24, npm, Vitest/V8, build) and [E2E](https://github.com/jlbokass/datashare/blob/main/.github/workflows/e2e-ci.yml) (Playwright/Chromium, isolated Docker). Reports are temporary artifacts. GitHub Pages publishes documentation only, not the application.
 
 | US | Historical developer-reported acceptance |
 | --- | --- |
@@ -97,12 +111,12 @@ Three GitHub Actions workflows check PRs targeting `develop` and `main`: [backen
 
 These acceptance reports do not replace the CI evidence above. The current suite does not demonstrate real PostgreSQL concurrency or a 1 GB load test.
 
-### Swagger UI interactive acceptance
+### Historical Swagger UI acceptance (before the final extensions)
 
-On 25 November 2026, the developer reported all 17 checks of [QA-API #76](https://github.com/jlbokass/datashare/issues/76) passing: Authentication (4), Transfers (7), Public sharing (4) and System (2). All ten documented operations were exercised, including single- and multiple-file multipart uploads and public downloads without JWT. This local acceptance complements automated tests; it is neither a new coverage measurement nor an exhaustive OpenAPI conformance audit.
+On 25 November 2026, the developer reported all 17 checks of [QA-API #76](https://github.com/jlbokass/datashare/issues/76) passing: Authentication (4), Transfers (7), Public sharing (4) and System (2). All ten operations documented at that stage were exercised, including single- and multiple-file multipart uploads and public downloads without JWT. This local acceptance complements automated tests; it is neither a new coverage measurement nor an exhaustive OpenAPI conformance audit.
 
 ### SonarQube Cloud analysis (optional, #85)
 
-The separate [SonarQube Cloud workflow](https://github.com/jlbokass/datashare/blob/develop/.github/workflows/sonarqube-cloud.yml) targets `main` and reuses Clover/LCOV artifacts from the two successful CI runs for the same commit, without repeating tests. It triggers on their completion (or manually on `main` while the artifacts are available). Analysis covers `backend/app` and `frontend/src`, with tests distinguished from sources; coverage paths are normalized to the checkout root.
+The separate [SonarQube Cloud workflow](https://github.com/jlbokass/datashare/blob/main/.github/workflows/sonarqube-cloud.yml) targets `main` and reuses Clover/LCOV artifacts from the two successful CI runs for the same commit, without repeating tests. It triggers on their completion (or manually on `main` while the artifacts are available). Analysis covers `backend/app` and `frontend/src`, with tests distinguished from sources; coverage paths are normalized to the checkout root.
 
-Initial configuration: import the public repository into SonarQube Cloud (EU region), disable automatic analysis in favor of GitHub Actions, then set repository Actions variables `SONAR_ORGANIZATION`, `SONAR_PROJECT_KEY` and secret `SONAR_TOKEN` (never in Git). The Quality Gate is informational; existing required checks and PostgreSQL safeguards are unchanged. Sonar coverage may differ from PHP/Angular line-coverage reports due to metric definitions and scope. First scan, report import and dynamic badges remain to be verified after the workflow is released to `main`.
+Initial configuration: import the public repository into SonarQube Cloud (EU region), disable automatic analysis in favor of GitHub Actions, then set repository Actions variables `SONAR_ORGANIZATION`, `SONAR_PROJECT_KEY` and secret `SONAR_TOKEN` (never in Git). The Quality Gate is informational; existing required checks and PostgreSQL safeguards are unchanged. Sonar coverage may differ from PHP/Angular line-coverage reports due to metric definitions and scope. The [SonarQube Cloud workflow](https://github.com/jlbokass/datashare/actions/runs/45548892246) succeeded for the final release commit. Workflow success alone does not establish a passing Quality Gate; the badges remain dynamic.

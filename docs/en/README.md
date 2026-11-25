@@ -9,7 +9,7 @@ lang: en
 
 **Temporary file sharing — OpenClassrooms P3 project**
 
-[Français](https://github.com/jlbokass/datashare/blob/develop/README.md) · [Technical documentation — GitHub Pages](https://jlbokass.github.io/datashare/en/) · [Documentation sources](index.md)
+[Français](https://github.com/jlbokass/datashare/blob/main/README.md) · [Technical documentation — GitHub Pages](https://jlbokass.github.io/datashare/en/) · [Documentation sources](index.md)
 
 [![Backend CI](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml?query=branch%3Adevelop)
 [![Frontend CI](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml?query=branch%3Adevelop)
@@ -34,7 +34,9 @@ DataShare lets users upload private files and share them temporarily through a p
 - registration and JWT login;
 - personal history and individual file deletion.
 
-**Status, 23 November 2026:** the MVP, quality batches QL-01 through QL-04 and Figma UI-01 are integrated into `develop`. Backend, frontend and E2E checks passed on [UI-01 PR #58](https://github.com/jlbokass/datashare/pull/58). The application runs **locally** and is not deployed to production.
+**25 November 2026 release — [PR #100](https://github.com/jlbokass/datashare/pull/100), [bec72e3](https://github.com/jlbokass/datashare/commit/bec72e39ff80a9c89df600aea6f060e905591b80) (`main`).** US01–US06 are delivered alongside US08 (private tags), US09 (per-file password), PROFILE-01 (profile), history pagination and OPS-03 (S3-compatible Garage, isolated demonstration). Private local storage remains the default. US07 (anonymous uploads) is not implemented; US10 has no separate work package because expiry and daily cleanup are already covered by US01. Feature development is frozen. The application runs locally and is not deployed to production.
+
+All three workflows passed: [backend](https://github.com/jlbokass/datashare/actions/runs/45548826977) (83 tests, 79.72% line coverage), [frontend](https://github.com/jlbokass/datashare/actions/runs/45548827002) (65 tests, 88.00%) and [E2E](https://github.com/jlbokass/datashare/actions/runs/45548827035) (6 tests). See [TESTING.md](TESTING.md).
 
 **Stack:** Angular 22, Laravel 13 / PHP, PostgreSQL 18, Nginx, Docker Compose and GitHub Actions.
 
@@ -98,4 +100,4 @@ The bilingual technical documentation is published on [GitHub Pages](https://jlb
 
 [OC technical dossier](../technical-documentation.md) · [Architecture](../architecture.md) · [API contract](../api/openapi.yaml) · [Testing](TESTING.md) · [Security](SECURITY.md) · [Performance](PERF.md) · [Maintenance](MAINTENANCE.md) · [AI journal](../ai-journal.md)
 
-Local HTTPS is optional and uses a development certificate authority; no public HTTPS deployment is claimed. JWT session state is intentionally held in memory, so **refreshing requires signing in again**. ZIP archives are not antivirus-scanned. Scheduled cleanup removes expired file bytes and metadata; this policy was retained by the closing decision in [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57). Advanced US07–US10 features remain optional.
+Local HTTPS is optional and uses a development certificate authority; no public HTTPS deployment is claimed. JWT session state is intentionally held in memory, so **refreshing requires signing in again**. ZIP archives are not antivirus-scanned. Scheduled cleanup removes expired file bytes and metadata; this policy was retained by the closing decision in [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57).

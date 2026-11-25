@@ -7,11 +7,13 @@ lang: en
 
 # DataShare — Performance results (QL-04)
 
-[Français](https://github.com/jlbokass/datashare/blob/develop/PERF.md) · [Technical documentation](../technical-documentation.md) · [Issue #55](https://github.com/jlbokass/datashare/issues/55)
+[Français](https://github.com/jlbokass/datashare/blob/main/PERF.md) · [Technical documentation](../technical-documentation.md) · [Issue #55](https://github.com/jlbokass/datashare/issues/55)
 
 **Status as of 23 November 2026:** one business endpoint was timed, and frontend performance was examined through a production build and a Lighthouse observation. **These are not production measurements or a load test.**
 
 ## 1. Measurements and results
+
+**Final release build (25 November 2026, [bec72e3](https://github.com/jlbokass/datashare/commit/bec72e39ff80a9c89df600aea6f060e905591b80)).** The [frontend CI](https://github.com/jlbokass/datashare/actions/runs/45548827002) reports a successful production build: initial raw bundle **370.94 kB**, estimated transfer **91.43 kB**, below the 500 kB initial-bundle warning threshold. Two component-style warnings remain: `home.scss` 6.17 kB and `account.scss` 6.83 kB (warning at 4 kB, error at 8 kB). The local endpoint and Lighthouse results below remain historical measurements, not a new benchmark on the final release.
 
 | Check | Conditions | Result |
 | --- | --- | --- |
