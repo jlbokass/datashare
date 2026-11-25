@@ -29,7 +29,7 @@ lang: en
 | **TRANSFERT / TRANSFER** | `idTransfert`, unique unpredictable `tokenPartage`, `dateCreation`, `dateExpiration`, derived `/statut` | US01, US02, US05 |
 | **FICHIER / FILE** | `idFichier`, `nomOriginal`, `tailleOctets`, `typeMime`, `dateEnvoi` | US01, US02, US05, US06 |
 
-`nom` / `prenom` (USER) and `titre` / `message` (TRANSFER) are marked **optional design choices**; the official MVP stories do not require them. The `/statut` leading slash is UML notation for a **derived attribute** (calculated from expiry), not a column to persist.
+`nom` / `prenom` (USER) and `titre` / `message` (TRANSFER) are marked **optional design choices**; the official MVP stories do not require them. PROFILE-01 implements the former two as `users.name` (existing nullable column, values preserved) and `users.first_name` (new nullable column). The `/statut` leading slash is UML notation for a **derived attribute** (calculated from expiry), not a column to persist.
 
 ### Associations and UML multiplicities
 

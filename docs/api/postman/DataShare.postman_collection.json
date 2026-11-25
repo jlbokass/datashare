@@ -42,7 +42,7 @@
                 "register"
               ]
             },
-            "description": "Public endpoint. Email addresses are trimmed and normalized before registration.\nCreating an account does not sign the user in or issue a token; use the login\nendpoint to obtain a Bearer JWT.\nUse the same disposable email and password in the local environment.",
+            "description": "Public endpoint. Email addresses are trimmed and normalized before registration.\nCreating an account does not sign the user in or issue a token; use the login\nendpoint to obtain a Bearer JWT.\nUse the same disposable email and password in the local environment.\nOptional name and first_name fields may be provided; omitted fields remain null.",
             "auth": {
               "type": "noauth"
             }
@@ -207,6 +207,94 @@
                   "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
                   "if (pm.response.code === 200) {",
                   "    pm.test(\"Current account matches test account\", function () { pm.expect(pm.response.json().user.email.toLowerCase()).to.equal(pm.environment.get(\"email\").toLowerCase()); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update current account profile — disposable account",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Demo\",\n  \"first_name\": \"Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "PROFILE-01: update only the authenticated disposable account's optional names. Null clears a value; omitted fields are unchanged.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const email = pm.environment.get(\"email\") || \"\";",
+                  "const jwt = pm.environment.get(\"jwt\");",
+                  "if (!/^postman-[a-z0-9-]+@example\\.com$/i.test(email) || !jwt || pm.variables.get(\"jwt\") !== jwt) {",
+                  "    console.warn(\"Use the disposable account and its captured JWT.\");",
+                  "    pm.execution.skipRequest();",
+                  "} else {",
+                  "    pm.sendRequest({ url: pm.variables.get(\"baseUrl\") + \"/auth/me\", method: \"GET\", header: { Authorization: \"Bearer \" + jwt, Accept: \"application/json\" } }, function (error, response) {",
+                  "        if (error || response.code !== 200 || response.json().user.email.toLowerCase() !== email.toLowerCase()) {",
+                  "            console.warn(\"Profile update skipped: JWT does not match the disposable account.\");",
+                  "            pm.execution.skipRequest();",
+                  "        }",
+                  "    });",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Current account and updated names\", function () {",
+                  "        const user = pm.response.json().user;",
+                  "        const payload = JSON.parse(pm.request.body.raw);",
+                  "        pm.expect(user.email.toLowerCase()).to.equal(pm.environment.get(\"email\").toLowerCase());",
+                  "        if (\"name\" in payload) pm.expect(user.name).to.eql(payload.name);",
+                  "        if (\"first_name\" in payload) pm.expect(user.first_name).to.eql(payload.first_name);",
+                  "    });",
                   "}"
                 ]
               }

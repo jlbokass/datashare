@@ -63,7 +63,7 @@ Routes are defined in `frontend/src/app/app.routes.ts`. `/upload` reuses the hom
 
 [UML conceptual model](data-model.md) · [Diagram](diagrams/data-model.svg)
 
-Three main entities: **User** (unique email, password hash), **Transfer** (owner, public token, expiry) and **File** (name, type, size and private storage locator). A user owns many transfers; each transfer contains one or more files. PostgreSQL migrations are versioned in `backend/database/migrations/`. Optional US08 associates zero or more private tags with each file (maximum 30 characters, per-file uniqueness, cascade deletion).
+Three main entities: **User** (unique email, password hash), **Transfer** (owner, public token, expiry) and **File** (name, type, size and private storage locator). A user owns many transfers; each transfer contains one or more files. PostgreSQL migrations are versioned in `backend/database/migrations/`. Optional US08 associates zero or more private tags with each file (maximum 30 characters, per-file uniqueness, cascade deletion). PROFILE-01 adds optional family and given names; only `first_name` is added to the existing schema.
 
 ## 4. REST API documentation
 
@@ -76,6 +76,7 @@ The local-only interface groups ten operations into Authentication, Transfers, P
 | Feature | Main endpoints |
 | --- | --- |
 | US03 / US04 — registration and authentication | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me` |
+| PROFILE-01 — optional profile | `PATCH /api/auth/me` |
 | US01 — authenticated upload | `POST /api/transfers` |
 | US02 — public sharing/download | `GET /api/shares/{token}`, `GET /api/shares/{token}/files/{fileId}` |
 | US05 — owner history | `GET /api/transfers` |
