@@ -138,11 +138,11 @@ paths:
       tags: [Transfers]
       summary: List the current user's uploaded files
       description: |
-        US05 and US06. Only owner records are returned. By default,
-        expired items are excluded, per US06. Setting include_expired=true
-        may show expired records not yet physically purged, with status=expired.
-        Automatically purged files can no longer appear in history. Results
-        are sorted by created_at descending, then id descending, without pagination.
+        US05 and US06, plus optional history pagination (#59). Only owner records
+        are returned, 10 transfers per page, newest first (created_at then id).
+        The status filter is applied before pagination. Without status, the legacy
+        include_expired switch defaults to active transfers only. Purged records
+        never appear in history. Files of a transfer are kept together.
       operationId: listMyTransfers
       security:
         - bearerAuth: []
@@ -150,12 +150,26 @@ paths:
         - name: include_expired
           in: query
           description: |
-            Optional display switch for expired records not yet removed.
-            Default false keeps only non-expired files in the history.
+            Legacy filter used only when status is omitted. False returns active
+            transfers; true includes expired transfers awaiting cleanup.
           required: false
           schema:
             type: boolean
             default: false
+        - name: status
+          in: query
+          description: Filter before pagination; takes precedence over include_expired.
+          schema:
+            type: string
+            enum: [active, all, expired]
+        - name: page
+          in: query
+          description: Page number; an out-of-range page returns an empty list and pagination metadata.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000000
+            default: 1
       responses:
         '200':
           description: Transfers and files belonging to the current user
@@ -165,6 +179,8 @@ paths:
                 $ref: '#/components/schemas/TransferList'
         '401':
           $ref: '#/components/responses/AuthenticationError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   /transfers/{transferId}/files/{fileId}:
     delete:
@@ -457,12 +473,28 @@ components:
     TransferList:
       type: object
       additionalProperties: false
-      required: [transfers]
+      required: [transfers, pagination]
       properties:
         transfers:
           type: array
           items:
             $ref: '#/components/schemas/Transfer'
+        pagination:
+          type: object
+          required: [current_page, per_page, last_page, total]
+          properties:
+            current_page:
+              type: integer
+              minimum: 1
+            per_page:
+              type: integer
+              const: 10
+            last_page:
+              type: integer
+              minimum: 1
+            total:
+              type: integer
+              minimum: 0
     PublicShareEnvelope:
       type: object
       additionalProperties: false
