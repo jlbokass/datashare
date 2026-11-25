@@ -60,3 +60,13 @@ Utiliser un compte fictif et deux petits fichiers autorisés. Les requêtes cré
 Pour le téléversement, choisir `expires_in_days=1` et laisser `expires_in_minutes` absent. Dans l'onglet Réseau du navigateur, vérifier que les parties binaires portent chacune le nom `files[]` (une puis deux parties). Confirmer les transferts dans l'historique Angular. Le champ `share_url` désigne une route Angular ; les endpoints `/api/shares` utilisent le token qu'elle contient.
 
 Les fichiers de démonstration restent soumis à l'expiration normale. La réussite des tests backend ne suffit pas à établir la sérialisation multipart du navigateur.
+
+## Collection Postman (recette locale facultative)
+
+Importer les deux fichiers [collection v2.1](postman/DataShare.postman_collection.json) et [environnement local](postman/DataShare.local.postman_environment.json) dans Postman. Activer HTTPS (`make https-up`), sélectionner **DataShare — Local** et, si nécessaire, ajouter le certificat public `$(mkcert -CAROOT)/rootCA.pem` dans Settings → Certificates → CA certificates. Garder la vérification TLS activée ; ne jamais importer la clé de l'autorité.
+
+Renseigner uniquement les valeurs locales (non partagées) `email` (par ex. `postman-20261125-01@example.com`, unique) et `password` (mot de passe fictif d'au moins huit caractères). Ne jamais exporter un environnement renseigné, un JWT ou un token réel. Utiliser des fichiers jetables sans données privées.
+
+Exécuter individuellement avec Send : System (2 requêtes), Authentication (3), Transfers (envoi d'un fichier puis de deux fichiers avec les champs File `files[]`, puis historique), Public sharing (métadonnées puis téléchargement). Le JWT et les identifiants sont enregistrés automatiquement dans l'environnement local ; les assertions vérifient les statuts et les réponses utiles. Vérifier le fichier téléchargé si nécessaire avec Send and Download. Le DELETE est réservé à un fichier issu du dernier envoi de recette : il est ignoré par défaut ; ne définir `allowDelete=true` qu'après le partage, si une suppression manuelle de cette donnée jetable est souhaitée. Ne pas exécuter sur des données existantes.
+
+Pour actualiser la collection après une évolution de l'API, importer le JSON Scramble depuis `/docs/api.json` (ou l'export ci-dessus), regrouper par tags et reporter les changements dans la collection existante en conservant les variables, scripts, autorisations et protections ; exporter en v2.1 sans secrets. Swagger UI et le contrat de conception restent les références. Aucun Newman ni nouveau contrôle CI n'est nécessaire.

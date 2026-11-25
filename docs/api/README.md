@@ -60,3 +60,13 @@ Use a disposable account and two small allowed files. Requests create real local
 For uploads, set `expires_in_days=1` and omit `expires_in_minutes`. In the browser Network panel, verify that each binary part is named `files[]` (one then two parts). Confirm both transfers in the Angular history. The `share_url` field points to an Angular route; the `/api/shares` endpoints use the token it contains.
 
 Demo files remain subject to normal expiry. Passing backend tests alone does not establish browser multipart serialization.
+
+## Postman collection (optional local acceptance)
+
+Import the [v2.1 collection](postman/DataShare.postman_collection.json) and [local environment](postman/DataShare.local.postman_environment.json) into Postman. Enable HTTPS (`make https-up`), select **DataShare — Local**, and if necessary add the public CA certificate at `$(mkcert -CAROOT)/rootCA.pem` under Settings → Certificates → CA certificates. Keep TLS verification enabled; never import the CA private key.
+
+Set only local (not shared) values for `email` (e.g. unique `postman-20261125-01@example.com`) and `password` (disposable password of at least eight characters). Never export populated environments, JWTs or real share tokens. Use disposable files without private content.
+
+Send individual requests in order: System (2), Authentication (3), Transfers (one-file upload then two-file upload using File fields named `files[]`, then history), Public sharing (metadata then download). JWT and identifiers are stored automatically in the local environment; assertions verify status codes and useful response data. Use Send and Download to inspect the downloaded file if needed. DELETE is limited to the last uploaded acceptance file and skipped by default; only set `allowDelete=true` after public sharing if explicitly deleting this disposable data. Never run it on existing data.
+
+To update the collection after an API change, import Scramble's JSON at `/docs/api.json` (or use the export above), group by tags and reconcile changes in the existing collection while preserving variables, scripts, authentication and safeguards; export v2.1 without secrets. Swagger UI and the design contract remain the references. No Newman or new CI check is required.
