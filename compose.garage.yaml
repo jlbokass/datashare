@@ -1,5 +1,5 @@
 # Optional local-only S3 demonstration. Use the Makefile targets, which force
-# the separate project name and credentials file. Never combine with HTTPS.
+# the separate project name and credentials file. Do not add compose.https.yaml.
 name: datashare-garage
 
 services:
@@ -14,7 +14,8 @@ services:
     environment: &garage_app_environment
       APP_ENV: local
       APP_DEBUG: 'false'
-      APP_URL: http://127.0.0.1:8081
+      APP_URL: https://127.0.0.1:8444
+      SESSION_SECURE_COOKIE: 'true'
       APP_KEY: ${GARAGE_APP_KEY:?Run make garage-init}
       JWT_SECRET: ${GARAGE_JWT_SECRET:?Run make garage-init}
       DB_URL: ''
@@ -41,6 +42,15 @@ services:
   web:
     ports: !override
       - "127.0.0.1:8081:80"
+      - "127.0.0.1:8444:443"
+    volumes:
+      - ./docker/nginx/garage-https.conf:/etc/nginx/datashare-tls/https.conf:ro
+      - type: bind
+        source: ./docker/nginx/certs
+        target: /etc/nginx/certs
+        read_only: true
+        bind:
+          create_host_path: false
 
   garage:
     image: dxflrs/garage:v2.5.0
