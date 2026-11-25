@@ -34,7 +34,7 @@ final class DataShareOperationTransformer implements OperationTransformer
         foreach ($operation->responses as $index => $response) {
             $resolved = $response instanceof Response ? $response : $response->resolve();
             if ($resolved->code === 422) {
-                $operation->responses[$index] = $this->error(422, 'validation_error', 'Invalid input, file type or expiration.')
+                $operation->responses[$index] = $this->error(422, 'validation_error', 'Invalid input, file type, expiration or tags.')
                     ->setContent('application/json', Schema::fromType(
                         $this->errorType('validation_error')
                             ->addProperty('errors', (new ObjectType)->additionalProperties(

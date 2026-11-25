@@ -63,7 +63,7 @@ Les chemins sont déclarés dans `frontend/src/app/app.routes.ts`. `/upload` ré
 
 [Schéma UML/MCD](data-model.fr.md) · [Diagramme](diagrams/data-model.svg)
 
-Trois entités principales : **Utilisateur** (email unique, mot de passe hashé), **Transfert** (propriétaire, token public et expiration) et **Fichier** (nom, type, taille et chemin de stockage privé). Un utilisateur possède plusieurs transferts ; un transfert contient un ou plusieurs fichiers. Les migrations PostgreSQL se trouvent dans `backend/database/migrations/`. Les tags US08 restent facultatifs et non implémentés.
+Trois entités principales : **Utilisateur** (email unique, mot de passe hashé), **Transfert** (propriétaire, token public et expiration) et **Fichier** (nom, type, taille et chemin de stockage privé). Un utilisateur possède plusieurs transferts ; un transfert contient un ou plusieurs fichiers. Les migrations PostgreSQL se trouvent dans `backend/database/migrations/`. L'extension facultative US08 associe zéro ou plusieurs tags privés à chaque fichier (30 caractères maximum, unicité par fichier, suppression en cascade).
 
 ## 4. Documentation de l'API
 
@@ -80,6 +80,7 @@ L'interface, réservée à l'environnement local, organise les dix opérations e
 | US02 — partage et téléchargement publics | `GET /api/shares/{token}`, `GET /api/shares/{token}/files/{fileId}` |
 | US05 — historique personnel | `GET /api/transfers` |
 | US06 — suppression individuelle | `DELETE /api/transfers/{transferId}/files/{fileId}` |
+| US08 — tags privés (facultatif) | `PUT /api/transfers/{transferId}/files/{fileId}/tags` |
 
 Ces routes sont implémentées ; les statuts et schémas de requêtes/réponses figurent dans OpenAPI. Les transferts privés nécessitent un JWT, tandis que la consultation d'un lien public valide est anonyme.
 

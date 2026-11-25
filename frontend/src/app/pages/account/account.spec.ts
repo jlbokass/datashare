@@ -11,8 +11,8 @@ describe('Account — personal history', () => {
     id: 'transfer-id', share_url: '/share/' + 'a'.repeat(64),
     created_at: '2026-11-18T10:00:00Z', expires_at: '2026-11-25T10:00:00Z', status: 'valid',
     files: [
-      { id: 'file-one', original_name: 'report.pdf', size_bytes: 1_000_000, mime_type: 'application/pdf', uploaded_at: '2026-11-18T10:00:00Z' },
-      { id: 'file-two', original_name: 'archive.zip', size_bytes: 512, mime_type: 'application/zip', uploaded_at: '2026-11-18T11:00:00Z' },
+      { id: 'file-one', original_name: 'report.pdf', size_bytes: 1_000_000, mime_type: 'application/pdf', uploaded_at: '2026-11-18T10:00:00Z', tags: [] as string[] },
+      { id: 'file-two', original_name: 'archive.zip', size_bytes: 512, mime_type: 'application/zip', uploaded_at: '2026-11-18T11:00:00Z', tags: [] as string[] },
     ],
   };
   let fixture: ComponentFixture<Account>;
@@ -213,6 +213,68 @@ describe('Account — personal history', () => {
     expect(auth.signedIn()).toBe(false);
     expect(text()).not.toContain(user.email);
     expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith('/');
+  });
+
+  describe('file tags', () => {
+    const url = '/api/transfers/transfer-id/files/file-one/tags';
+
+    function addTag(value: string): HTMLInputElement {
+      const input = fixture.nativeElement.querySelector('input[aria-label="Nouveau tag pour report.pdf"]') as HTMLInputElement;
+      input.value = value;
+      const form = input.closest('form')!;
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      return input;
+    }
+
+    beforeEach(() => {
+      openHistory().flush(historyResponse([transfer]));
+      fixture.detectChanges();
+    });
+
+    it('adds a trimmed tag using the JWT and removes the final tag without changing other files', () => {
+      const input = addTag(' Projet ');
+      const request = http.expectOne(url);
+      expect(request.request.method).toBe('PUT');
+      expect(request.request.headers.get('Authorization')).toBe('Bearer memory.jwt.signature');
+      expect(request.request.body).toEqual({ tags: ['Projet'] });
+      request.flush({ tags: ['Projet'] });
+      expect(text()).toContain('Projet');
+      expect(input.value).toBe('');
+
+      const remove = fixture.nativeElement.querySelector('button[aria-label="Retirer le tag Projet de report.pdf"]') as HTMLButtonElement;
+      remove.click();
+      const clear = http.expectOne(url);
+      expect(clear.request.body).toEqual({ tags: [] });
+      clear.flush({ tags: [] });
+      expect(text()).not.toContain('Projet');
+      expect(text()).toContain('archive.zip');
+      expect(fixture.componentInstance.transfers()[0].files[1].tags).toEqual([]);
+    });
+
+    it('rejects long and duplicate labels and preserves the current tags on API failure', () => {
+      addTag('x'.repeat(31));
+      expect(text()).toContain('30 caractères');
+      http.expectNone(url);
+      addTag('Projet');
+      http.expectOne(url).flush({ tags: ['Projet'] });
+      fixture.detectChanges();
+
+      addTag('Projet');
+      expect(text()).toContain('Ce tag existe déjà');
+      http.expectNone(url);
+      const input = addTag('Autre');
+      http.expectOne(url).flush({}, { status: 422, statusText: 'Unprocessable Entity' });
+      expect(text()).toContain('Vérifie les tags');
+      expect(text()).toContain('Projet');
+      expect(input.value).toBe('Autre');
+    });
+
+    it('ends the session if the tag update returns 401', () => {
+      addTag('Projet');
+      http.expectOne(url).flush({}, { status: 401, statusText: 'Unauthorized' });
+      expect(auth.signedIn()).toBe(false);
+      expect(TestBed.inject(Router).navigateByUrl).toHaveBeenCalledWith('/login');
+    });
   });
 
   describe('individual deletion', () => {

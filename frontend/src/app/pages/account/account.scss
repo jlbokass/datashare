@@ -290,6 +290,76 @@ a:not(.sidebar-brand):not(.sidebar-link):not(.upload-action):not(.share-action) 
   font: 400 0.75rem/1rem 'DM Sans', sans-serif;
 }
 
+.file-tags {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  min-width: 0;
+}
+
+.tag-list,
+.tag-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.tag-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tag-list li {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.tag-chip,
+.tag-add,
+.tag-form input {
+  box-sizing: border-box;
+  min-height: 32px;
+  padding: 5px 8px;
+  border: 1px solid #ffa569;
+  border-radius: 8px;
+  background: #fff;
+  color: #1e1e1e;
+  font: 400 0.875rem/1.25rem 'DM Sans', sans-serif;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.tag-form input {
+  flex: 1 1 104px;
+  min-width: 0;
+  max-width: 200px;
+}
+
+.tag-add {
+  color: #9b4b13;
+}
+
+.tag-chip:disabled,
+.tag-add:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tag-error {
+  margin: 0;
+  color: #8f2626;
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
 .file-actions {
   display: flex;
   flex: none;

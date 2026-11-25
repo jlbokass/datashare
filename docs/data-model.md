@@ -101,6 +101,6 @@ The table and column names above are illustrative. This SQL does **not** itself 
 
 ## 5. Physical model and purge decision
 
-Private storage, keys, indexes, migrations and ORM classes belong to the physical model (see `backend/database/migrations/`). Status is derived from expiry. Download statistics, tags and password-protected shares are not implemented.
+Private storage, keys, indexes, migrations and ORM classes belong to the physical model (see `backend/database/migrations/`). Status is derived from expiry. US08 adds a `tags` table linked to `transfer_files` by a cascading foreign key and a unique constraint on (`transfer_file_id`, `name`). Download statistics and password-protected shares are not implemented.
 
 [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57) confirms the existing purge: files and metadata are removed at expiry by the scheduled task. History can only include expired records that have not yet been purged. The optional statistics above remain a design hypothesis, not an active retention policy.

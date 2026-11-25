@@ -7,7 +7,7 @@ lang: fr
 
 # DataShare API — Contrat d'interface
 
-L'API REST couvre les fonctionnalités obligatoires US01–US06. Elle est documentée à partir du code Laravel et du contrat de conception [DESIGN-03](https://github.com/jlbokass/datashare/issues/3).
+L'API REST couvre les fonctionnalités obligatoires US01–US06 et l'extension facultative US08 (tags privés). Elle est documentée à partir du code Laravel et du contrat de conception [DESIGN-03](https://github.com/jlbokass/datashare/issues/3).
 
 [English version](README.md) · [Documentation technique](../technical-documentation.fr.md) · [Installation](../installation.fr.md)
 
@@ -49,6 +49,10 @@ En mode HTTP, adapter `APP_URL` à `http://127.0.0.1:8080`. L'option `--fail-on-
 
 `GET /transfers` renvoie 10 transferts par page, avec leurs fichiers regroupés et les métadonnées `pagination` (`current_page`, `per_page`, `last_page`, `total`). Utiliser `page=2` pour la page suivante et `status=active|all|expired` pour filtrer avant pagination. Sans `status`, `include_expired` conserve son comportement historique. Les pages au-delà de la dernière renvoient une liste vide ; Angular revient automatiquement à la dernière page disponible.
 
+## Tags privés (US08 — #11)
+
+`PUT /transfers/{transferId}/files/{fileId}/tags` remplace la liste complète (`{"tags":["Projet","Factures"]}`), ou la vide avec `{"tags":[]}`. Le JWT et la propriété du fichier sont contrôlés. Les libellés sont nettoyés des espaces en bordure, sensibles à la casse, non vides, uniques par fichier et limités à 30 caractères. Les erreurs de validation renvoient 422 ; un fichier inconnu ou non possédé renvoie 404. Les réponses privées de téléversement et d'historique contiennent `tags` ; le partage public n'en contient pas. Pas de filtre par tag.
+
 ## Recette interactive
 
 Utiliser un compte fictif et deux petits fichiers autorisés. Les requêtes créent de vrais enregistrements locaux ; ne pas utiliser de données privées ni publier de JWT.
@@ -71,6 +75,6 @@ Importer les deux fichiers [collection v2.1](postman/DataShare.postman_collectio
 
 Renseigner uniquement les valeurs locales (non partagées) `email` (par ex. `postman-20261125-01@example.com`, unique) et `password` (mot de passe fictif d'au moins huit caractères). Ne jamais exporter un environnement renseigné, un JWT ou un token réel. Utiliser des fichiers jetables sans données privées.
 
-Exécuter individuellement avec Send : System (2 requêtes), Authentication (3), Transfers (envoi d'un fichier puis de deux fichiers avec les champs File `files[]`, puis historique), Public sharing (métadonnées puis téléchargement). Le JWT et les identifiants sont enregistrés automatiquement dans l'environnement local ; les assertions vérifient les statuts et les réponses utiles. Vérifier le fichier téléchargé si nécessaire avec Send and Download. Le DELETE est réservé à un fichier issu du dernier envoi de recette : il est ignoré par défaut ; ne définir `allowDelete=true` qu'après le partage, si une suppression manuelle de cette donnée jetable est souhaitée. Ne pas exécuter sur des données existantes.
+Exécuter individuellement avec Send : System (2 requêtes), Authentication (3), Transfers (envoi d'un fichier puis de deux fichiers avec les champs File `files[]`, puis historique), Public sharing (métadonnées puis téléchargement). Le JWT et les identifiants sont enregistrés automatiquement dans l'environnement local ; les assertions vérifient les statuts et les réponses utiles. Vérifier le fichier téléchargé si nécessaire avec Send and Download. La requête de mise à jour des tags utilise uniquement les identifiants capturés du dernier envoi jetable ; envoyer une liste de tags puis `{"tags":[]}` pour vérifier leur retrait. Le DELETE est réservé à un fichier issu du dernier envoi de recette : il est ignoré par défaut ; ne définir `allowDelete=true` qu'après le partage, si une suppression manuelle de cette donnée jetable est souhaitée. Ne pas exécuter sur des données existantes.
 
 Pour actualiser la collection après une évolution de l'API, importer le JSON Scramble depuis `/docs/api.json` (ou l'export ci-dessus), regrouper par tags et reporter les changements dans la collection existante en conservant les variables, scripts, autorisations et protections ; exporter en v2.1 sans secrets. Swagger UI et le contrat de conception restent les références. Aucun Newman ni nouveau contrôle CI n'est nécessaire.
