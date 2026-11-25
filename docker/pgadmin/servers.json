@@ -1,0 +1,43 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "DataShare — App",
+      "Group": "DataShare",
+      "Host": "app-db",
+      "Port": 5432,
+      "MaintenanceDB": "datashare",
+      "Username": "datashare",
+      "SSLMode": "prefer",
+      "ConnectionParameters": {
+        "sslmode": "prefer",
+        "connect_timeout": 5
+      }
+    },
+    "2": {
+      "Name": "DataShare — Garage",
+      "Group": "DataShare",
+      "Host": "garage-db",
+      "Port": 5432,
+      "MaintenanceDB": "datashare_garage",
+      "Username": "datashare_garage",
+      "SSLMode": "prefer",
+      "ConnectionParameters": {
+        "sslmode": "prefer",
+        "connect_timeout": 5
+      }
+    },
+    "3": {
+      "Name": "DataShare — E2E",
+      "Group": "DataShare",
+      "Host": "test-db",
+      "Port": 5432,
+      "MaintenanceDB": "datashare_ql02",
+      "Username": "datashare_ql02",
+      "SSLMode": "prefer",
+      "ConnectionParameters": {
+        "sslmode": "prefer",
+        "connect_timeout": 5
+      }
+    }
+  }
+}
