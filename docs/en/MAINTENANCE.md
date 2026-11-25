@@ -53,7 +53,21 @@ docker compose exec -T app php artisan tinker --execute='logger()->info("datasha
 
 This command's JSON message appears on the stderr of the process launched by `docker compose exec`; it does not on its own prove collection of the PHP-FPM service logs. Long-running service logs remain available through `docker compose logs`. Run the test command locally only.
 
-To analyze metrics, compare status and `request_time_s` during a test transfer or download; `response_body_bytes` measures response body size, not necessarily file size for every route. See [PERF.md](PERF.md) for timed measurements. Local acceptance of structured Nginx and Laravel logging, following the procedure above, was reported successful on 24 November 2026 ([PR #72](https://github.com/jlbokass/datashare/pull/72)). Detailed output and the exact Nginx version were not archived; this is not an exhaustive privacy audit. Dozzle remains an [optional enhancement](https://github.com/jlbokass/datashare/issues/64).
+To analyze metrics, compare status and `request_time_s` during a test transfer or download; `response_body_bytes` measures response body size, not necessarily file size for every route. See [PERF.md](PERF.md) for timed measurements. Local acceptance of structured Nginx and Laravel logging, following the procedure above, was reported successful on 24 November 2026 ([PR #72](https://github.com/jlbokass/datashare/pull/72)). Detailed output and the exact Nginx version were not archived; this is not an exhaustive privacy audit.
+
+### Dozzle — optional log viewer
+
+Dozzle ([OPS-01 #64](https://github.com/jlbokass/datashare/issues/64)) belongs to the `observability` profile; normal startup does not enable it. On an already configured checkout:
+
+```bash
+make dozzle-up    # docker compose up -d dozzle
+make health
+make dozzle-stop  # docker compose stop dozzle (after viewing)
+```
+
+Between startup and shutdown, open **http://127.0.0.1:9999/**. Logs from `app`, `frontend`, `web`, `db` and `scheduler` are available when emitted to stdout/stderr. The filter limits displayed containers to the Compose project; Dozzle uses a dedicated network and is published only on localhost.
+
+**Security:** shell, container actions and MCP are disabled; no authentication is configured for single-user local use. The Docker socket mounted with `:ro` still grants privileged Docker API access: the mount does not enforce API read-only access, and filtering is not a security boundary. Logs are not automatically redacted; check for secrets before capturing or demonstrating them. Do not expose this service or use it with real data; stop it after use. [Official configuration](https://dozzle.dev/guide/supported-env-vars).
 
 ## Updating dependencies — proposed cadence
 
@@ -79,7 +93,7 @@ Run actual Composer/npm updates **in a dedicated branch**; commit both lockfiles
 - Plan retention/restore, access credentials, encryption and scheduled backups before deploying real user data.
 - Review database migration against existing rows, avoid destructive `migrate:fresh`, and document rollback risks.
 - No deployed production infrastructure or automated release scripts are claimed.
-- Dozzle logs, if later added, require a separate security assessment of Docker socket/API permissions.
+- Any use of Dozzle beyond the development workstation requires a new assessment of privileged Docker access and protective measures.
 
 ## Maintenance record template
 
