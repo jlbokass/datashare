@@ -43,6 +43,13 @@ describe('Account — personal history', () => {
     return http.expectOne('/api/transfers');
   }
 
+  function historyResponse(transfers: (typeof transfer)[], page = 1, total = transfers.length) {
+    return {
+      transfers,
+      pagination: { current_page: page, per_page: 10, last_page: Math.max(1, Math.ceil(total / 10)), total },
+    };
+  }
+
   function text(): string {
     fixture.detectChanges();
     return fixture.nativeElement.textContent;
@@ -53,7 +60,7 @@ describe('Account — personal history', () => {
     expect(request.request.method).toBe('GET');
     expect(request.request.headers.get('Authorization')).toBe('Bearer memory.jwt.signature');
     expect(text()).toContain('Chargement');
-    request.flush({ transfers: [transfer] });
+    request.flush(historyResponse([transfer]));
 
     expect(text()).toContain('report.pdf');
     expect(text()).toContain('archive.zip');
@@ -68,7 +75,7 @@ describe('Account — personal history', () => {
   });
 
   it('explains an empty active history and offers an upload link', () => {
-    openHistory().flush({ transfers: [] });
+    openHistory().flush(historyResponse([]));
 
     expect(text()).toContain('Aucun transfert actif');
     const uploadLinks = fixture.nativeElement.querySelectorAll('a[href="/upload"]');
@@ -77,40 +84,79 @@ describe('Account — personal history', () => {
   });
 
   it('opts into expired history and renders an expired link without an active share anchor', () => {
-    openHistory().flush({ transfers: [] });
+    openHistory().flush(historyResponse([]));
     fixture.detectChanges();
     const allFilter = fixture.nativeElement.querySelector('.history-filters button:first-child') as HTMLButtonElement;
     const activeFilter = fixture.nativeElement.querySelector('.history-filters button:nth-child(2)') as HTMLButtonElement;
     expect(activeFilter.getAttribute('aria-pressed')).toBe('true');
     allFilter.click();
 
-    const request = http.expectOne('/api/transfers?include_expired=true');
+    const request = http.expectOne('/api/transfers?status=all');
     expect(request.request.headers.get('Authorization')).toBe('Bearer memory.jwt.signature');
-    request.flush({ transfers: [{ ...transfer, status: 'expired' }] });
+    request.flush(historyResponse([{ ...transfer, status: 'expired' }]));
     expect(text()).toContain('Expiré');
     expect(fixture.nativeElement.querySelector('a[href="' + transfer.share_url + '"]')).toBeNull();
 
     activeFilter.click();
-    http.expectOne('/api/transfers').flush({ transfers: [] });
+    http.expectOne('/api/transfers').flush(historyResponse([]));
     expect(text()).toContain('Aucun transfert actif');
   });
 
-  it('filters expired transfers locally after loading all statuses', () => {
-    openHistory().flush({ transfers: [transfer] });
+  it('loads expired transfers from the server after switching from all statuses', () => {
+    openHistory().flush(historyResponse([transfer]));
     fixture.detectChanges();
 
     const allFilter = fixture.nativeElement.querySelector('.history-filters button:first-child') as HTMLButtonElement;
     const expiredFilter = fixture.nativeElement.querySelector('.history-filters button:nth-child(3)') as HTMLButtonElement;
     allFilter.click();
-    http.expectOne('/api/transfers?include_expired=true').flush({
-      transfers: [transfer, { ...transfer, id: 'expired-transfer', status: 'expired' }],
-    });
+    http.expectOne('/api/transfers?status=all').flush(historyResponse([transfer, { ...transfer, id: 'expired-transfer', status: 'expired' }]));
 
     expiredFilter.click();
+    http.expectOne('/api/transfers?status=expired').flush(historyResponse([{ ...transfer, id: 'expired-transfer', status: 'expired' }]));
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelectorAll('.transfer')).toHaveLength(1);
     expect(fixture.nativeElement.textContent).toContain('Expiré');
-    http.expectNone('/api/transfers?include_expired=true');
+  });
+
+  it('navigates between pages and resets to page one when changing filter', () => {
+    openHistory().flush(historyResponse([transfer], 1, 11));
+    fixture.detectChanges();
+    const previous = () => fixture.nativeElement.querySelector('.history-pagination button:first-child') as HTMLButtonElement;
+    const next = () => fixture.nativeElement.querySelector('.history-pagination button:last-child') as HTMLButtonElement;
+    expect(previous().disabled).toBe(true);
+    next().click();
+    http.expectOne('/api/transfers?page=2').flush(historyResponse([{ ...transfer, id: 'older' }], 2, 11));
+    expect(text()).toContain('Page 2 / 2');
+    expect(next().disabled).toBe(true);
+    previous().click();
+    http.expectOne('/api/transfers').flush(historyResponse([transfer], 1, 11));
+    fixture.detectChanges();
+    next().click();
+    http.expectOne('/api/transfers?page=2').flush(historyResponse([{ ...transfer, id: 'older' }], 2, 11));
+    fixture.detectChanges();
+    (fixture.nativeElement.querySelector('.history-filters button:nth-child(3)') as HTMLButtonElement).click();
+    http.expectOne('/api/transfers?status=expired').flush(historyResponse([]));
+    expect(text()).toContain('Aucun transfert expiré');
+    expect(fixture.nativeElement.querySelector('.history-pagination')).toBeNull();
+  });
+
+  it('returns to the last remaining page after a deletion', () => {
+    openHistory().flush(historyResponse([transfer], 1, 11));
+    fixture.detectChanges();
+    (fixture.nativeElement.querySelector('.history-pagination button:last-child') as HTMLButtonElement).click();
+    http.expectOne('/api/transfers?page=2').flush(historyResponse([{ ...transfer, files: [transfer.files[0]] }], 2, 11));
+    fixture.detectChanges();
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    try {
+      (fixture.nativeElement.querySelector('button[aria-label="Supprimer report.pdf"]') as HTMLButtonElement).click();
+      http.expectOne('/api/transfers/transfer-id/files/file-one').flush(null, { status: 204, statusText: 'No Content' });
+      http.expectOne('/api/transfers?page=2').flush(historyResponse([], 2, 10));
+      http.expectOne('/api/transfers').flush(historyResponse([transfer], 1, 10));
+      expect(text()).toContain('a été supprimé');
+      expect(fixture.nativeElement.querySelector('.history-pagination')).toBeNull();
+    } finally {
+      confirm.mockRestore();
+    }
   });
 
   it('shows a safe error and retries without clearing the session on server failure', () => {
@@ -123,7 +169,7 @@ describe('Account — personal history', () => {
     const retry = Array.from(fixture.nativeElement.querySelectorAll('button'))
       .find((button) => (button as HTMLButtonElement).textContent?.includes('Réessayer')) as HTMLButtonElement;
     retry.click();
-    http.expectOne('/api/transfers').flush({ transfers: [transfer] });
+    http.expectOne('/api/transfers').flush(historyResponse([transfer]));
     expect(text()).toContain('report.pdf');
     expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeNull();
   });
@@ -171,7 +217,7 @@ describe('Account — personal history', () => {
 
   describe('individual deletion', () => {
     beforeEach(() => {
-      openHistory().flush({ transfers: [transfer] });
+      openHistory().flush(historyResponse([transfer]));
       fixture.detectChanges();
       vi.spyOn(window, 'confirm').mockReturnValue(true);
     });
@@ -204,7 +250,7 @@ describe('Account — personal history', () => {
 
       const refresh = http.expectOne('/api/transfers');
       expect(refresh.request.headers.get('Authorization')).toBe('Bearer memory.jwt.signature');
-      refresh.flush({ transfers: [{ ...transfer, files: [transfer.files[1]] }] });
+      refresh.flush(historyResponse([{ ...transfer, files: [transfer.files[1]] }]));
       expect(text()).toContain('report.pdf » a été supprimé');
       expect(text()).toContain('archive.zip');
       expect(fixture.nativeElement.querySelector('button[aria-label="Supprimer report.pdf"]')).toBeNull();
@@ -221,7 +267,7 @@ describe('Account — personal history', () => {
       expect(deleteButton().disabled).toBe(true);
       expect(fixture.nativeElement.querySelector('.history-filters button').disabled).toBe(true);
       request.flush(null, { status: 204, statusText: 'No Content' });
-      http.expectOne('/api/transfers').flush({ transfers: [] });
+      http.expectOne('/api/transfers').flush(historyResponse([]));
     });
 
     it.each([404, 500])('keeps files visible and allows a confirmed retry after HTTP %i', (status) => {
@@ -238,7 +284,7 @@ describe('Account — personal history', () => {
       deleteButton().click();
       expect(window.confirm).toHaveBeenCalledTimes(2);
       http.expectOne(deleteUrl).flush(null, { status: 204, statusText: 'No Content' });
-      http.expectOne('/api/transfers').flush({ transfers: [] });
+      http.expectOne('/api/transfers').flush(historyResponse([]));
     });
 
     it('keeps the session and files on a network failure', () => {
@@ -261,12 +307,12 @@ describe('Account — personal history', () => {
     it('shows empty history after the last file is deleted and preserves the expiry filter', () => {
       const allFilter = fixture.nativeElement.querySelector('.history-filters button:first-child') as HTMLButtonElement;
       allFilter.click();
-      http.expectOne('/api/transfers?include_expired=true')
-        .flush({ transfers: [{ ...transfer, status: 'expired', files: [transfer.files[0]] }] });
+      http.expectOne('/api/transfers?status=all')
+        .flush(historyResponse([{ ...transfer, status: 'expired', files: [transfer.files[0]] }]));
       fixture.detectChanges();
       deleteButton().click();
       http.expectOne(deleteUrl).flush(null, { status: 204, statusText: 'No Content' });
-      http.expectOne('/api/transfers?include_expired=true').flush({ transfers: [] });
+      http.expectOne('/api/transfers?status=all').flush(historyResponse([]));
       expect(text()).toContain('a été supprimé');
       expect(text()).toContain('Aucun transfert dans ton historique');
       expect(fixture.nativeElement.querySelector('a[href="' + transfer.share_url + '"]')).toBeNull();

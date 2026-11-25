@@ -45,6 +45,10 @@ docker compose exec -T -e APP_URL=https://127.0.0.1:8443 app \
 
 In HTTP mode, use `APP_URL=http://127.0.0.1:8080` instead. `--fail-on-unknown` flags unknown inferred types; it does not replace validation of actual behavior. Automated checks and their execution environment are described in [TESTING](../en/TESTING.md).
 
+## Paginated history (#59)
+
+`GET /transfers` returns 10 transfers per page, with their files grouped together and `pagination` metadata (`current_page`, `per_page`, `last_page`, `total`). Use `page=2` for the next page and `status=active|all|expired` to filter before pagination. Without `status`, `include_expired` retains its original behavior. Out-of-range pages return an empty list; Angular returns to the last available page automatically.
+
 ## Interactive acceptance
 
 Use a disposable account and two small allowed files. Requests create real local records; never use private data or publish JWTs.

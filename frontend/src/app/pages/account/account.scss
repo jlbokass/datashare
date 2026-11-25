@@ -325,6 +325,16 @@ a:not(.sidebar-brand):not(.sidebar-link):not(.upload-action):not(.share-action) 
   cursor: not-allowed;
 }
 
+.history-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+  font-size: 0.875rem;
+}
+
 .feedback {
   padding: 12px;
   margin-bottom: 16px;

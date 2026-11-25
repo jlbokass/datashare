@@ -45,6 +45,10 @@ docker compose exec -T -e APP_URL=https://127.0.0.1:8443 app \
 
 En mode HTTP, adapter `APP_URL` à `http://127.0.0.1:8080`. L'option `--fail-on-unknown` signale les types non inférés ; elle ne remplace pas la validation des comportements réels. Les contrôles automatisés et leur environnement sont décrits dans [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md).
 
+## Historique paginé (#59)
+
+`GET /transfers` renvoie 10 transferts par page, avec leurs fichiers regroupés et les métadonnées `pagination` (`current_page`, `per_page`, `last_page`, `total`). Utiliser `page=2` pour la page suivante et `status=active|all|expired` pour filtrer avant pagination. Sans `status`, `include_expired` conserve son comportement historique. Les pages au-delà de la dernière renvoient une liste vide ; Angular revient automatiquement à la dernière page disponible.
+
 ## Recette interactive
 
 Utiliser un compte fictif et deux petits fichiers autorisés. Les requêtes créent de vrais enregistrements locaux ; ne pas utiliser de données privées ni publier de JWT.

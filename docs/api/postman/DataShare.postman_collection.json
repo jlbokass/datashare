@@ -431,7 +431,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/transfers?include_expired=false",
+              "raw": "{{baseUrl}}/transfers?include_expired=false&page=1",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -440,13 +440,24 @@
               ],
               "query": [
                 {
-                  "description": "Default false: only non-expired transfers. True includes expired records awaiting purge. Owner only, newest first (created_at then id), without pagination.",
                   "key": "include_expired",
-                  "value": "false"
+                  "value": "false",
+                  "description": "Legacy filter used when status is omitted."
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number."
+                },
+                {
+                  "key": "status",
+                  "value": "active",
+                  "description": "active, all or expired; overrides include_expired.",
+                  "disabled": true
                 }
               ]
             },
-            "description": "Requires a valid Bearer JWT. Only the authenticated owner's transfers are\nreturned, newest first, without pagination. Expired transfers are excluded by\ndefault; include_expired also includes those still awaiting cleanup, never\nrecords that have already been purged.",
+            "description": "Requires a valid Bearer JWT. Owner-only history, newest first, 10 transfers per page. Filters apply before pagination. Without status, include_expired retains its original behavior; purged records never appear.",
             "auth": {
               "type": "bearer",
               "bearer": [
@@ -479,7 +490,14 @@
                 "exec": [
                   "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
                   "if (pm.response.code === 200) {",
-                  "    const records = pm.response.json().transfers;",
+                  "    const body = pm.response.json();",
+                  "    const records = body.transfers;",
+                  "    pm.test(\"Pagination metadata is consistent\", function () {",
+                  "        pm.expect(body.pagination.current_page).to.equal(Number(pm.request.url.query.get(\"page\") || 1));",
+                  "        pm.expect(body.pagination.per_page).to.equal(10);",
+                  "        pm.expect(records.length).to.be.at.most(10);",
+                  "        pm.expect(body.pagination.total).to.be.at.least(records.length);",
+                  "    });",
                   "    pm.test(\"Both test uploads are present\", function () {",
                   "        pm.expect(records).to.be.an(\"array\");",
                   "        [\"singleTransferId\", \"multipleTransferId\"].forEach(function (key) {",
