@@ -1,0 +1,813 @@
+{
+  "info": {
+    "name": "DataShare REST API",
+    "description": "Create an account, manage private file transfers and share expiring download links. Account and transfer management require a Bearer JWT, except registration and login. Public sharing uses an independent capability token and requires no account. System endpoints report API availability and demonstration capabilities. Interactive documentation is available only in the local environment.\nLocal acceptance collection generated from Scramble OpenAPI and refined for Postman. Use only a disposable postman-...@example.com account and non-private files. Import the local environment; fill local values only. Send requests individually in the documented order. DELETE is disabled unless explicitly enabled for a freshly uploaded test file. Swagger UI remains the API documentation of record.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Create an account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "headerFamily": "json",
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Public endpoint. Email addresses are trimmed and normalized before registration.\nCreating an account does not sign the user in or issue a token; use the login\nendpoint to obtain a Bearer JWT.\nUse the same disposable email and password in the local environment.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!/^postman-[a-z0-9-]+@example\\.com$/i.test(pm.environment.get(\"email\") || \"\") || !pm.environment.get(\"password\")) {",
+                  "    console.warn(\"Set disposable email postman-...@example.com and password in local environment values.\");",
+                  "    pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "if (pm.response.code === 201) {",
+                  "    pm.test(\"Disposable account created\", function () { pm.expect(pm.response.json().user.email.toLowerCase()).to.equal(pm.environment.get(\"email\").toLowerCase()); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtain an access token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "headerFamily": "json",
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Public endpoint. Valid credentials issue a Bearer JWT for owner operations.\nInvalid credentials receive the same generic error whether or not the account\nexists. This JWT is separate from the capability token in a public share link.\nUse the same disposable email and password in the local environment.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!/^postman-[a-z0-9-]+@example\\.com$/i.test(pm.environment.get(\"email\") || \"\") || !pm.environment.get(\"password\")) {",
+                  "    console.warn(\"Set disposable email postman-...@example.com and password in local environment values.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "pm.environment.set(\"jwt\", \"\");",
+                  "[\"singleTransferId\", \"multipleTransferId\"].forEach(function (key) { pm.environment.set(key, \"\"); });",
+                  "[\"transferId\", \"fileId\", \"shareToken\", \"createdTransferId\", \"createdFileId\", \"createdForEmail\"].forEach(function (key) { pm.environment.set(key, \"\"); });",
+                  "pm.environment.set(\"allowDelete\", \"false\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json();",
+                  "    pm.test(\"JWT and matching account returned\", function () {",
+                  "        pm.expect(data.access_token).to.be.a(\"string\").and.not.be.empty;",
+                  "        pm.expect(data.user.email.toLowerCase()).to.equal(pm.environment.get(\"email\").toLowerCase());",
+                  "    });",
+                  "    if (typeof data.access_token === \"string\" && data.access_token && data.user && data.user.email.toLowerCase() === pm.environment.get(\"email\").toLowerCase()) {",
+                  "        pm.environment.set(\"jwt\", data.access_token);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get the current account",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Requires a valid Bearer JWT. Returns the authenticated account's profile\nonly; this endpoint cannot be used to look up another user.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get(\"jwt\")) {",
+                  "    console.warn(\"Run Obtain an access token first.\");",
+                  "    pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Current account matches test account\", function () { pm.expect(pm.response.json().user.email.toLowerCase()).to.equal(pm.environment.get(\"email\").toLowerCase()); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Transfers",
+      "item": [
+        {
+          "name": "Create a transfer — one file",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files[]",
+                  "type": "file",
+                  "src": [],
+                  "description": "Select a small non-private allowed file locally."
+                },
+                {
+                  "key": "expires_in_days",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transfers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transfers"
+              ]
+            },
+            "description": "Requires a valid Bearer JWT. Uploaded files belong to the authenticated owner,\nare stored privately and share one expiration and public link. Access ends at\nexpiration even before scheduled cleanup. Minute-based expiry is an opt-in\nlocal/testing demonstration; normal transfers use day-based expiry.\nSelect 1 small disposable file(s). Use one-day expiry. Do not manually set Content-Type; Postman supplies the multipart boundary.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!/^postman-[a-z0-9-]+@example\\.com$/i.test(pm.environment.get(\"email\") || \"\") || !pm.environment.get(\"password\")) {",
+                  "    console.warn(\"Set disposable email postman-...@example.com and password in local environment values.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "if (!pm.environment.get(\"jwt\")) {",
+                  "    console.warn(\"Run Obtain an access token first.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "[\"transferId\", \"fileId\", \"shareToken\", \"createdTransferId\", \"createdFileId\", \"createdForEmail\"].forEach(function (key) { pm.environment.set(key, \"\"); });",
+                  "pm.environment.set(\"allowDelete\", \"false\");",
+                  "pm.environment.set(\"singleTransferId\", \"\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "if (pm.response.code === 201) {",
+                  "    const transfer = pm.response.json().transfer;",
+                  "    const match = transfer && typeof transfer.share_url === \"string\" && transfer.share_url.match(/\\/share\\/([a-f0-9]{64})$/);",
+                  "    pm.test(\"Transfer contains 1 file(s) and a share token\", function () {",
+                  "        pm.expect(transfer.id).to.be.a(\"string\").and.not.be.empty;",
+                  "        pm.expect(transfer.files).to.have.lengthOf(1);",
+                  "        pm.expect(match).to.not.equal(null);",
+                  "        pm.expect(transfer.files[0].id).to.be.a(\"string\").and.not.be.empty;",
+                  "    });",
+                  "    if (transfer && transfer.id && match && transfer.files && transfer.files.length === 1 && transfer.files[0].id) {",
+                  "        pm.environment.set(\"transferId\", transfer.id);",
+                  "        pm.environment.set(\"fileId\", transfer.files[0].id);",
+                  "        pm.environment.set(\"shareToken\", match[1]);",
+                  "        pm.environment.set(\"singleTransferId\", transfer.id);",
+                  "        pm.environment.set(\"createdTransferId\", transfer.id);",
+                  "        pm.environment.set(\"createdFileId\", transfer.files[0].id);",
+                  "        pm.environment.set(\"createdForEmail\", pm.environment.get(\"email\"));",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create a transfer — two files",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files[]",
+                  "type": "file",
+                  "src": [],
+                  "description": "Select a small non-private allowed file locally."
+                },
+                {
+                  "key": "files[]",
+                  "type": "file",
+                  "src": [],
+                  "description": "Select a small non-private allowed file locally."
+                },
+                {
+                  "key": "expires_in_days",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/transfers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transfers"
+              ]
+            },
+            "description": "Requires a valid Bearer JWT. Uploaded files belong to the authenticated owner,\nare stored privately and share one expiration and public link. Access ends at\nexpiration even before scheduled cleanup. Minute-based expiry is an opt-in\nlocal/testing demonstration; normal transfers use day-based expiry.\nSelect 2 small disposable file(s). Use one-day expiry. Do not manually set Content-Type; Postman supplies the multipart boundary.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!/^postman-[a-z0-9-]+@example\\.com$/i.test(pm.environment.get(\"email\") || \"\") || !pm.environment.get(\"password\")) {",
+                  "    console.warn(\"Set disposable email postman-...@example.com and password in local environment values.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "if (!pm.environment.get(\"jwt\")) {",
+                  "    console.warn(\"Run Obtain an access token first.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "[\"transferId\", \"fileId\", \"shareToken\", \"createdTransferId\", \"createdFileId\", \"createdForEmail\"].forEach(function (key) { pm.environment.set(key, \"\"); });",
+                  "pm.environment.set(\"allowDelete\", \"false\");",
+                  "pm.environment.set(\"multipleTransferId\", \"\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "if (pm.response.code === 201) {",
+                  "    const transfer = pm.response.json().transfer;",
+                  "    const match = transfer && typeof transfer.share_url === \"string\" && transfer.share_url.match(/\\/share\\/([a-f0-9]{64})$/);",
+                  "    pm.test(\"Transfer contains 2 file(s) and a share token\", function () {",
+                  "        pm.expect(transfer.id).to.be.a(\"string\").and.not.be.empty;",
+                  "        pm.expect(transfer.files).to.have.lengthOf(2);",
+                  "        pm.expect(match).to.not.equal(null);",
+                  "        pm.expect(transfer.files[0].id).to.be.a(\"string\").and.not.be.empty;",
+                  "    });",
+                  "    if (transfer && transfer.id && match && transfer.files && transfer.files.length === 2 && transfer.files[0].id) {",
+                  "        pm.environment.set(\"transferId\", transfer.id);",
+                  "        pm.environment.set(\"fileId\", transfer.files[0].id);",
+                  "        pm.environment.set(\"shareToken\", match[1]);",
+                  "        pm.environment.set(\"multipleTransferId\", transfer.id);",
+                  "        pm.environment.set(\"createdTransferId\", transfer.id);",
+                  "        pm.environment.set(\"createdFileId\", transfer.files[0].id);",
+                  "        pm.environment.set(\"createdForEmail\", pm.environment.get(\"email\"));",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List own transfers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/transfers?include_expired=false",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transfers"
+              ],
+              "query": [
+                {
+                  "description": "Default false: only non-expired transfers. True includes expired records awaiting purge. Owner only, newest first (created_at then id), without pagination.",
+                  "key": "include_expired",
+                  "value": "false"
+                }
+              ]
+            },
+            "description": "Requires a valid Bearer JWT. Only the authenticated owner's transfers are\nreturned, newest first, without pagination. Expired transfers are excluded by\ndefault; include_expired also includes those still awaiting cleanup, never\nrecords that have already been purged.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get(\"jwt\")) {",
+                  "    console.warn(\"Run Obtain an access token first.\");",
+                  "    pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const records = pm.response.json().transfers;",
+                  "    pm.test(\"Both test uploads are present\", function () {",
+                  "        pm.expect(records).to.be.an(\"array\");",
+                  "        [\"singleTransferId\", \"multipleTransferId\"].forEach(function (key) {",
+                  "            const id = pm.environment.get(key);",
+                  "            pm.expect(id, key).to.be.a(\"string\").and.not.be.empty;",
+                  "            pm.expect(records.some(function (transfer) { return transfer.id === id; }), key).to.equal(true);",
+                  "        });",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE — disposable uploaded file only (manual)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/transfers/{{transferId}}/files/{{fileId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "transfers",
+                "{{transferId}}",
+                "files",
+                "{{fileId}}"
+              ]
+            },
+            "description": "Requires the owner's Bearer JWT. Deletes only the selected file; other files\nin the transfer remain available. Deleting the last file also removes the\ntransfer and revokes its share link. Missing resources and resources owned\nby another account return the same not-found response.\nManual opt-in only: after both uploads, history and public download, set allowDelete=true in local values. The request is skipped by default and only accepts the last captured disposable upload. The flag resets before sending. Do not run on existing account data.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!/^postman-[a-z0-9-]+@example\\.com$/i.test(pm.environment.get(\"email\") || \"\") || !pm.environment.get(\"password\")) {",
+                  "    console.warn(\"Set disposable email postman-...@example.com and password in local environment values.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "if (!pm.environment.get(\"jwt\")) {",
+                  "    console.warn(\"Run Obtain an access token first.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "const transferId = pm.environment.get(\"transferId\");",
+                  "const fileId = pm.environment.get(\"fileId\");",
+                  "if (pm.environment.get(\"allowDelete\") !== \"true\" ||",
+                  "    !transferId || !fileId ||",
+                  "    pm.variables.get(\"transferId\") !== transferId ||",
+                  "    pm.variables.get(\"fileId\") !== fileId ||",
+                  "    transferId !== pm.environment.get(\"createdTransferId\") ||",
+                  "    fileId !== pm.environment.get(\"createdFileId\") ||",
+                  "    pm.environment.get(\"email\") !== pm.environment.get(\"createdForEmail\")) {",
+                  "    console.warn(\"Deletion skipped. Explicitly enable only for the captured disposable upload.\");",
+                  "    pm.execution.skipRequest();",
+                  "}",
+                  "pm.environment.set(\"allowDelete\", \"false\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });",
+                  "[\"transferId\", \"fileId\", \"shareToken\", \"createdTransferId\", \"createdFileId\", \"createdForEmail\"].forEach(function (key) { pm.environment.set(key, \"\"); });",
+                  "pm.environment.set(\"allowDelete\", \"false\");"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Public sharing",
+      "item": [
+        {
+          "name": "Read share metadata",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shares/{{shareToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shares",
+                "{{shareToken}}"
+              ]
+            },
+            "description": "No JWT is required. The share token grants access only while the transfer is\nunexpired. Owner details and private storage locations are never included.\nAn expired share returns 410 while awaiting cleanup, then 404 after removal.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get(\"shareToken\") || !pm.environment.get(\"fileId\")) {",
+                  "    console.warn(\"Run a successful upload first.\");",
+                  "    pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Public metadata includes the uploaded file\", function () {",
+                  "        const files = pm.response.json().share.files;",
+                  "        pm.expect(files.some(function (file) { return file.id === pm.environment.get(\"fileId\"); })).to.equal(true);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Download a shared file",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/octet-stream"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shares/{{shareToken}}/files/{{fileId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shares",
+                "{{shareToken}}",
+                "files",
+                "{{fileId}}"
+              ]
+            },
+            "description": "No JWT is required. A valid, unexpired share token is required, and the file\nmust belong to that share. Bytes are streamed as an attachment, never previewed\nor executed. Missing content and files outside the share return 404; an expired\nshare returns 410 until cleanup removes it.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get(\"shareToken\") || !pm.environment.get(\"fileId\")) {",
+                  "    console.warn(\"Run a successful upload first.\");",
+                  "    pm.execution.skipRequest();",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Download is an attachment\", function () {",
+                  "        pm.expect(pm.response.headers.get(\"Content-Disposition\") || \"\").to.match(/^attachment\\b/i);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "Check API availability",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Public smoke check confirming that the API can handle a request. It does\nnot verify database connectivity, private storage or dependency readiness.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"API health is ok\", function () { pm.expect(pm.response.json().status).to.equal(\"ok\"); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Read demonstration capabilities",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/demo/capabilities",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "demo",
+                "capabilities"
+              ]
+            },
+            "description": "Public capability discovery for clients. Five-minute expiry is advertised\nonly in the local environment with the demo feature explicitly enabled.\nNo credentials or private configuration are exposed.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Demo capability is boolean\", function () { pm.expect(pm.response.json().five_minute_expiry).to.be.a(\"boolean\"); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://127.0.0.1:8443/api",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (pm.environment.get(\"baseUrl\") !== \"https://127.0.0.1:8443/api\" || pm.variables.get(\"baseUrl\") !== \"https://127.0.0.1:8443/api\") {",
+          "    console.warn(\"Select the DataShare Local HTTPS environment.\");",
+          "    pm.execution.skipRequest();",
+          "}"
+        ]
+      }
+    }
+  ]
+}

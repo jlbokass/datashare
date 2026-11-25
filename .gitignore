@@ -52,6 +52,7 @@
 /docker/volumes/
 /docker/data/
 /docker/tmp/
+/docker/nginx/certs/
 
 # OS / editor artifacts
 .DS_Store

@@ -17,7 +17,7 @@ lang: en
 
 [Description](architecture.md) · [Editable draw.io](diagrams/architecture.drawio)
 
-**Angular browser → Nginx → Laravel API → PostgreSQL and private file storage.** Nginx provides a single HTTP origin in development; Docker Compose runs the application, database and expiry scheduler. Public download links are separate from the JWT required for owner actions. Local HTTP is not evidence of production HTTPS.
+**Angular browser → Nginx → Laravel API → PostgreSQL and private file storage.** Nginx provides a single origin in development (HTTP or optional local HTTPS); Docker Compose runs the application, database and expiry scheduler. Public download links are separate from the JWT required for owner actions. Local TLS termination uses mkcert and Nginx; it is not evidence of production HTTPS.
 
 ### Repository structure
 
@@ -131,7 +131,7 @@ docker compose exec -T app php artisan migrate --force
 bash scripts/qa.sh all
 ```
 
-The application is served at `http://127.0.0.1:8080/`. E2E tests use **`compose.test.yaml`**, isolated from development data (see TESTING). Do not use `docker compose down -v` on valuable databases. Production deployment has not been performed.
+The application is served at `http://127.0.0.1:8080/` or, with [local TLS mode](installation.md#optional-local-https), at `https://127.0.0.1:8443/`. E2E tests use **`compose.test.yaml`**, isolated from development data (see TESTING). Do not use `docker compose down -v` on valuable databases. Production deployment has not been performed.
 
 ## 8. AI use in development
 
