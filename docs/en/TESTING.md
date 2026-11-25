@@ -100,3 +100,9 @@ These acceptance reports do not replace the CI evidence above. The current suite
 ### Swagger UI interactive acceptance
 
 On 25 November 2026, the developer reported all 17 checks of [QA-API #76](https://github.com/jlbokass/datashare/issues/76) passing: Authentication (4), Transfers (7), Public sharing (4) and System (2). All ten documented operations were exercised, including single- and multiple-file multipart uploads and public downloads without JWT. This local acceptance complements automated tests; it is neither a new coverage measurement nor an exhaustive OpenAPI conformance audit.
+
+### SonarQube Cloud analysis (optional, #85)
+
+The separate [SonarQube Cloud workflow](https://github.com/jlbokass/datashare/blob/develop/.github/workflows/sonarqube-cloud.yml) targets `main` and reuses Clover/LCOV artifacts from the two successful CI runs for the same commit, without repeating tests. It triggers on their completion (or manually on `main` while the artifacts are available). Analysis covers `backend/app` and `frontend/src`, with tests distinguished from sources; coverage paths are normalized to the checkout root.
+
+Initial configuration: import the public repository into SonarQube Cloud (EU region), disable automatic analysis in favor of GitHub Actions, then set repository Actions variables `SONAR_ORGANIZATION`, `SONAR_PROJECT_KEY` and secret `SONAR_TOKEN` (never in Git). The Quality Gate is informational; existing required checks and PostgreSQL safeguards are unchanged. Sonar coverage may differ from PHP/Angular line-coverage reports due to metric definitions and scope. First scan, report import and dynamic badges remain to be verified after the workflow is released to `main`.
