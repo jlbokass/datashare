@@ -82,7 +82,7 @@ make https-up
 make https-health
 ```
 
-Open **https://127.0.0.1:8443/** and [Swagger UI](https://127.0.0.1:8443/docs/api). HTTP port 8080 redirects to HTTPS (308) when the override is active. No existing `.env` is modified; the override sets Laravel's URL and enables Secure cookies. Nginx uses TLS 1.2/1.3; internal Docker network traffic is not encrypted.
+Open **https://127.0.0.1:8443/** and [Swagger UI](https://127.0.0.1:8443/docs/api). HTTP port 8080 redirects to HTTPS (307) when the override is active. No existing `.env` is modified; the override sets Laravel's URL and enables Secure cookies. Nginx uses TLS 1.2/1.3; internal Docker network traffic is not encrypted.
 
 Restart in HTTPS mode with `make https-up` (instead of `make up`), or restore HTTP using `make https-off`. The direct HTTPS startup command is `docker compose -f compose.yaml -f compose.https.yaml up -d`. The project and volumes remain unchanged. CI/E2E retains its isolated HTTP environment.
 

@@ -82,7 +82,7 @@ make https-up
 make https-health
 ```
 
-Ouvrir **https://127.0.0.1:8443/** et [Swagger UI](https://127.0.0.1:8443/docs/api). Le port HTTP 8080 redirige vers HTTPS (308) lorsque la surcharge est active. Aucun `.env` existant n'est modifié ; la surcharge fixe l'URL Laravel et active les cookies Secure. Nginx utilise TLS 1.2/1.3 ; les échanges internes au réseau Docker ne sont pas chiffrés.
+Ouvrir **https://127.0.0.1:8443/** et [Swagger UI](https://127.0.0.1:8443/docs/api). Le port HTTP 8080 redirige vers HTTPS (307) lorsque la surcharge est active. Aucun `.env` existant n'est modifié ; la surcharge fixe l'URL Laravel et active les cookies Secure. Nginx utilise TLS 1.2/1.3 ; les échanges internes au réseau Docker ne sont pas chiffrés.
 
 Pour redémarrer en HTTPS, utiliser `make https-up` (au lieu de `make up`), et pour revenir à HTTP, `make https-off`. La commande directe équivalente au démarrage HTTPS est `docker compose -f compose.yaml -f compose.https.yaml up -d`. Le projet et ses volumes restent identiques. La CI/E2E continue d'utiliser son environnement HTTP isolé.
 
