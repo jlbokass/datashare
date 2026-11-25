@@ -26,6 +26,8 @@ docker compose logs --tail=100 app web frontend scheduler db
 
 The `scheduler` executes the daily US01 expired-file purge; if local demo flag `TRANSFER_DEMO_5_MIN_ENABLED=true` is set, the app must clear config and the scheduler must be restarted to use minute-level execution. **`docker compose down` keeps named database volumes**; never run `docker compose down -v` without intentionally destroying local data.
 
+Enable [local HTTPS](../installation.md#optional-local-https) with `make https-up` and verify it with `make https-health`. The HTTP examples below apply to default mode; in TLS mode use `https://127.0.0.1:8443` with certificate verification. `make https-off` restores HTTP without deleting volumes.
+
 ## Structured logging and local diagnostics
 
 Nginx writes JSON access logs to standard output (`stdout`). The format includes timestamp, HTTP method, status, total request duration in seconds, request size (line, headers and body) and response body size in bytes. URLs, query parameters, IP addresses, headers and tokens are excluded from **this access-log format**. Nginx error logs, PHP-FPM logs and Laravel exceptions may still contain sensitive information: review them before sharing.

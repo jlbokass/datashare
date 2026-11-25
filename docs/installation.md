@@ -66,6 +66,28 @@ bash scripts/qa.sh all
 
 Open **http://127.0.0.1:8080/**. The `/api/health` response alone does not prove PostgreSQL connectivity; the migration checks that separately. Laravel CI unit tests use in-memory SQLite.
 
+
+## Optional local HTTPS
+
+After HTTP installation, on macOS with Homebrew, install [mkcert](https://github.com/FiloSottile/mkcert) if needed and create a development-only certificate from the repository root:
+
+```bash
+brew install mkcert
+mkcert -install
+mkdir -p docker/nginx/certs
+mkcert -cert-file docker/nginx/certs/datashare.pem \
+  -key-file docker/nginx/certs/datashare-key.pem localhost 127.0.0.1
+git check-ignore docker/nginx/certs/datashare-key.pem
+make https-up
+make https-health
+```
+
+Open **https://127.0.0.1:8443/** and [Swagger UI](https://127.0.0.1:8443/docs/api). HTTP port 8080 redirects to HTTPS (308) when the override is active. No existing `.env` is modified; the override sets Laravel's URL and enables Secure cookies. Nginx uses TLS 1.2/1.3; internal Docker network traffic is not encrypted.
+
+Restart in HTTPS mode with `make https-up` (instead of `make up`), or restore HTTP using `make https-off`. The direct HTTPS startup command is `docker compose -f compose.yaml -f compose.https.yaml up -d`. The project and volumes remain unchanged. CI/E2E retains its isolated HTTP environment.
+
+Never commit the certificates and keys under `docker/nginx/certs/` or share the local authority's private `rootCA-key.pem`. For a client that does not recognize the macOS trust store, use the public CA certificate at `$(mkcert -CAROOT)/rootCA.pem`; do not disable TLS verification. This setup is not intended for production.
+
 ## Troubleshooting and scope
 
 A temporary Nginx `502` may indicate first-boot Angular installation; inspect `docker compose logs -f frontend app web`. Do not overwrite configured environment files or delete volumes. Stop while keeping the database using `docker compose down` (**not `down -v`**).
@@ -79,7 +101,7 @@ All three CI workflows and quality batches have been validated; see [TESTING](en
 | `db` | PostgreSQL 18, private Docker network, persistent volume mounted at `/var/lib/postgresql` |
 | `app` | Laravel via PHP-FPM 8.4, private network |
 | `frontend` | Angular 22 development server and HMR |
-| `web` | Nginx, sole local HTTP entry point on port 8080; API and `/up` routes to Laravel |
+| `web` | Nginx, local HTTP entry point on port 8080 (optional HTTPS on 8443); API and `/up` routes to Laravel |
 | `scheduler` | Laravel cleanup |
 | `php`, `node` | On-demand CLI tools, `tools` profile |
 
