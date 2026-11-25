@@ -4,7 +4,7 @@
 # Always use a separate project and credentials for the optional S3 demo.
 GARAGE_COMPOSE := docker compose --env-file .env.garage -p datashare-garage -f compose.yaml -f compose.garage.yaml
 
-.PHONY: help up down ps logs health qa qa-backend qa-frontend status dozzle-up dozzle-stop scheduler-start scheduler-stop scheduler-status https-up https-health https-off garage-init garage-up garage-migrate garage-status garage-stop garage-health
+.PHONY: help up down ps logs health qa qa-backend qa-frontend status dozzle-up dozzle-stop pgadmin-up pgadmin-stop scheduler-start scheduler-stop scheduler-status https-up https-health https-off garage-init garage-up garage-migrate garage-status garage-stop garage-health
 
 help:
 	@printf '%s\n' 'make up          Start the local stack' \
@@ -18,6 +18,8 @@ help:
 	  'make status      Check local/remote Git synchronization' \
 	  'make dozzle-up   Start the optional local log viewer' \
 	  'make dozzle-stop Stop the log viewer' \
+  'make pgadmin-up  Start the optional PostgreSQL explorer and attach running databases' \
+  'make pgadmin-stop Stop the database explorer' \
 	  'make scheduler-start  Resume the local expiry scheduler' \
 	  'make scheduler-stop   Pause the local expiry scheduler' \
 	  'make scheduler-status Show scheduler service status' \
@@ -63,6 +65,12 @@ dozzle-up:
 
 dozzle-stop:
 	docker compose stop dozzle
+
+pgadmin-up:
+	bash scripts/pgadmin.sh up
+
+pgadmin-stop:
+	bash scripts/pgadmin.sh stop
 
 scheduler-start:
 	docker compose start scheduler
