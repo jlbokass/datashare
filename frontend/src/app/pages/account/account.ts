@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../auth/auth.service';
@@ -23,6 +23,18 @@ interface HistoryTransfer {
   files: HistoryFile[];
 }
 
+interface HistoryPagination {
+  current_page: number;
+  per_page: number;
+  last_page: number;
+  total: number;
+}
+
+interface HistoryResponse {
+  transfers: HistoryTransfer[];
+  pagination: HistoryPagination;
+}
+
 @Component({
   selector: 'app-account',
   imports: [RouterLink],
@@ -39,12 +51,8 @@ export class Account implements OnInit {
   readonly historyLoading = signal(false);
   readonly transfers = signal<HistoryTransfer[]>([]);
   readonly historyFilter = signal<HistoryFilter>('active');
-  readonly includeExpired = computed(() => this.historyFilter() !== 'active');
-  readonly visibleTransfers = computed(() => this.historyFilter() === 'expired'
-    ? this.transfers().filter((transfer) => transfer.status === 'expired')
-    : this.historyFilter() === 'active'
-      ? this.transfers().filter((transfer) => transfer.status === 'valid')
-      : this.transfers());
+  readonly page = signal(1);
+  readonly pagination = signal<HistoryPagination>({ current_page: 1, per_page: 10, last_page: 1, total: 0 });
   readonly menuOpen = signal(false);
   readonly year = new Date().getFullYear();
   readonly errorMessage = signal<string | null>(null);
@@ -67,7 +75,7 @@ export class Account implements OnInit {
     }));
   }
 
-  loadHistory(): void {
+  loadHistory(page = this.page()): void {
     if (this.historyLoading() || this.deletingFileId()) return;
     if (!this.auth.signedIn()) {
       this.endSession('/login');
@@ -77,14 +85,25 @@ export class Account implements OnInit {
     this.historyLoading.set(true);
     this.errorMessage.set(null);
     this.transfers.set([]);
-    const url = this.includeExpired() ? '/api/transfers?include_expired=true' : '/api/transfers';
+    this.page.set(page);
+    const params = new URLSearchParams();
+    if (this.historyFilter() !== 'active') params.set('status', this.historyFilter());
+    if (page > 1) params.set('page', String(page));
+    const query = params.toString();
+    const url = query ? '/api/transfers?' + query : '/api/transfers';
 
-    this.requests.add(this.http.get<{ transfers: HistoryTransfer[] }>(url, {
+    this.requests.add(this.http.get<HistoryResponse>(url, {
       headers: this.auth.authorizationHeaders(),
     }).subscribe({
-      next: ({ transfers }) => {
-        this.transfers.set(transfers);
+      next: ({ transfers, pagination }) => {
+        this.pagination.set(pagination);
         this.historyLoading.set(false);
+        if (pagination.current_page > pagination.last_page) {
+          this.loadHistory(pagination.last_page);
+          return;
+        }
+        this.transfers.set(transfers);
+        this.page.set(pagination.current_page);
       },
       error: (error: HttpErrorResponse) => {
         this.historyLoading.set(false);
@@ -139,9 +158,14 @@ export class Account implements OnInit {
   setHistoryFilter(filter: HistoryFilter): void {
     if (this.historyLoading() || this.deletingFileId()) return;
 
-    const wasIncludingExpired = this.includeExpired();
+    if (filter === this.historyFilter()) return;
     this.historyFilter.set(filter);
-    if (wasIncludingExpired !== this.includeExpired()) this.loadHistory();
+    this.loadHistory(1);
+  }
+
+  changePage(page: number): void {
+    if (page < 1 || page > this.pagination().last_page || page === this.page()) return;
+    this.loadHistory(page);
   }
 
   formatSize(bytes: number): string {
@@ -178,6 +202,8 @@ export class Account implements OnInit {
   private endSession(destination: string): void {
     this.requests.unsubscribe();
     this.transfers.set([]);
+    this.page.set(1);
+    this.pagination.set({ current_page: 1, per_page: 10, last_page: 1, total: 0 });
     this.historyLoading.set(false);
     this.loading.set(false);
     this.deletingFileId.set(null);

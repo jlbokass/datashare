@@ -66,6 +66,28 @@ bash scripts/qa.sh all
 
 Visiter **http://127.0.0.1:8080/**. La route `/api/health` ne vérifie pas à elle seule PostgreSQL ; la migration et son statut l'attestent séparément. La CI Laravel exécute ses tests avec SQLite en mémoire.
 
+
+## HTTPS local facultatif
+
+Après l'installation HTTP, sur macOS avec Homebrew, installer [mkcert](https://github.com/FiloSottile/mkcert) si nécessaire, puis créer un certificat réservé au poste de développement, depuis la racine du dépôt :
+
+```bash
+brew install mkcert
+mkcert -install
+mkdir -p docker/nginx/certs
+mkcert -cert-file docker/nginx/certs/datashare.pem \
+  -key-file docker/nginx/certs/datashare-key.pem localhost 127.0.0.1
+git check-ignore docker/nginx/certs/datashare-key.pem
+make https-up
+make https-health
+```
+
+Ouvrir **https://127.0.0.1:8443/** et [Swagger UI](https://127.0.0.1:8443/docs/api). Le port HTTP 8080 redirige vers HTTPS (307) lorsque la surcharge est active. Aucun `.env` existant n'est modifié ; la surcharge fixe l'URL Laravel et active les cookies Secure. Nginx utilise TLS 1.2/1.3 ; les échanges internes au réseau Docker ne sont pas chiffrés.
+
+Pour redémarrer en HTTPS, utiliser `make https-up` (au lieu de `make up`), et pour revenir à HTTP, `make https-off`. La commande directe équivalente au démarrage HTTPS est `docker compose -f compose.yaml -f compose.https.yaml up -d`. Le projet et ses volumes restent identiques. La CI/E2E continue d'utiliser son environnement HTTP isolé.
+
+Ne jamais versionner les certificats et clés de `docker/nginx/certs/`, ni partager la clé de l'autorité locale `rootCA-key.pem`. Pour un client qui ne reconnaît pas le trousseau macOS, utiliser le certificat public de l'autorité `$(mkcert -CAROOT)/rootCA.pem` ; ne pas désactiver la vérification TLS. Cette configuration n'est pas destinée à la production.
+
 ## Dépannage et limites
 
 Si Nginx répond d'abord `502`, vérifier `docker compose logs -f frontend app web` : le premier `npm ci` dans le conteneur frontend peut être encore en cours. Éviter d'écraser les `.env` ou de supprimer les volumes. Pour arrêter sans effacer la base : `docker compose down` (**jamais `down -v` sans vouloir supprimer les données**).
@@ -79,7 +101,7 @@ Les trois workflows CI et les lots qualité ont été validés ; voir [TESTING](
 | `db` | PostgreSQL 18, réseau Docker privé, volume persistant monté dans `/var/lib/postgresql` |
 | `app` | Laravel via PHP-FPM 8.4, réseau privé |
 | `frontend` | Angular 22, serveur de développement et HMR |
-| `web` | Nginx, seule entrée HTTP locale sur le port 8080 ; routes API et `/up` vers Laravel |
+| `web` | Nginx, entrée HTTP locale sur le port 8080 (HTTPS facultatif sur 8443) ; routes API et `/up` vers Laravel |
 | `scheduler` | Purge Laravel |
 | `php`, `node` | Outils CLI ponctuels, profil `tools` |
 

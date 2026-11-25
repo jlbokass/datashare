@@ -39,9 +39,9 @@ docker compose up -d
 docker compose ps
 ```
 
-Application: **http://127.0.0.1:8080/**
+Default HTTP application: **http://127.0.0.1:8080/**. Recommended local acceptance over HTTPS: **https://127.0.0.1:8443/** ([enable with mkcert](../installation.md#optional-local-https)).
 
-Local API: [Swagger UI](http://127.0.0.1:8080/docs/api) · [API guide](../api/README.md).
+Local API: [Swagger UI HTTP](http://127.0.0.1:8080/docs/api) · [Swagger UI HTTPS](https://127.0.0.1:8443/docs/api) · [API guide](../api/README.md).
 
 Run Laravel tests, Pint formatting checks, Angular tests and build:
 
@@ -50,6 +50,10 @@ bash scripts/qa.sh all
 ```
 
 E2E tests use an [isolated Docker stack](TESTING.md) to protect local development data.
+
+### Development shortcuts (optional)
+
+If GNU Make is available, run `make help` to list the commands. From the repository root, `make up`, `make ps`, `make logs`, `make health` and `make down` manage the local environment (`down` preserves volumes). `make qa`, `make qa-backend` and `make qa-frontend` reuse the existing QA script; `make status` checks Git synchronization. Docker and Bash commands remain available without Make.
 
 ### Test the 1 GB file limit (macOS)
 
@@ -84,4 +88,4 @@ The bilingual technical documentation is published on [GitHub Pages](https://jlb
 
 [OC technical dossier](../technical-documentation.md) · [Architecture](../architecture.md) · [API contract](../api/openapi.yaml) · [Testing](TESTING.md) · [Security](SECURITY.md) · [Performance](PERF.md) · [Maintenance](MAINTENANCE.md) · [AI journal](../ai-journal.md)
 
-The local app uses **HTTP without TLS**. JWT session state is intentionally held in memory, so **refreshing requires signing in again**. ZIP archives are not antivirus-scanned. Scheduled cleanup removes expired file bytes and metadata; this policy was retained by the closing decision in [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57). Advanced US07–US10 features remain optional.
+Local HTTPS is optional and uses a development certificate authority; no public HTTPS deployment is claimed. JWT session state is intentionally held in memory, so **refreshing requires signing in again**. ZIP archives are not antivirus-scanned. Scheduled cleanup removes expired file bytes and metadata; this policy was retained by the closing decision in [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57). Advanced US07–US10 features remain optional.

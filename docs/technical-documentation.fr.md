@@ -17,7 +17,7 @@ lang: fr
 
 [Description](architecture.fr.md) · [Source draw.io](diagrams/architecture.drawio)
 
-**Navigateur Angular → Nginx → API Laravel → PostgreSQL et stockage privé.** Nginx fournit une origine HTTP unique en développement ; Docker Compose orchestre l'application, la base et le planificateur d'expiration. Le téléchargement public utilise un lien unique, distinct du JWT requis pour les actions du propriétaire. Le trafic local en HTTP ne constitue pas une preuve d'HTTPS en production.
+**Navigateur Angular → Nginx → API Laravel → PostgreSQL et stockage privé.** Nginx fournit une origine unique en développement (HTTP ou HTTPS local facultatif) ; Docker Compose orchestre l'application, la base et le planificateur d'expiration. Le téléchargement public utilise un lien unique, distinct du JWT requis pour les actions du propriétaire. La terminaison TLS locale utilise mkcert et Nginx ; elle ne constitue pas une preuve d'HTTPS en production.
 
 ### Organisation du dépôt
 
@@ -131,7 +131,7 @@ docker compose exec -T app php artisan migrate --force
 bash scripts/qa.sh all
 ```
 
-L'application est accessible sur `http://127.0.0.1:8080/`. Les E2E utilisent **`compose.test.yaml`**, séparé des données de développement (voir TESTING). Ne pas utiliser `docker compose down -v` sur une base utile. Le déploiement en production n'a pas été réalisé.
+L'application est accessible sur `http://127.0.0.1:8080/` ou, avec le [mode TLS local](installation.fr.md#https-local-facultatif), sur `https://127.0.0.1:8443/`. Les E2E utilisent **`compose.test.yaml`**, séparé des données de développement (voir TESTING). Ne pas utiliser `docker compose down -v` sur une base utile. Le déploiement en production n'a pas été réalisé.
 
 ## 8. Utilisation de l'IA
 
@@ -155,4 +155,4 @@ Ces exemples illustrent la supervision des contributions de l'IA par la revue de
 
 ## Travaux restant avant la remise
 
-**À finaliser avant la soutenance :** joindre les captures de couverture préparées, finaliser le support de présentation et la fiche d'autoévaluation ; clarifier la règle OC applicable à l'usage de l'IA (section 8). Les audits QL-03, mesures QL-04 et la recette UI-01 sont terminés. [HIST-01 — purge/historique](https://github.com/jlbokass/datashare/issues/57) est clôturé : purge actuelle maintenue sans changement de code ; la pagination est [facultative](https://github.com/jlbokass/datashare/issues/59).
+**À finaliser avant la soutenance :** joindre les captures de couverture préparées, finaliser le support de présentation et la fiche d'autoévaluation ; clarifier la règle OC applicable à l'usage de l'IA (section 8). Les audits QL-03, mesures QL-04 et la recette UI-01 sont terminés. [HIST-01 — purge/historique](https://github.com/jlbokass/datashare/issues/57) est clôturé : purge actuelle maintenue sans changement de code ; la [pagination facultative](https://github.com/jlbokass/datashare/issues/59) est implémentée (10 transferts par page, filtres serveur).

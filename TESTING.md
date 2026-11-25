@@ -97,3 +97,9 @@ Ces comptes rendus documentent les validations manuelles ; ils ne remplacent pas
 ### Recette interactive Swagger UI
 
 Le 25 novembre 2026, les 17 contrôles de la [recette QA-API #76](https://github.com/jlbokass/datashare/issues/76) ont été déclarés réussis par le développeur : Authentication (4), Transfers (7), Public sharing (4) et System (2). Les dix opérations documentées ont été exercées, notamment le multipart simple et multiple et les téléchargements publics sans JWT. Cette recette locale complète les tests automatisés ; elle ne constitue ni une nouvelle mesure de couverture ni un audit exhaustif de conformité OpenAPI.
+
+### Analyse SonarQube Cloud (facultative, #85)
+
+L'analyse distincte [SonarQube Cloud](.github/workflows/sonarqube-cloud.yml) cible `main` et réutilise les artefacts Clover/LCOV des deux CI réussies sur le même commit, sans relancer les tests. Elle se déclenche après leur achèvement (ou manuellement sur `main` lorsque les artefacts sont disponibles). Les sources analysées sont `backend/app` et `frontend/src`, tests distingués des sources ; les chemins des rapports sont normalisés à la racine du dépôt.
+
+Configuration initiale : importer le dépôt public dans SonarQube Cloud (région EU), désactiver l'analyse automatique au profit de GitHub Actions, puis renseigner les variables GitHub Actions `SONAR_ORGANIZATION`, `SONAR_PROJECT_KEY` et le secret `SONAR_TOKEN` (jamais dans Git). Le Quality Gate est informatif ; aucun contrôle obligatoire existant ni protection PostgreSQL ne change. La couverture Sonar peut différer des rapports de lignes PHP/Angular en raison des méthodes de calcul et du périmètre. Première analyse, import des rapports et badges dynamiques à confirmer après publication du workflow sur `main`.

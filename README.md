@@ -32,9 +32,9 @@ docker compose up -d
 docker compose ps
 ```
 
-Application : **http://127.0.0.1:8080/**
+Application HTTP par défaut : **http://127.0.0.1:8080/**. Mode HTTPS local recommandé pour la recette : **https://127.0.0.1:8443/** ([activation avec mkcert](docs/installation.fr.md#https-local-facultatif)).
 
-API locale : [Swagger UI](http://127.0.0.1:8080/docs/api) · [Guide API](docs/api/README.fr.md).
+API locale : [Swagger UI HTTP](http://127.0.0.1:8080/docs/api) · [Swagger UI HTTPS](https://127.0.0.1:8443/docs/api) · [Guide API](docs/api/README.fr.md).
 
 Exécuter les tests Laravel et Angular, vérifier le formatage avec Pint et compiler l'application Angular :
 
@@ -43,6 +43,10 @@ bash scripts/qa.sh all
 ```
 
 Les tests E2E utilisent un [environnement Docker isolé](TESTING.md) pour protéger les données locales.
+
+### Raccourcis de développement (facultatifs)
+
+Si GNU Make est disponible, utiliser `make help` pour afficher les commandes. Depuis la racine du dépôt, `make up`, `make ps`, `make logs`, `make health` et `make down` pilotent l'environnement local (`down` conserve les volumes). `make qa`, `make qa-backend` et `make qa-frontend` réutilisent le script QA existant ; `make status` vérifie la synchronisation Git. Les commandes Docker et Bash restent utilisables sans Make.
 
 ### Tester la limite de 1 Go (macOS)
 
@@ -77,4 +81,4 @@ La documentation technique bilingue est publiée sur [GitHub Pages](https://jlbo
 
 [Documentation OC](docs/technical-documentation.fr.md) · [Architecture](docs/architecture.fr.md) · [Contrat API](docs/api/openapi.yaml) · [Tests](TESTING.md) · [Sécurité](SECURITY.md) · [Performances](PERF.md) · [Maintenance](MAINTENANCE.md) · [Journal IA](docs/ai-journal.fr.md)
 
-L'environnement local utilise **HTTP sans TLS**. Le JWT est conservé uniquement en mémoire ; l'actualisation de la page nécessite donc une nouvelle authentification. Les archives ZIP ne font pas l'objet d'une analyse antivirus. La purge planifiée supprime les fichiers expirés et leurs métadonnées, conformément aux règles de conservation retenues ([HIST-01 #57](https://github.com/jlbokass/datashare/issues/57)). Les fonctionnalités avancées US07 à US10 sont facultatives.
+Le mode HTTPS local est facultatif et utilise une autorité de certification de développement ; aucun déploiement HTTPS public n'est revendiqué. Le JWT est conservé uniquement en mémoire ; l'actualisation de la page nécessite donc une nouvelle authentification. Les archives ZIP ne font pas l'objet d'une analyse antivirus. La purge planifiée supprime les fichiers expirés et leurs métadonnées, conformément aux règles de conservation retenues ([HIST-01 #57](https://github.com/jlbokass/datashare/issues/57)). Les fonctionnalités avancées US07 à US10 sont facultatives.

@@ -1,0 +1,17 @@
+# Optional local HTTPS; use together with compose.yaml (never with compose.test.yaml).
+services:
+  app:
+    environment:
+      APP_URL: https://127.0.0.1:8443
+      SESSION_SECURE_COOKIE: "true"
+  web:
+    ports:
+      - "127.0.0.1:8443:443"
+    volumes:
+      - ./docker/nginx/https.conf:/etc/nginx/datashare-tls/https.conf:ro
+      - type: bind
+        source: ./docker/nginx/certs
+        target: /etc/nginx/certs
+        read_only: true
+        bind:
+          create_host_path: false

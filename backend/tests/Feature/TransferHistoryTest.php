@@ -60,7 +60,7 @@ final class TransferHistoryTest extends TestCase
         $this->transfer(User::factory()->create());
 
         $this->authenticate($this->owner)->getJson('/api/transfers')
-            ->assertOk()->assertExactJson(['transfers' => []]);
+            ->assertOk()->assertExactJson(['transfers' => [], 'pagination' => ['current_page' => 1, 'per_page' => 10, 'last_page' => 1, 'total' => 0]]);
     }
 
     public function test_history_is_scoped_to_the_verified_user_in_both_expiry_modes(): void
@@ -103,7 +103,7 @@ final class TransferHistoryTest extends TestCase
                     'size_bytes' => $file->size_bytes, 'mime_type' => $file->mime_type,
                     'uploaded_at' => $file->created_at->toIso8601String(),
                 ])->all(),
-            ]]]);
+            ]], 'pagination' => ['current_page' => 1, 'per_page' => 10, 'last_page' => 1, 'total' => 1]]);
 
         $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));
     }
@@ -139,6 +139,50 @@ final class TransferHistoryTest extends TestCase
         $this->assertSame('expired', $statuses[$boundary->id]);
 
         $this->travel(2)->seconds();
-        $this->getJson('/api/transfers')->assertOk()->assertExactJson(['transfers' => []]);
+        $this->getJson('/api/transfers')->assertOk()->assertExactJson(['transfers' => [], 'pagination' => ['current_page' => 1, 'per_page' => 10, 'last_page' => 1, 'total' => 0]]);
+    }
+
+    public function test_pagination_filters_owner_and_status_before_slicing(): void
+    {
+        $active = [];
+        for ($i = 0; $i < 11; $i++) {
+            $transfer = $this->transfer($this->owner);
+            $transfer->forceFill(['created_at' => now()->subMinutes(11 - $i)])->save();
+            $active[] = $transfer;
+        }
+
+        $expired = $this->transfer($this->owner, -1);
+        $other = $this->transfer(User::factory()->create());
+
+        $this->authenticate($this->owner)->getJson('/api/transfers')
+            ->assertOk()->assertJsonCount(10, 'transfers')
+            ->assertJsonPath('transfers.0.id', $active[10]->id)
+            ->assertJsonPath('pagination', ['current_page' => 1, 'per_page' => 10, 'last_page' => 2, 'total' => 11])
+            ->assertDontSee($other->share_token);
+
+        $this->getJson('/api/transfers?page=2')
+            ->assertOk()->assertJsonCount(1, 'transfers')
+            ->assertJsonPath('transfers.0.id', $active[0]->id)
+            ->assertJsonPath('pagination.current_page', 2);
+
+        $this->getJson('/api/transfers?status=all')
+            ->assertOk()->assertJsonPath('pagination.total', 12);
+
+        $this->getJson('/api/transfers?status=expired&include_expired=false')
+            ->assertOk()->assertJsonCount(1, 'transfers')
+            ->assertJsonPath('transfers.0.id', $expired->id)
+            ->assertJsonPath('pagination.total', 1);
+
+        $this->getJson('/api/transfers?page=3')
+            ->assertOk()->assertJsonCount(0, 'transfers')
+            ->assertJsonPath('pagination.current_page', 3)
+            ->assertJsonPath('pagination.last_page', 2);
+    }
+
+    public function test_invalid_page_and_status_are_rejected(): void
+    {
+        $this->authenticate($this->owner)->getJson('/api/transfers?page=0&status=unknown')
+            ->assertUnprocessable()->assertJsonPath('code', 'validation_error')
+            ->assertJsonValidationErrors(['page', 'status']);
     }
 }

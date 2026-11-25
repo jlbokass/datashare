@@ -80,8 +80,8 @@ final class DataShareOperationTransformer implements OperationTransformer
                 $parameter->schema->type->pattern('^[a-f0-9]{64}$');
             }
             if ($parameter->name === 'include_expired') {
-                $parameter->description = 'Default false: only non-expired transfers. True includes expired records awaiting purge. '
-                    .'Owner only, newest first (created_at then id), without pagination.';
+                $parameter->description = 'Legacy filter when status is omitted. Default false: active transfers only. '
+                    .'True includes expired records awaiting purge.';
             }
         }
 
