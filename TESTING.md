@@ -2,7 +2,7 @@
 
 [English](docs/en/TESTING.md) · [Documentation technique](docs/technical-documentation.fr.md) · [Suivi QL-02](https://github.com/jlbokass/datashare/issues/51)
 
-**Bilan du 22 novembre 2026.** Le plan de tests couvre les fonctionnalités obligatoires US01–US06 à trois niveaux : backend, frontend et parcours critiques de bout en bout (E2E). Les trois workflows GitHub Actions associés à la [PR #52](https://github.com/jlbokass/datashare/pull/52) ont réussi avant son intégration à `develop`.
+**Release de référence : 25 novembre 2026 ([PR #100](https://github.com/jlbokass/datashare/pull/100)).** Le plan de tests cible en priorité les US01–US06. La release inclut également des tests automatisés des extensions livrées ; les six tests E2E conservent leur périmètre MVP.
 
 ## 1. Périmètre et critères d'acceptation
 
@@ -20,6 +20,20 @@ Les cas détaillés de validation (formats, taille, expiration, JWT, contrôle d
 
 ## 2. Résultats et preuves
 
+### Release finale — 25 novembre 2026
+
+Référence : [PR #100](https://github.com/jlbokass/datashare/pull/100), commit [bec72e3](https://github.com/jlbokass/datashare/commit/bec72e39ff80a9c89df600aea6f060e905591b80) sur `main`. Résultats vérifiés dans les logs des trois workflows de cette release.
+
+| Contrôle | Résultat | Coverage des lignes | Preuve |
+| --- | --- | --- | --- |
+| Laravel / PHPUnit + Pint | 83 tests réussis, 576 assertions ; Pint réussi | **79,72 %** (456/572) | [CI backend](https://github.com/jlbokass/datashare/actions/runs/45548826977) · [Rapport](https://github.com/jlbokass/datashare/actions/runs/45548826977/artifacts/14992641842) |
+| Angular / Vitest + build | 65 tests réussis (8 fichiers) ; build réussi | **88,00 %** | [CI frontend](https://github.com/jlbokass/datashare/actions/runs/45548827002) · [Rapport](https://github.com/jlbokass/datashare/actions/runs/45548827002/artifacts/14993031980) |
+| Playwright / Chromium | 6 tests réussis (8,0 s) | Sans objet | [CI E2E](https://github.com/jlbokass/datashare/actions/runs/45548827035) · [Synthèse](https://github.com/jlbokass/datashare/actions/runs/45548827035/artifacts/14992712719) |
+
+L'objectif indicatif de 70 % est atteint séparément pour chaque application. Les artefacts de coverage expirent le **9 décembre 2026** et la synthèse E2E le **2 décembre 2026**. Télécharger ces rapports et joindre les captures de la release au dossier de soutenance ; ces captures ne sont pas versionnées.
+
+### Résultats historiques — 22 novembre 2026
+
 **Référence vérifiée :** commit `9810a88`, PR #52, GitHub Actions du **22/11/2026**.
 
 | Niveau | Résultat CI | Couverture des lignes | Preuve |
@@ -34,7 +48,7 @@ Le [compte rendu de recette locale du 22 novembre 2026](docs/ai-journal.fr.md) i
 
 Les rapports de couverture sont conservés pendant **14 jours** et la synthèse E2E pendant **7 jours** dans GitHub Actions. Les captures des rapports sont destinées au dossier de soutenance, conformément aux spécifications ; elles ne figurent pas dans ce dépôt.
 
-### Résultats de la version livrée — 24 novembre 2026
+### Release historique — 24 novembre 2026
 
 Référence : [97abebd](https://github.com/jlbokass/datashare/commit/97abebd7fc704821e0f8c5bbcedf7f7e0b58590b), branche `main`, livraison [PR #68](https://github.com/jlbokass/datashare/pull/68). Les mesures précédentes restent des résultats historiques datés.
 
@@ -94,12 +108,12 @@ Les résultats des validations fonctionnelles locales sont consignés dans les c
 
 Ces comptes rendus documentent les validations manuelles ; ils ne remplacent pas les rapports d'exécution automatisés. Les accès concurrents à PostgreSQL et les tests de charge avec des fichiers de 1 Go ne sont pas couverts par la suite actuelle.
 
-### Recette interactive Swagger UI
+### Recette historique Swagger UI (avant les extensions finales)
 
-Le 25 novembre 2026, les 17 contrôles de la [recette QA-API #76](https://github.com/jlbokass/datashare/issues/76) ont été déclarés réussis par le développeur : Authentication (4), Transfers (7), Public sharing (4) et System (2). Les dix opérations documentées ont été exercées, notamment le multipart simple et multiple et les téléchargements publics sans JWT. Cette recette locale complète les tests automatisés ; elle ne constitue ni une nouvelle mesure de couverture ni un audit exhaustif de conformité OpenAPI.
+Le 25 novembre 2026, les 17 contrôles de la [recette QA-API #76](https://github.com/jlbokass/datashare/issues/76) ont été déclarés réussis par le développeur : Authentication (4), Transfers (7), Public sharing (4) et System (2). Les dix opérations documentées à cette étape ont été exercées, notamment le multipart simple et multiple et les téléchargements publics sans JWT. Cette recette locale complète les tests automatisés ; elle ne constitue ni une nouvelle mesure de couverture ni un audit exhaustif de conformité OpenAPI.
 
 ### Analyse SonarQube Cloud (facultative, #85)
 
 L'analyse distincte [SonarQube Cloud](.github/workflows/sonarqube-cloud.yml) cible `main` et réutilise les artefacts Clover/LCOV des deux CI réussies sur le même commit, sans relancer les tests. Elle se déclenche après leur achèvement (ou manuellement sur `main` lorsque les artefacts sont disponibles). Les sources analysées sont `backend/app` et `frontend/src`, tests distingués des sources ; les chemins des rapports sont normalisés à la racine du dépôt.
 
-Configuration initiale : importer le dépôt public dans SonarQube Cloud (région EU), désactiver l'analyse automatique au profit de GitHub Actions, puis renseigner les variables GitHub Actions `SONAR_ORGANIZATION`, `SONAR_PROJECT_KEY` et le secret `SONAR_TOKEN` (jamais dans Git). Le Quality Gate est informatif ; aucun contrôle obligatoire existant ni protection PostgreSQL ne change. La couverture Sonar peut différer des rapports de lignes PHP/Angular en raison des méthodes de calcul et du périmètre. Première analyse, import des rapports et badges dynamiques à confirmer après publication du workflow sur `main`.
+Configuration initiale : importer le dépôt public dans SonarQube Cloud (région EU), désactiver l'analyse automatique au profit de GitHub Actions, puis renseigner les variables GitHub Actions `SONAR_ORGANIZATION`, `SONAR_PROJECT_KEY` et le secret `SONAR_TOKEN` (jamais dans Git). Le Quality Gate est informatif ; aucun contrôle obligatoire existant ni protection PostgreSQL ne change. La couverture Sonar peut différer des rapports de lignes PHP/Angular en raison des méthodes de calcul et du périmètre. Le [workflow SonarQube Cloud](https://github.com/jlbokass/datashare/actions/runs/45548892246) a réussi pour le commit de release final. Le succès du workflow ne prouve pas à lui seul un Quality Gate réussi ; les badges restent dynamiques.

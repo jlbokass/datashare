@@ -1,8 +1,22 @@
 # QL-01 — Mesures de couverture et limites
 
-[English](coverage.md) · [Issue #49](https://github.com/jlbokass/datashare/issues/49) · [Tests](https://github.com/jlbokass/datashare/blob/develop/TESTING.md)
+[English](coverage.md) · [Issue #49](https://github.com/jlbokass/datashare/issues/49) · [Tests](https://github.com/jlbokass/datashare/blob/main/TESTING.md)
 
-## Mesures de couverture vérifiées — 19 novembre 2026
+## Mesures de référence — release du 25 novembre 2026
+
+Référence : [PR #100](https://github.com/jlbokass/datashare/pull/100), commit [bec72e3](https://github.com/jlbokass/datashare/commit/bec72e39ff80a9c89df600aea6f060e905591b80) sur `main`. Résultats vérifiés dans les logs des trois workflows de cette release.
+
+| Contrôle | Résultat | Coverage des lignes | Preuve |
+| --- | --- | --- | --- |
+| Laravel / PHPUnit + Pint | 83 tests réussis, 576 assertions ; Pint réussi | **79,72 %** (456/572) | [CI backend](https://github.com/jlbokass/datashare/actions/runs/45548826977) · [Rapport](https://github.com/jlbokass/datashare/actions/runs/45548826977/artifacts/14992641842) |
+| Angular / Vitest + build | 65 tests réussis (8 fichiers) ; build réussi | **88,00 %** | [CI frontend](https://github.com/jlbokass/datashare/actions/runs/45548827002) · [Rapport](https://github.com/jlbokass/datashare/actions/runs/45548827002/artifacts/14993031980) |
+| Playwright / Chromium | 6 tests réussis (8,0 s) | Sans objet | [CI E2E](https://github.com/jlbokass/datashare/actions/runs/45548827035) · [Synthèse](https://github.com/jlbokass/datashare/actions/runs/45548827035/artifacts/14992712719) |
+
+L'objectif indicatif de 70 % est atteint séparément pour chaque application. Les artefacts de coverage expirent le **9 décembre 2026** et la synthèse E2E le **2 décembre 2026**. Télécharger ces rapports et joindre les captures de la release au dossier de soutenance ; ces captures ne sont pas versionnées.
+
+Angular V8 : 87,15 % des instructions, 78,87 % des branches, 89,07 % des fonctions. Laravel PCOV mesure 572 lignes exécutables contre 330 le 24 novembre. L'évolution du périmètre de code mesuré doit être prise en compte dans l'interprétation de la baisse du pourcentage. Aucun taux global n'est calculé.
+
+## Mesures historiques — 19 novembre 2026
 
 Mesure à **03:47 UTC**, commit de base
 `0f5e6990357e4c268e2af2df02ab4812e91a34e7` plus configuration QL-01 non commitée.
@@ -23,7 +37,7 @@ exécutables. Xdebug était déjà installé : aucune extension/configuration sy
 n'a été modifiée. La CI sélectionne explicitement PCOV ; son résultat doit être
 consigné séparément, sans être déduit de cette mesure Xdebug.
 
-## Mesures de la livraison du 24 novembre 2026
+## Mesures historiques de la release du 24 novembre 2026
 
 Le commit [97abebd](https://github.com/jlbokass/datashare/commit/97abebd7fc704821e0f8c5bbcedf7f7e0b58590b) sur `main` a fait l'objet d'une nouvelle exécution des trois workflows. Le résultat Laravel reste **96,36 %** (318/330 lignes ; 52 tests, 364 assertions), et Angular atteint **85,97 %** des lignes (52 tests, 7 fichiers ; 86,52 % des instructions, 80,23 % des branches, 87,2 % des fonctions). Les 6 tests E2E ont réussi en 7,7 s.
 
@@ -104,16 +118,9 @@ Les deux jobs GitHub Actions de [PR #50](https://github.com/jlbokass/datashare/p
 
 L'analyse Angular comprend `src/main.ts`, `src/app/app.routes.ts` et `src/app/auth/auth.guard.ts` : ces trois fichiers étaient à **0 % de lignes** lors de cette mesure du 19 novembre. Aucune fusion de pourcentages backend/frontend n'est effectuée. Les restrictions du sandbox mentionnées ci-dessus restent des faits historiques, **pas l'état de validation actuel**.
 
-## Suites prioritaires, hors de ce changement
+## Limites et preuves de release
 
-1. Conserver les liens de preuve CI pour le dossier OC et régénérer les artefacts avant leur expiration. Les rapports sont disponibles jusqu'au 3 décembre 2026.
-2. Backend : erreurs/nettoyage d'upload dans `CreateTransferController`, lignes
-   103, 122, 124–125, 128, 130–133 (9 lignes). Ajouter des tests d'échec ciblés dans
-   un lot séparé, sans modifier la logique métier pour augmenter le score.
-3. Garde de configuration JWT (`JwtService:21`) et deux méthodes de relation inutilisées
-   (`Transfer:23`, `TransferFile:17`) : les 3 autres lignes non couvertes. Privilégier
-   les cas sécurité/erreur utiles plutôt que tester des getters pour un pourcentage.
-4. Côté Angular, prioriser les tests de garde et de routage et les chemins d'erreur de l'accueil. E2E, contention PostgreSQL, audits sécurité/performance et UI-01 restent des lots distincts.
+Les mesures finales atteignent l'objectif indicatif. Conserver les artefacts et captures de la release du 25 novembre avant expiration. Des tests complémentaires pourront être envisagés lors d'un futur cycle de maintenance en fonction des risques, et non pour augmenter le pourcentage seul ; aucun chantier de coverage supplémentaire n'est prévu avant la soutenance. Les mesures et observations de sandbox antérieures restent historiques.
 
 Références : [couverture PHPUnit](https://docs.phpunit.de/en/12.5/code-coverage.html),
 [couverture Angular](https://angular.dev/guide/testing/code-coverage),

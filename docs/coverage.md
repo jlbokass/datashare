@@ -2,7 +2,21 @@
 
 [Français](coverage.fr.md) · [Issue #49](https://github.com/jlbokass/datashare/issues/49) · [Testing](en/TESTING.md)
 
-## Verified coverage measurements — 19 November 2026
+## Final release measurements — 25 November 2026
+
+Reference: [PR #100](https://github.com/jlbokass/datashare/pull/100), commit [bec72e3](https://github.com/jlbokass/datashare/commit/bec72e39ff80a9c89df600aea6f060e905591b80) on `main`. Results verified in the logs of all three release workflows.
+
+| Check | Result | Line coverage | Evidence |
+| --- | --- | --- | --- |
+| Laravel / PHPUnit + Pint | 83 tests passed, 576 assertions; Pint passed | **79.72%** (456/572) | [Backend CI](https://github.com/jlbokass/datashare/actions/runs/45548826977) · [Report](https://github.com/jlbokass/datashare/actions/runs/45548826977/artifacts/14992641842) |
+| Angular / Vitest + build | 65 tests passed (8 files); build passed | **88.00%** | [Frontend CI](https://github.com/jlbokass/datashare/actions/runs/45548827002) · [Report](https://github.com/jlbokass/datashare/actions/runs/45548827002/artifacts/14993031980) |
+| Playwright / Chromium | 6 tests passed (8.0 s) | Not applicable | [E2E CI](https://github.com/jlbokass/datashare/actions/runs/45548827035) · [Summary](https://github.com/jlbokass/datashare/actions/runs/45548827035/artifacts/14992712719) |
+
+The indicative 70% target is met separately for both applications. Coverage artifacts expire on **9 December 2026** and the E2E summary on **2 December 2026**. Download these reports and include release-specific screenshots in the assessment submission; screenshots are not versioned here.
+
+Angular V8: 87.15% statements, 78.87% branches, 89.07% functions. Laravel PCOV measures 572 executable lines, compared with 330 on 24 November. The expanded measured codebase must be considered when interpreting the lower percentage. No combined coverage is calculated.
+
+## Historical measurements — 19 November 2026
 
 Measured at **03:47 UTC**, base commit
 `0f5e6990357e4c268e2af2df02ab4812e91a34e7` plus uncommitted QL-01 configuration.
@@ -23,7 +37,7 @@ Xdebug was already installed locally, so no system extension/configuration was
 changed. CI explicitly selects PCOV; its result must be recorded separately and
 must not be inferred from this Xdebug measurement.
 
-## Released version measurements — 24 November 2026
+## Historical release measurements — 24 November 2026
 
 Commit [97abebd](https://github.com/jlbokass/datashare/commit/97abebd7fc704821e0f8c5bbcedf7f7e0b58590b) on `main` was checked by all three workflows. Laravel remains at **96.36%** (318/330 lines; 52 tests, 364 assertions), and Angular reaches **85.97%** line coverage (52 tests, 7 files; 86.52% statements, 80.23% branches, 87.2% functions). All 6 E2E tests passed in 7.7 s.
 
@@ -103,16 +117,9 @@ Both GitHub Actions jobs for [PR #50](https://github.com/jlbokass/datashare/pull
 
 Angular coverage includes `src/main.ts`, `src/app/app.routes.ts` and `src/app/auth/auth.guard.ts`, each at **0% line coverage** in this 19 November measurement. No combined backend/frontend metric is calculated. Earlier sandbox errors above are historical facts, **not the latest acceptance status**.
 
-## Follow-up priorities, without expanding this change
+## Limits and release evidence
 
-1. Preserve CI evidence links for OpenClassrooms and regenerate artifacts before their expiration on 3 December 2026.
-2. Backend uncovered upload error/cleanup handling: `CreateTransferController`
-   lines 103, 122, 124–125, 128, 130–133 (9 lines). Add targeted failure-path tests
-   in a separate change; do not modify application logic to raise coverage.
-3. JWT configuration guard (`JwtService:21`) and two unused relation methods
-   (`Transfer:23`, `TransferFile:17`) account for the other 3 uncovered lines.
-   Prioritize meaningful security/error-path tests over testing getters for a score.
-4. Frontend follow-up: prioritize routing/guard tests and home-page failure paths. E2E, PostgreSQL contention, security/performance audits and UI-01 remain separate.
+The final measurements meet the indicative target. Preserve the artifacts and screenshots of the 25 November release before expiry. Additional tests may be considered in a future maintenance cycle based on risk, not to increase the percentage alone; no further coverage work is planned before the assessment. Earlier measurements and sandbox observations remain historical.
 
 References: [PHPUnit coverage](https://docs.phpunit.de/en/12.5/code-coverage.html),
 [Angular coverage](https://angular.dev/guide/testing/code-coverage),
