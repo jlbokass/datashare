@@ -9,10 +9,6 @@ lang: fr
 
 [English](ai-journal.md) · [Accueil de la documentation](index.md)
 
-Ce journal reprend les six champs du modèle OpenClassrooms communiqué le 24 novembre 2026. Les prompts sont résumés à partir des échanges et du journal initial ; les entrées antérieures sont rétrospectives et ne sont pas des citations exactes. Les décisions « Gardé » ou « Modifié » qualifient la contribution, non une validation exhaustive. Lorsque l'outil d'exécution n'est pas identifiable, il est indiqué comme non précisé. PHPUnit, Playwright, Composer et Lighthouse sont des outils de contrôle, pas des outils IA.
-
-Les validations fonctionnelles rapportées sont distinguées des preuves automatisées et des contrôles non attestés. Les versions et observations antérieures restent conservées dans l'historique Git.
-
 **Posture :** j'utilise l'IA comme assistant de développement dans une démarche de délégation supervisée. Je cadre les tâches, arbitre les choix, demande les corrections et valide les livrables. L'IA a contribué à la conception, à l'implémentation de plusieurs US, aux tests et à la documentation ; ses contributions sont tracées ci-dessous.
 
 **Mise à jour : 25 novembre 2026.** Les validations sont rattachées aux PR et issues correspondantes ; les résultats des étapes historiques restent distincts de ceux de la release finale.

@@ -9,10 +9,6 @@ lang: en
 
 [Français](ai-journal.fr.md) · [Documentation home](en/index.md)
 
-This journal follows the six fields of the OpenClassrooms template supplied on 24 November 2026. Prompts are summarized from discussions and the initial journal; earlier entries are retrospective, not verbatim quotations. “Kept” or “Modified” describes the contribution, not exhaustive validation. Where the execution tool cannot be identified, it is marked unspecified. PHPUnit, Playwright, Composer and Lighthouse are verification tools, not AI tools.
-
-Reported functional acceptance is distinguished from automated evidence and unverified checks. Earlier versions and observations remain preserved in Git history.
-
 **Working posture:** I use AI as a development assistant through supervised delegation. I scope tasks, make decisions, request corrections and accept deliverables. AI contributed to design, implementation of multiple user stories, tests and documentation; its contributions are recorded below.
 
 **Updated: 25 November 2026.** Acceptance is linked to the corresponding PRs and issues; historical milestone results remain distinct from the final release.
