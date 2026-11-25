@@ -63,41 +63,9 @@ PROFILE-01 met en œuvre `nom` / `prenom` via `users.name` (colonne nullable exi
 | **US10 — Expiration automatique** | Précise la planification de purge ; l'expiration et la suppression automatique sont déjà obligatoires dans US01. | Purge implémentée sous US01 ; pas de lot distinct |
 | **Statistiques de téléchargement (proposition)** | Classe TÉLÉCHARGEMENT facultative, pour compter les téléchargements et les octets transférés. Aucune US obligatoire ne l'impose. | Non implémentées |
 
-Un événement représente un **téléchargement réellement effectué**, et non la simple ouverture d'une page de partage. `totalOctetsTelecharges` et `nbFichiers` mesurent ce qui a **réellement été transféré durant cet événement**, pas la taille initiale de tout le partage.
+## 4. Statistiques de download — proposition non implémentée
 
-## 4. Statistiques facultatives après suppression — proposition historique
-
-**Proposition non implémentée :** conserver des statistiques anonymes d'activité et de volumétrie, tout en supprimant les transferts expirés, leurs fichiers et leurs métadonnées opérationnelles.
-
-1. **Avant suppression :** chaque TÉLÉCHARGEMENT est associé à **un TRANSFERT existant**. Une éventuelle implémentation devrait contrôler cette règle à la création.
-2. **Après suppression :** l'événement subsiste, mais l'association au TRANSFERT supprimé disparaît. La multiplicité UML historique est donc **0..1**.
-3. **Mesures conservées :** total d'octets téléchargés, nombre de fichiers effectivement téléchargés et période adaptée aux statistiques (jour/mois), à condition que ces données ne permettent pas d'identifier une personne.
-4. **Données personnelles :** ne pas conserver dans l'historique statistique après purge les identifiants utilisateur, noms de fichiers, tokens de partage, IP brutes ou hachées, ni user-agents. Supprimer aussi les attributs indirectement identifiants ; regrouper ou réduire la précision des dates si nécessaire. **Hacher une IP relève généralement de la pseudonymisation, pas automatiquement de l'anonymisation.**
-5. **Durée :** avant tout développement, définir la finalité et la durée de conservation. Si l'anonymisation véritable ne peut pas être démontrée, les données restent soumises au RGPD et doivent être conservées pour une durée limitée.
-
-Une clé étrangère mise à `NULL` garantit **l'intégrité référentielle**, pas la conformité RGPD. Même une ligne contenant seulement une date précise et un volume d'octets peut parfois être rattachée indirectement à quelqu'un ; des **agrégats quotidiens ou mensuels** seront préférables pour des statistiques de longue durée.
-
-Références : [CNIL — Identifier les données personnelles](https://www.cnil.fr/fr/identifier-les-donnees-personnelles) et [CNIL — Les durées de conservation](https://www.cnil.fr/fr/passer-laction/les-durees-de-conservation-des-donnees).
-
-### Traduction PostgreSQL ultérieure (exemple uniquement)
-
-Le MCD ne contient **aucune clé étrangère SQL**. Lors d'une éventuelle implémentation du suivi, une colonne nullable et `ON DELETE SET NULL` pourront préserver les événements après disparition du TRANSFERT :
-
-```sql
--- Futur modèle physique uniquement : ne pas exécuter pendant DESIGN-02.
-ALTER TABLE telechargements
-    ALTER COLUMN transfert_id DROP NOT NULL;
-
-ALTER TABLE telechargements
-    DROP CONSTRAINT IF EXISTS telechargements_transfert_id_fkey;
-
-ALTER TABLE telechargements
-    ADD CONSTRAINT telechargements_transfert_id_fkey
-    FOREIGN KEY (transfert_id) REFERENCES transferts(id)
-    ON DELETE SET NULL;
-```
-
-Les noms des tables et colonnes ci-dessus sont illustratifs. **Ces instructions SQL n'anonymisent pas, à elles seules, le contenu des lignes conservées.**
+Dans le modèle historique, un événement aurait été lié à un transfert à sa création, puis conservé après suppression via une FK nullable (`ON DELETE SET NULL`). Cette intégrité référentielle ne garantirait pas l'anonymisation ; une éventuelle évolution devrait définir des agrégats et une politique de conservation. Aucune table de statistiques n'existe dans la release.
 
 ## 5. Modèle physique et arbitrage sur la purge
 

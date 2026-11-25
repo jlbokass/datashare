@@ -50,4 +50,4 @@ All three CI workflows and [GitHub Pages publication](https://github.com/jlbokas
 
 The workflow uses a dedicated branch, reviewed PR into `develop`, then a separate release PR into `main`. French reference documents remain at the repository root; the five English translations are grouped in `docs/en/`. The published site follows `main/docs`.
 
-For assessment: include release-specific coverage screenshots and finalize the presentation. Six manual keyboard checks passed on 24 November ([record](../design-handoff.md)); this is not a comprehensive accessibility audit. Real PostgreSQL concurrency and production performance have not been demonstrated.
+Six manual keyboard checks passed on 24 November ([record](../design-handoff.md)); this is not a comprehensive accessibility audit. Real PostgreSQL concurrency and production performance have not been demonstrated.

@@ -111,17 +111,17 @@ Le line coverage dépasse séparément l'objectif indicatif de 70 %. Les capture
 
 **Cycle de travail :** issue ciblée → branche dédiée (`feat/`, `fix/`, `quality/` ou `docs/`) → commits → PR vers `develop` → CI et revue humaine → fusion. Une livraison vers `main` protégée passe par une PR distincte. Le [journal IA](ai-journal.fr.md) sépare les contributions de l'IA des décisions et validations du développeur.
 
-**Conventions effectivement observables :**
+**Conventions techniques :**
 
 - **PHP/Laravel :** chargement PSR-4 (`App\` vers `backend/app/`), contrôleurs API, modèles Eloquent, services et validation côté serveur ; mise en forme vérifiée par **Laravel Pint** ; tests **PHPUnit** dans `backend/tests/`.
 - **Angular/TypeScript :** composants et templates par écran, routes centralisées, garde d'authentification, tests `*.spec.ts` proches du code ; `.editorconfig` frontend : **2 espaces** et **guillemets simples** en TypeScript. Tests Angular via **Vitest**.
 - **E2E :** **Playwright/Chromium** sur `compose.test.yaml`, avec PostgreSQL et stockage isolés. La CI GitHub Actions lance les contrôles backend, frontend et E2E sur PR/push vers `develop` ou `main`.
 
-**Langue de suivi :** pour les prochains lots, rédiger les issues et descriptions de PR en **français**, tout en conservant les termes techniques usuels et les documents de référence **FR/EN**. Les anciennes issues bilingues restent inchangées.
+**Langue :** suivi en français, vocabulaire technique anglais et documentation bilingue FR/EN.
 
-**Conventions de commits :** de nombreux messages suivent déjà `type(scope): description` (`feat`, `fix`, `test`, `docs`, `ci`). Certains commits anciens ou de fusion sont moins homogènes : **l'historique n'est pas réécrit**. Pour la suite, retenir ce format, un changement cohérent par commit et une PR par lot.
+**Commits :** convention `type(scope): description` (`feat`, `fix`, `test`, `docs`, `ci`), un changement cohérent par commit et une PR par lot. Les commits antérieurs et de merge restent moins homogènes.
 
-**Progression attestée :** [conception/API — PR #16](https://github.com/jlbokass/datashare/pull/16) → [US06 — PR #46](https://github.com/jlbokass/datashare/pull/46) → [couverture — PR #50](https://github.com/jlbokass/datashare/pull/50) → [E2E — PR #52](https://github.com/jlbokass/datashare/pull/52) → [sécurité/performance — PR #54](https://github.com/jlbokass/datashare/pull/54) et [#56](https://github.com/jlbokass/datashare/pull/56) → [UI — PR #58](https://github.com/jlbokass/datashare/pull/58). Les [commits](https://github.com/jlbokass/datashare/commits/develop/) et PR montrent les étapes et corrections ; ils ne prouvent pas une cadence calendaire uniforme.
+**Traçabilité :** [issues](https://github.com/jlbokass/datashare/issues), [commits](https://github.com/jlbokass/datashare/commits/develop/) et [Pull Requests](https://github.com/jlbokass/datashare/pulls?q=is%3Apr), de la conception à la [release #100](https://github.com/jlbokass/datashare/pull/100).
 
 ## 7. Installation et exécution
 

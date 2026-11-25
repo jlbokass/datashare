@@ -115,7 +115,7 @@ scripts/      Quality-check commands
 
 The workflow is **work branch → PR into `develop` → review/CI → release PR into protected `main`**. [Issues](https://github.com/jlbokass/datashare/issues), [pull requests](https://github.com/jlbokass/datashare/pulls?q=is%3Apr) and [`develop` commits](https://github.com/jlbokass/datashare/commits/develop/) trace design work, user stories, quality batches and UI refinement.
 
-For future commits, use **`type(scope): action`** (for example `feat(upload): ...`, `fix(auth): ...`, `test(e2e): ...`, `docs: ...`). Earlier commit messages are not entirely consistent; the existing history is preserved.
+Commit convention: **`type(scope): action`** (`feat(upload)`, `fix(auth)`, `test(e2e)`, `docs`).
 
 ## Documentation and limitations
 

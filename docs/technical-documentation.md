@@ -111,17 +111,17 @@ Line coverage exceeds the indicative 70% target independently. Screenshots shoul
 
 **Workflow:** scoped issue → dedicated branch (`feat/`, `fix/`, `quality/` or `docs/`) → commits → PR into `develop` → CI and human review → merge. Releasing to protected `main` requires a separate PR. The [AI journal](ai-journal.md) distinguishes AI contributions from developer decisions and validation.
 
-**Conventions visible in the repository:**
+**Technical conventions:**
 
 - **PHP/Laravel:** PSR-4 autoloading (`App\` to `backend/app/`), API controllers, Eloquent models, services and server-side validation; formatting checked with **Laravel Pint**; **PHPUnit** tests under `backend/tests/`.
 - **Angular/TypeScript:** page components and templates, centralized routes, authentication guard, colocated `*.spec.ts` tests; frontend `.editorconfig` uses **2-space indentation** and **single quotes** in TypeScript. Angular tests run with **Vitest**.
 - **E2E:** **Playwright/Chromium** against `compose.test.yaml` with isolated PostgreSQL and file storage. GitHub Actions runs backend, frontend and E2E checks on PRs/pushes targeting `develop` or `main`.
 
-**Tracking language:** write new issues and PR descriptions in **French**, keeping standard technical terms and the **FR/EN** reference documentation. Existing bilingual issues remain unchanged.
+**Language:** French project tracking, standard English technical terminology and bilingual FR/EN documentation.
 
-**Commit convention:** many messages already follow `type(scope): description` (`feat`, `fix`, `test`, `docs`, `ci`). Some earlier and merge commits are less consistent; **the history is not rewritten**. Going forward, prefer this format, one coherent change per commit and one PR per batch.
+**Commits:** `type(scope): description` convention (`feat`, `fix`, `test`, `docs`, `ci`), one coherent change per commit and one PR per batch. Earlier and merge commits are less consistent.
 
-**Evidence of progression:** [API design — PR #16](https://github.com/jlbokass/datashare/pull/16) → [US06 — PR #46](https://github.com/jlbokass/datashare/pull/46) → [coverage — PR #50](https://github.com/jlbokass/datashare/pull/50) → [E2E — PR #52](https://github.com/jlbokass/datashare/pull/52) → [security/performance — PR #54](https://github.com/jlbokass/datashare/pull/54) and [#56](https://github.com/jlbokass/datashare/pull/56) → [UI — PR #58](https://github.com/jlbokass/datashare/pull/58). [Commits](https://github.com/jlbokass/datashare/commits/develop/) and PRs show milestones and corrections; they do not prove a uniform calendar cadence.
+**Traceability:** [issues](https://github.com/jlbokass/datashare/issues), [commits](https://github.com/jlbokass/datashare/commits/develop/) and [pull requests](https://github.com/jlbokass/datashare/pulls?q=is%3Apr), from design to [release #100](https://github.com/jlbokass/datashare/pull/100).
 
 ## 7. Installation and execution
 

@@ -22,8 +22,8 @@
 
 DataShare permet de téléverser des fichiers privés et de les partager temporairement au moyen d'un lien public. Le **produit minimum viable (MVP)** couvre les six fonctionnalités obligatoires (US01–US06) :
 
-- téléversement de fichiers après authentification, envoi de plusieurs fichiers et gestion de leur expiration ;
-- lien public et téléchargement sans compte ;
+- upload de fichiers après authentification, envoi de plusieurs fichiers et gestion de leur expiration ;
+- lien public et download sans compte ;
 - création de compte et authentification par JWT ;
 - historique personnel et suppression individuelle des fichiers.
 
@@ -31,7 +31,7 @@ DataShare permet de téléverser des fichiers privés et de les partager tempora
 
 Les trois workflows ont réussi : [backend](https://github.com/jlbokass/datashare/actions/runs/45548826977) (83 tests, 79,72 % de coverage des lignes), [frontend](https://github.com/jlbokass/datashare/actions/runs/45548827002) (65 tests, 88,00 %) et [E2E](https://github.com/jlbokass/datashare/actions/runs/45548827035) (6 tests). Voir [TESTING.md](TESTING.md).
 
-**Environnement technique :** Angular 22, Laravel 13 / PHP, PostgreSQL 18, Nginx, Docker Compose et GitHub Actions.
+**Stack technique :** Angular 22, Laravel 13 / PHP, PostgreSQL 18, Nginx, Docker Compose et GitHub Actions.
 
 ## Démarrer en local
 
@@ -107,8 +107,7 @@ scripts/      Commandes de contrôle qualité
 ## Organisation du développement et traçabilité
 
 Le développement suit le processus suivant : **branche de travail → pull request (PR) vers `develop` → revue et intégration continue (CI) → PR de livraison vers `main`**, branche protégée. Les [issues](https://github.com/jlbokass/datashare/issues), [pull requests](https://github.com/jlbokass/datashare/pulls?q=is%3Apr) et [commits de `develop`](https://github.com/jlbokass/datashare/commits/develop/) assurent la traçabilité de la conception, des fonctionnalités et des travaux de validation.
-
-La convention de nommage des nouveaux commits est **`type(scope): action`** (par exemple `feat(upload): ...`, `fix(auth): ...`, `test(e2e): ...`, `docs: ...`). Les messages des commits antérieurs sont conservés sans réécriture de l'historique.
+Convention de commits : **`type(scope): action`** (`feat(upload)`, `fix(auth)`, `test(e2e)`, `docs`).
 
 ## Documentation et limites
 
