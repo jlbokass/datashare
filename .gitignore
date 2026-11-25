@@ -17,6 +17,7 @@
 **/.angular/
 **/dist/
 **/coverage/
+/.scannerwork/
 **/.nyc_output/
 **/test-results/
 **/playwright-report/
