@@ -576,7 +576,6 @@
                   "    pm.execution.skipRequest();",
                   "}",
                   "const transferId = pm.environment.get(\"transferId\");",
-                  "const transferId = pm.environment.get(\"transferId\");",
                   "const fileId = pm.environment.get(\"fileId\");",
                   "if (!transferId || !fileId ||",
                   "    pm.variables.get(\"transferId\") !== transferId ||",
