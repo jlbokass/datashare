@@ -25,16 +25,20 @@ services:
       GARAGE_DEFAULT_ACCESS_KEY: ${GARAGE_DEFAULT_ACCESS_KEY:?Run make garage-init}
       GARAGE_DEFAULT_SECRET_KEY: ${GARAGE_DEFAULT_SECRET_KEY:?Run make garage-init}
       TRANSFER_DEMO_5_MIN_ENABLED: 'true'
+    # PHP-FPM workers use www-data (UID/GID 33 in the Debian PHP image).
+    # Keep the isolated Laravel package/config cache writable without sharing it.
     tmpfs:
-      - /workspace/backend/bootstrap/cache
+      - /workspace/backend/bootstrap/cache:uid=33,gid=33,mode=0770
     depends_on:
       garage:
         condition: service_healthy
 
   scheduler:
     environment: *garage_app_environment
+    # PHP-FPM workers use www-data (UID/GID 33 in the Debian PHP image).
+    # Keep the isolated Laravel package/config cache writable without sharing it.
     tmpfs:
-      - /workspace/backend/bootstrap/cache
+      - /workspace/backend/bootstrap/cache:uid=33,gid=33,mode=0770
     depends_on:
       garage:
         condition: service_healthy
