@@ -7,7 +7,7 @@ lang: en
 
 # DataShare — Maintenance procedures (OC P3)
 
-[Français](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md) · [Technical documentation](../technical-documentation.md)
+[Français](https://github.com/jlbokass/datashare/blob/main/MAINTENANCE.md) · [Technical documentation](../technical-documentation.md)
 
 **Status: development-environment procedure; production operations, backup testing and deployment automation remain unverified.**
 

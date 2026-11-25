@@ -7,7 +7,7 @@ lang: fr
 
 # DataShare — Modèle conceptuel de données (UML)
 
-**Statut :** modèle conceptuel validé dans [DESIGN-02](https://github.com/jlbokass/datashare/issues/2). Les trois classes obligatoires sont mises en œuvre ; le diagramme ne décrit pas le schéma physique ni des extensions déjà développées.
+**Statut :** modèle UML issu de DESIGN-02, actualisé pour la release du 25 novembre 2026 ([PR #100](https://github.com/jlbokass/datashare/pull/100)). Les classes obligatoires et les tags US08 sont implémentés ; PROFILE-01 et US09 complètent les attributs. Les propositions non retenues sont identifiées comme historiques, sans les confondre avec le schéma physique.
 
 **Source :** OpenClassrooms, *DataShare – Spécifications fonctionnelles*, US01 à US10. Les **US01 à US06** constituent le MVP obligatoire ; US07 à US10 sont optionnelles. Le modèle de documentation fourni autorise UML ou Merise.
 
@@ -19,17 +19,17 @@ lang: fr
 
 ![DataShare — classes UML du MVP et extensions optionnelles](diagrams/data-model.svg)
 
-**Convention visuelle :** les classes pleines bleues/vertes/dorées représentent le **MVP obligatoire**. Les classes et associations bordeaux en pointillés représentent les **extensions facultatives**. Tout est présenté dans **un seul diagramme et un seul onglet draw.io**.
+**Convention visuelle :** les classes pleines bleues/vertes/dorées représentent le MVP obligatoire ; les classes et associations bordeaux en pointillés représentent les extensions facultatives, dont le statut est indiqué (US08 livrée ; événements de téléchargement non implémentés). Un seul diagramme et un seul onglet Draw.io.
 
 ### Classes métier obligatoires
 
 | Classe | Attributs conceptuels | Origine |
 | --- | --- | --- |
-| **UTILISATEUR** | `idUtilisateur`, `email` unique, `motDePasseHash`, `dateCreation` | US03, US04 |
+| **UTILISATEUR** | `idUtilisateur` (clé interne BIGINT), `public_id` (UUID public), `email` unique, `motDePasseHash`, `dateCreation` | US03, US04 |
 | **TRANSFERT** | `idTransfert`, `tokenPartage` unique et non prédictible, `dateCreation`, `dateExpiration`, `/statut` calculé | US01, US02, US05 |
-| **FICHIER** | `idFichier`, `nomOriginal`, `tailleOctets`, `typeMime`, `dateEnvoi` | US01, US02, US05, US06 |
+| **FICHIER** | `idFichier`, `nomOriginal`, `tailleOctets`, `typeMime`, `dateEnvoi`, `storage_path` | US01, US02, US05, US06 |
 
-`nom` / `prenom` (UTILISATEUR) et `titre` / `message` (TRANSFERT) sont des **choix facultatifs de conception**, non exigés par les US du MVP. PROFILE-01 met en œuvre les deux premiers via `users.name` (colonne nullable préexistante, valeurs conservées) et `users.first_name` (nouvelle colonne nullable). Le préfixe UML `/statut` désigne un **attribut dérivé**, calculé à partir de l'expiration, pas un statut à enregistrer obligatoirement.
+PROFILE-01 met en œuvre `nom` / `prenom` via `users.name` (colonne nullable existante) et `users.first_name` (colonne nullable ajoutée). `titre` et `message` restent des propositions non implémentées. Le préfixe UML `/statut` désigne un attribut dérivé de l'expiration, non persisté. L'API expose `users.public_id` (UUID) et non la clé interne `users.id` (BIGINT). Les clés de `transfers` et `transfer_files` sont des UUID ; `tags.id` est un BIGINT interne.
 
 ### Associations et multiplicités UML
 
@@ -37,8 +37,8 @@ lang: fr
 | --- | --- | --- | --- |
 | UTILISATEUR — crée — TRANSFERT | UTILISATEUR **1** | TRANSFERT **0..*** | Un transfert appartient à un utilisateur ; un utilisateur peut n'avoir aucun transfert ou en créer plusieurs. |
 | TRANSFERT — contient — FICHIER | TRANSFERT **1** | FICHIER **1..*** | Chaque fichier appartient à un transfert ; un transfert contient un ou plusieurs fichiers. Composition avec losange plein côté TRANSFERT. |
-| **Optionnelle** TRANSFERT — concerne/trace — TÉLÉCHARGEMENT | TRANSFERT **0..1** | TÉLÉCHARGEMENT **0..*** | Un événement concerne un transfert à sa création. **Après suppression du transfert**, il peut n'être lié à **aucun** transfert encore présent ; un transfert possède zéro à plusieurs événements. |
-| **Optionnelle** FICHIER — étiqueter — TAG | FICHIER **1** | TAG **0..*** | Un fichier peut recevoir plusieurs tags ; une occurrence de tag est associée à un fichier. Pas de doublon de libellé sur ce fichier (US08). |
+| **Historique — non implémentée** TRANSFERT — concerne/trace — TÉLÉCHARGEMENT | TRANSFERT **0..1** | TÉLÉCHARGEMENT **0..*** | Un événement concerne un transfert à sa création. **Après suppression du transfert**, il peut n'être lié à **aucun** transfert encore présent ; un transfert possède zéro à plusieurs événements. |
+| **Facultative — livrée** FICHIER — étiqueter — TAG | FICHIER **1** | TAG **0..*** | Un fichier peut recevoir plusieurs tags ; une occurrence de tag est associée à un fichier. Pas de doublon de libellé sur ce fichier (US08). |
 
 **Rappel UML :** la multiplicité placée près d'une classe indique combien de ses instances peuvent être liées à une instance de l'autre classe. Pour la relation historique, le **0..1 est donc près de TRANSFERT** et le **0..* près de TÉLÉCHARGEMENT**.
 
@@ -55,49 +55,17 @@ lang: fr
 
 ## 3. Extensions optionnelles intégrées au même MCD
 
-| Option | Impact conceptuel | Obligatoire pour le MVP ? |
+| Option | Impact conceptuel | Statut de livraison |
 | --- | --- | --- |
-| **US07 — Upload anonyme** | Si implémenté, un transfert peut ne pas avoir de propriétaire enregistré ; la multiplicité près d'UTILISATEUR passe de **1** à **0..1** pour les transferts anonymes. | Non |
-| **US08 — Tags** | Classe TAG facultative, libellé de 30 caractères maximum et unicité du libellé par fichier. | Non |
-| **US09 — Mot de passe** | Hash facultatif pour un **FICHIER**. Le mettre uniquement sur TRANSFERT protégerait tout le lot, ce qui constitue une autre décision produit. | Non |
-| **US10 — Expiration automatique** | Précise la planification de purge ; l'expiration et la suppression automatique sont déjà obligatoires dans US01. | Non en tant que fonctionnalité distincte |
-| **Statistiques de téléchargement (proposition)** | Classe TÉLÉCHARGEMENT facultative, pour compter les téléchargements et les octets transférés. Aucune US obligatoire ne l'impose. | Non |
+| **US07 — Upload anonyme** | Si implémenté, un transfert peut ne pas avoir de propriétaire enregistré ; la multiplicité près d'UTILISATEUR passe de **1** à **0..1** pour les transferts anonymes. | Non implémentée |
+| **US08 — Tags** | Classe TAG facultative, libellé de 30 caractères maximum et unicité du libellé par fichier. | Livrée |
+| **US09 — Mot de passe** | Hash facultatif pour un **FICHIER**. Le mettre uniquement sur TRANSFERT protégerait tout le lot, ce qui constitue une autre décision produit. | Livrée |
+| **US10 — Expiration automatique** | Précise la planification de purge ; l'expiration et la suppression automatique sont déjà obligatoires dans US01. | Purge implémentée sous US01 ; pas de lot distinct |
+| **Statistiques de téléchargement (proposition)** | Classe TÉLÉCHARGEMENT facultative, pour compter les téléchargements et les octets transférés. Aucune US obligatoire ne l'impose. | Non implémentées |
 
-Un événement représente un **téléchargement réellement effectué**, et non la simple ouverture d'une page de partage. `totalOctetsTelecharges` et `nbFichiers` mesurent ce qui a **réellement été transféré durant cet événement**, pas la taille initiale de tout le partage.
+## 4. Statistiques de download — proposition non implémentée
 
-## 4. Statistiques facultatives après suppression — proposition historique
-
-**Proposition non implémentée :** conserver des statistiques anonymes d'activité et de volumétrie, tout en supprimant les transferts expirés, leurs fichiers et leurs métadonnées opérationnelles.
-
-1. **Avant suppression :** chaque TÉLÉCHARGEMENT est associé à **un TRANSFERT existant**. Une éventuelle implémentation devrait contrôler cette règle à la création.
-2. **Après suppression :** l'événement subsiste, mais l'association au TRANSFERT supprimé disparaît. La multiplicité UML historique est donc **0..1**.
-3. **Mesures conservées :** total d'octets téléchargés, nombre de fichiers effectivement téléchargés et période adaptée aux statistiques (jour/mois), à condition que ces données ne permettent pas d'identifier une personne.
-4. **Données personnelles :** ne pas conserver dans l'historique statistique après purge les identifiants utilisateur, noms de fichiers, tokens de partage, IP brutes ou hachées, ni user-agents. Supprimer aussi les attributs indirectement identifiants ; regrouper ou réduire la précision des dates si nécessaire. **Hacher une IP relève généralement de la pseudonymisation, pas automatiquement de l'anonymisation.**
-5. **Durée :** avant tout développement, définir la finalité et la durée de conservation. Si l'anonymisation véritable ne peut pas être démontrée, les données restent soumises au RGPD et doivent être conservées pour une durée limitée.
-
-Une clé étrangère mise à `NULL` garantit **l'intégrité référentielle**, pas la conformité RGPD. Même une ligne contenant seulement une date précise et un volume d'octets peut parfois être rattachée indirectement à quelqu'un ; des **agrégats quotidiens ou mensuels** seront préférables pour des statistiques de longue durée.
-
-Références : [CNIL — Identifier les données personnelles](https://www.cnil.fr/fr/identifier-les-donnees-personnelles) et [CNIL — Les durées de conservation](https://www.cnil.fr/fr/passer-laction/les-durees-de-conservation-des-donnees).
-
-### Traduction PostgreSQL ultérieure (exemple uniquement)
-
-Le MCD ne contient **aucune clé étrangère SQL**. Lors d'une éventuelle implémentation du suivi, une colonne nullable et `ON DELETE SET NULL` pourront préserver les événements après disparition du TRANSFERT :
-
-```sql
--- Futur modèle physique uniquement : ne pas exécuter pendant DESIGN-02.
-ALTER TABLE telechargements
-    ALTER COLUMN transfert_id DROP NOT NULL;
-
-ALTER TABLE telechargements
-    DROP CONSTRAINT IF EXISTS telechargements_transfert_id_fkey;
-
-ALTER TABLE telechargements
-    ADD CONSTRAINT telechargements_transfert_id_fkey
-    FOREIGN KEY (transfert_id) REFERENCES transferts(id)
-    ON DELETE SET NULL;
-```
-
-Les noms des tables et colonnes ci-dessus sont illustratifs. **Ces instructions SQL n'anonymisent pas, à elles seules, le contenu des lignes conservées.**
+Dans le modèle historique, un événement aurait été lié à un transfert à sa création, puis conservé après suppression via une FK nullable (`ON DELETE SET NULL`). Cette intégrité référentielle ne garantirait pas l'anonymisation ; une éventuelle évolution devrait définir des agrégats et une politique de conservation. Aucune table de statistiques n'existe dans la release.
 
 ## 5. Modèle physique et arbitrage sur la purge
 

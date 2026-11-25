@@ -7,7 +7,7 @@ lang: en
 
 # DataShare — Security and dependency audit
 
-[Français](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md) · [Technical documentation](../technical-documentation.md) · [QL-03 tracking](https://github.com/jlbokass/datashare/issues/53)
+[Français](https://github.com/jlbokass/datashare/blob/main/SECURITY.md) · [Technical documentation](../technical-documentation.md) · [QL-03 tracking](https://github.com/jlbokass/datashare/issues/53)
 
 **Security audits — 23 November 2026.** Checks executed in the project's local Docker environment on `quality/ql-03-security` (branched from `develop` at commit `36291cd`). **Results: Composer reported no security advisories and npm reported zero vulnerabilities.** Terminal output was provided as a screenshot; the exact local checkout SHA and audit tool versions were not recorded.
 

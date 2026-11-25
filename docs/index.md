@@ -9,11 +9,13 @@ lang: fr
 
 [English](en/index.md) · [Dépôt GitHub](https://github.com/jlbokass/datashare)
 
-**État au 24 novembre 2026 :** US01–US06, lots qualité QL-01 à QL-04 et recette visuelle UI-01 intégrés dans `develop`. HIST-01 est clôturé : la purge existante est maintenue. L'application fonctionne en local ; GitHub Pages héberge uniquement la documentation.
+**Release du 25 novembre 2026 — [PR #100](https://github.com/jlbokass/datashare/pull/100), [bec72e3](https://github.com/jlbokass/datashare/commit/bec72e39ff80a9c89df600aea6f060e905591b80) (`main`).** Les US01–US06 sont livrées avec US08 (tags privés), US09 (mot de passe par fichier), PROFILE-01 (profil), la pagination de l'historique et OPS-03 (Garage compatible S3, démonstration isolée). Le stockage local privé reste le mode par défaut. US07 (upload anonyme) n'est pas implémentée ; US10 ne fait pas l'objet d'un lot distinct, l'expiration et la purge quotidienne étant déjà couvertes par US01. Le développement fonctionnel est gelé. L'application s'exécute en local, sans déploiement en production.
+
+Les trois workflows CI et la [publication GitHub Pages](https://github.com/jlbokass/datashare/actions/runs/45548825102) ont réussi. GitHub Pages héberge uniquement la documentation.
 
 ## Démarrer
 
-[Installation locale](installation.fr.md) · [README](https://github.com/jlbokass/datashare/blob/develop/README.md)
+[Installation locale](installation.fr.md) · [README](https://github.com/jlbokass/datashare/blob/main/README.md)
 
 ## Dossier technique OpenClassrooms
 
@@ -32,11 +34,11 @@ lang: fr
 
 | Document | Résultat de référence |
 | --- | --- |
-| [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md) | Plan de tests, preuves CI, 6 tests E2E couvrant trois parcours critiques et un test de démarrage |
-| [Couverture](coverage.fr.md) | 96,36 % Laravel et 79,58 % Angular (lignes mesurées séparément) |
-| [SECURITY](https://github.com/jlbokass/datashare/blob/develop/SECURITY.md) | Audits Composer/npm : aucune vulnérabilité signalée le 23 novembre |
-| [PERF](https://github.com/jlbokass/datashare/blob/develop/PERF.md) | Mesures locales et limites ; aucune performance de production revendiquée |
-| [MAINTENANCE](https://github.com/jlbokass/datashare/blob/develop/MAINTENANCE.md) | Exploitation locale, purge, mises à jour et reprise |
+| [TESTING](https://github.com/jlbokass/datashare/blob/main/TESTING.md) | Plan de tests, preuves CI, 6 tests E2E couvrant trois parcours critiques et un test de démarrage |
+| [Couverture](coverage.fr.md) | 79,72 % Laravel (83 tests) et 88,00 % Angular (65 tests), release du 25 novembre ; mesures séparées |
+| [SECURITY](https://github.com/jlbokass/datashare/blob/main/SECURITY.md) | Audits Composer/npm : aucune vulnérabilité signalée le 23 novembre |
+| [PERF](https://github.com/jlbokass/datashare/blob/main/PERF.md) | Mesures locales des 22–23 novembre ; bundle final CI 370,94 ko ; aucune performance de production revendiquée |
+| [MAINTENANCE](https://github.com/jlbokass/datashare/blob/main/MAINTENANCE.md) | Exploitation locale, purge, mises à jour et reprise |
 
 [![Backend CI](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml?query=branch%3Adevelop)
 [![Frontend CI](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml?query=branch%3Adevelop)
@@ -46,6 +48,6 @@ lang: fr
 
 [Issues](https://github.com/jlbokass/datashare/issues) · [Pull requests](https://github.com/jlbokass/datashare/pulls?q=is%3Apr) · [Commits](https://github.com/jlbokass/datashare/commits/develop/)
 
-Le workflow repose sur une branche dédiée, une PR revue vers `develop`, puis une PR distincte de livraison vers `main`. Les documents de référence à la racine sont en français ; leurs [traductions anglaises](en/index.md) sont regroupées dans `docs/en/`. Les liens vers les fichiers à la racine visent explicitement `develop` ; le site publié suit `main/docs`.
+Le workflow repose sur une branche dédiée, une PR revue vers `develop`, puis une PR distincte de livraison vers `main`. Les documents de référence à la racine sont en français ; leurs [traductions anglaises](en/index.md) sont regroupées dans `docs/en/`. Les liens vers les fichiers à la racine visent `main` ; le site publié suit `main/docs`.
 
-Pour la soutenance : joindre une capture de couverture, préparer la présentation et la fiche d'autoévaluation, et clarifier les règles OC d'utilisation de l'IA. La concurrence réelle PostgreSQL, l'accessibilité clavier et les performances de production ne sont pas attestées par les résultats actuels.
+Six contrôles manuels au clavier ont été validés le 24 novembre ([compte rendu](design-handoff.fr.md)) ; il ne s'agit pas d'un audit d'accessibilité complet. La concurrence réelle PostgreSQL et les performances de production ne sont pas démontrées.

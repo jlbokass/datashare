@@ -9,7 +9,9 @@ lang: en
 
 [Français](../index.md) · [GitHub repository](https://github.com/jlbokass/datashare)
 
-**Status as of 24 November 2026:** US01–US06, quality batches QL-01 through QL-04 and UI-01 visual acceptance are merged into `develop`. HIST-01 is closed: the existing purge policy is retained. The application runs locally; GitHub Pages hosts documentation only.
+**25 November 2026 release — [PR #100](https://github.com/jlbokass/datashare/pull/100), [bec72e3](https://github.com/jlbokass/datashare/commit/bec72e39ff80a9c89df600aea6f060e905591b80) (`main`).** US01–US06 are delivered alongside US08 (private tags), US09 (per-file password), PROFILE-01 (profile), history pagination and OPS-03 (S3-compatible Garage, isolated demonstration). Private local storage remains the default. US07 (anonymous uploads) is not implemented; US10 has no separate work package because expiry and daily cleanup are already covered by US01. Feature development is frozen. The application runs locally and is not deployed to production.
+
+All three CI workflows and [GitHub Pages publication](https://github.com/jlbokass/datashare/actions/runs/45548825102) passed. GitHub Pages hosts documentation only.
 
 ## Get started
 
@@ -33,9 +35,9 @@ lang: en
 | Document | Reference result |
 | --- | --- |
 | [TESTING](TESTING.md) | Test plan, CI evidence, 6 E2E tests covering three critical journeys and a smoke check |
-| [Coverage](../coverage.md) | 96.36% Laravel and 79.58% Angular (separate line measurements) |
+| [Coverage](../coverage.md) | 79.72% Laravel (83 tests) and 88.00% Angular (65 tests), 25 November release; separate line measurements |
 | [SECURITY](SECURITY.md) | Composer/npm audits: no vulnerabilities reported on 23 November |
-| [PERF](PERF.md) | Local measurements and limitations; no production performance claim |
+| [PERF](PERF.md) | Local measurements (22–23 November); final CI bundle 370.94 kB; no production performance claim |
 | [MAINTENANCE](MAINTENANCE.md) | Local operations, cleanup, updates and recovery |
 
 [![Backend CI](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/backend-ci.yml?query=branch%3Adevelop)
@@ -48,4 +50,4 @@ lang: en
 
 The workflow uses a dedicated branch, reviewed PR into `develop`, then a separate release PR into `main`. French reference documents remain at the repository root; the five English translations are grouped in `docs/en/`. The published site follows `main/docs`.
 
-For assessment: include a coverage screenshot, prepare the presentation and self-assessment, and clarify applicable OC AI-use rules. Real PostgreSQL concurrency, keyboard accessibility and production performance are not demonstrated by the current results.
+Six manual keyboard checks passed on 24 November ([record](../design-handoff.md)); this is not a comprehensive accessibility audit. Real PostgreSQL concurrency and production performance have not been demonstrated.

@@ -4,8 +4,10 @@ info:
   version: 0.1.0
   description: |
     DESIGN-03 — Design contract for the implemented OpenClassrooms MVP (US01–US06),
-    reconciled with Laravel on 24 November 2026 (DELIVERY-API #75). Scramble
-    generates a complementary OpenAPI document at /docs/api.json in local only.
+    reconciled with Laravel on 24 November 2026 (DELIVERY-API #75) and extended
+    for release PR #100 (25 November 2026). This YAML contains 11 business
+    operations; Scramble generates the local-only runtime specification at
+    /docs/api.json, including the two support routes /health and /demo/capabilities.
     Optional US08 adds private file tags; PROFILE-01 adds optional names and profile editing.
     US09 adds optional per-file password protection. US07 and separate US10 extensions are not exposed.
     See README.md for inference limitations.

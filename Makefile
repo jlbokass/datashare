@@ -4,7 +4,7 @@
 # Always use a separate project and credentials for the optional S3 demo.
 GARAGE_COMPOSE := docker compose --env-file .env.garage -p datashare-garage -f compose.yaml -f compose.garage.yaml
 
-.PHONY: help up down ps logs health qa qa-backend qa-frontend status dozzle-up dozzle-stop https-up https-health https-off garage-init garage-up garage-migrate garage-status garage-stop garage-health
+.PHONY: help up down ps logs health qa qa-backend qa-frontend status dozzle-up dozzle-stop scheduler-start scheduler-stop scheduler-status https-up https-health https-off garage-init garage-up garage-migrate garage-status garage-stop garage-health
 
 help:
 	@printf '%s\n' 'make up          Start the local stack' \
@@ -18,6 +18,9 @@ help:
 	  'make status      Check local/remote Git synchronization' \
 	  'make dozzle-up   Start the optional local log viewer' \
 	  'make dozzle-stop Stop the log viewer' \
+	  'make scheduler-start  Resume the local expiry scheduler' \
+	  'make scheduler-stop   Pause the local expiry scheduler' \
+	  'make scheduler-status Show scheduler service status' \
 	  'make https-up    Start the local stack with HTTPS (requires local certificates)' \
 	  'make https-health Check HTTPS and verify the local CA' \
 	  'make https-off   Restore the HTTP-only local stack' \
@@ -60,6 +63,15 @@ dozzle-up:
 
 dozzle-stop:
 	docker compose stop dozzle
+
+scheduler-start:
+	docker compose start scheduler
+
+scheduler-stop:
+	docker compose stop scheduler
+
+scheduler-status:
+	docker compose ps scheduler
 
 https-up:
 	@test -s docker/nginx/certs/datashare.pem && test -s docker/nginx/certs/datashare-key.pem || { echo 'Generate the local certificates first (see installation guide).' >&2; exit 1; }

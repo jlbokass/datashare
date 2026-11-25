@@ -6,6 +6,8 @@
 
 ## 1. Mesures et résultats
 
+**Build de la release finale (25 novembre 2026, [bec72e3](https://github.com/jlbokass/datashare/commit/bec72e39ff80a9c89df600aea6f060e905591b80)).** La [CI frontend](https://github.com/jlbokass/datashare/actions/runs/45548827002) confirme un build de production réussi : bundle initial brut de **370,94 ko**, transfert estimé à **91,43 ko**, inférieur au seuil d'avertissement du bundle initial de 500 ko. Deux avertissements de taille des styles de composants subsistent : `home.scss` 6,17 ko et `account.scss` 6,83 ko (avertissement à 4 ko, erreur à 8 ko). Les mesures locales de l'endpoint et de Lighthouse ci-dessous restent historiques ; aucun nouveau benchmark de la release finale n'est revendiqué.
+
 | Contrôle | Conditions | Résultat |
 | --- | --- | --- |
 | **Backend — téléchargement US02** `GET /api/shares/{token}/files/{fileId}` | Docker isolé (`compose.test.yaml`), PostgreSQL et stockage temporaires, fichier texte de test de **1 048 576 octets** ; une requête de préchauffage, puis **12 téléchargements séquentiels** vérifiés octet par octet | **12 réponses HTTP 200, aucune erreur** ; p50 **13,3 ms**, p95 **15,4 ms**, moyenne **13,3 ms** ; débit séquentiel effectif **78,88 Mo/s** |
