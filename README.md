@@ -8,6 +8,16 @@
 [![Frontend CI](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/frontend-ci.yml?query=branch%3Adevelop)
 [![E2E CI](https://github.com/jlbokass/datashare/actions/workflows/e2e-ci.yml/badge.svg?branch=develop)](https://github.com/jlbokass/datashare/actions/workflows/e2e-ci.yml?query=branch%3Adevelop)
 
+[![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=jlbokass_datashare&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=jlbokass_datashare)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=jlbokass_datashare&metric=coverage)](https://sonarcloud.io/summary/new_code?id=jlbokass_datashare)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=jlbokass_datashare&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=jlbokass_datashare)
+[![Lines of code](https://sonarcloud.io/api/project_badges/measure?project=jlbokass_datashare&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=jlbokass_datashare)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=jlbokass_datashare&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=jlbokass_datashare)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=jlbokass_datashare&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=jlbokass_datashare)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=jlbokass_datashare&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=jlbokass_datashare)
+
+*Indicateurs SonarQube Cloud : dernière analyse de `main`, périmètre et couverture détaillés dans [TESTING.md](TESTING.md). Quality Gate informatif.*
+
 ## Le projet
 
 DataShare permet de téléverser des fichiers privés et de les partager temporairement au moyen d'un lien public. Le **produit minimum viable (MVP)** couvre les six fonctionnalités obligatoires (US01–US06) :
