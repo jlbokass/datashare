@@ -55,6 +55,8 @@ Default HTTP application: **http://127.0.0.1:8080/**. Recommended local acceptan
 
 Local API: [Swagger UI HTTP](http://127.0.0.1:8080/docs/api) · [Swagger UI HTTPS](https://127.0.0.1:8443/docs/api) · [API guide](../api/README.md).
 
+**Postman (optional):** import the [collection](../api/postman/DataShare.postman_collection.json) and [local environment](../api/postman/DataShare.local.postman_environment.json) to test API requests. See the [Postman guide](../api/README.md) for HTTPS setup and test instructions.
+
 Run Laravel tests, Pint formatting checks, Angular tests and build:
 
 ```bash
@@ -66,6 +68,27 @@ E2E tests use an [isolated Docker stack](TESTING.md) to protect local developmen
 ### Development shortcuts (optional)
 
 If GNU Make is available, run `make help` to list the commands. From the repository root, `make up`, `make ps`, `make logs`, `make health` and `make down` manage the local environment (`down` preserves volumes). `make qa`, `make qa-backend` and `make qa-frontend` reuse the existing QA script; `make status` checks Git synchronization. Docker and Bash commands remain available without Make.
+
+### Dozzle — Docker logs (optional)
+
+```bash
+make dozzle-up
+make dozzle-stop
+```
+
+Open [Dozzle](http://127.0.0.1:9999/) while the service is running. Local use only; stop it after inspection. See [maintenance and security precautions](MAINTENANCE.md).
+
+### Scheduler — expiry cleanup
+
+The `scheduler` service starts with the main stack and runs Laravel's scheduled cleanup. To pause cleanup temporarily for a demonstration, then resume it on the already configured main project:
+
+```bash
+docker compose stop scheduler
+docker compose start scheduler
+docker compose ps scheduler
+```
+
+Run these commands separately as needed. Stopping the scheduler pauses physical cleanup, not the API's expiry checks. Keep it running during normal use. See [expiry and cleanup demonstration](MAINTENANCE.md).
 
 ### Test the 1 GB file limit (macOS)
 

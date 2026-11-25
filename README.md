@@ -48,6 +48,8 @@ Application HTTP par défaut : **http://127.0.0.1:8080/**. Mode HTTPS local reco
 
 API locale : [Swagger UI HTTP](http://127.0.0.1:8080/docs/api) · [Swagger UI HTTPS](https://127.0.0.1:8443/docs/api) · [Guide API](docs/api/README.fr.md).
 
+**Postman (facultatif) :** importer la [collection](docs/api/postman/DataShare.postman_collection.json) et l'[environnement local](docs/api/postman/DataShare.local.postman_environment.json) pour tester les requêtes API. Voir le [guide API](docs/api/README.fr.md) pour la configuration HTTPS et la procédure de recette.
+
 Exécuter les tests Laravel et Angular, vérifier le formatage avec Pint et compiler l'application Angular :
 
 ```bash
@@ -59,6 +61,27 @@ Les tests E2E utilisent un [environnement Docker isolé](TESTING.md) pour proté
 ### Raccourcis de développement (facultatifs)
 
 Si GNU Make est disponible, utiliser `make help` pour afficher les commandes. Depuis la racine du dépôt, `make up`, `make ps`, `make logs`, `make health` et `make down` pilotent l'environnement local (`down` conserve les volumes). `make qa`, `make qa-backend` et `make qa-frontend` réutilisent le script QA existant ; `make status` vérifie la synchronisation Git. Les commandes Docker et Bash restent utilisables sans Make.
+
+### Dozzle — Logs Docker (facultatif)
+
+```bash
+make dozzle-up
+make dozzle-stop
+```
+
+Ouvrir [Dozzle](http://127.0.0.1:9999/) lorsque le service est actif. Usage local uniquement ; arrêter le service après consultation. Voir les [précautions de maintenance et de sécurité](MAINTENANCE.md).
+
+### Scheduler — Purge des fichiers expirés
+
+Le service `scheduler` démarre avec la stack principale et exécute la purge planifiée de Laravel. Pour suspendre temporairement la purge lors d'une démonstration, puis la réactiver sur le projet principal déjà configuré :
+
+```bash
+docker compose stop scheduler
+docker compose start scheduler
+docker compose ps scheduler
+```
+
+Exécuter ces commandes séparément selon le besoin. L'arrêt du scheduler suspend la purge physique, mais pas le contrôle de l'expiration par l'API. Le scheduler doit rester actif en fonctionnement normal. Voir la [procédure de démonstration de l'expiration et de la purge](MAINTENANCE.md).
 
 ### Tester la limite de 1 Go (macOS)
 
