@@ -19,6 +19,8 @@ docker compose logs --tail=100 app web frontend scheduler db
 
 Le service `scheduler` assure la purge quotidienne des fichiers expirés et de leurs métadonnées (US01). Lorsque l'option locale `TRANSFER_DEMO_5_MIN_ENABLED=true` est activée, vider le cache de configuration et redémarrer le planificateur pour une exécution chaque minute. **`docker compose down` conserve les volumes nommés.** La commande `docker compose down -v` est destructive et ne doit être utilisée qu'en cas de suppression volontaire des données locales.
 
+Le mode HTTPS local ([installation](docs/installation.fr.md#https-local-facultatif)) s'active avec `make https-up` et se vérifie avec `make https-health`. Les exemples HTTP ci-dessous concernent le mode par défaut ; en mode TLS, utiliser l'URL `https://127.0.0.1:8443` avec la vérification du certificat. `make https-off` revient à HTTP sans supprimer les volumes.
+
 ## Journalisation structurée et diagnostic local
 
 Nginx produit des journaux d'accès JSON sur la sortie standard (`stdout`). Le format contient l'horodatage, la méthode HTTP, le statut, la durée totale de la requête en secondes, le volume de la requête (ligne, en-têtes et corps) et celui du corps de la réponse, en octets. Les URL, paramètres, adresses IP, en-têtes et jetons ne sont pas enregistrés dans **ce format d'accès**. Les journaux d'erreur Nginx, PHP-FPM et les exceptions Laravel peuvent néanmoins contenir des informations sensibles : ne pas les publier sans vérification.

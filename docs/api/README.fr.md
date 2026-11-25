@@ -15,11 +15,11 @@ L'API REST couvre les fonctionnalités obligatoires US01–US06. Elle est docume
 
 | Ressource | Usage |
 | --- | --- |
-| [Swagger UI](http://127.0.0.1:8080/docs/api) | Consulter les opérations et exécuter des requêtes |
-| [OpenAPI JSON](http://127.0.0.1:8080/docs/api.json) | Spécification générée à partir de Laravel |
+| [Swagger UI](https://127.0.0.1:8443/docs/api) | Consulter les opérations et exécuter des requêtes |
+| [OpenAPI JSON](https://127.0.0.1:8443/docs/api.json) | Spécification générée à partir de Laravel |
 | [Contrat OpenAPI YAML](openapi.yaml) | Contrat de conception rapproché de l'implémentation |
 
-Les deux URL locales nécessitent les dépendances de développement et `APP_ENV=local`. Swagger UI charge ses ressources depuis jsDelivr (version 5.34.1 figée) ; une connexion Internet est nécessaire. La validation externe et la persistance du JWT sont désactivées.
+Les liens HTTPS supposent le [mode TLS local](../installation.fr.md#https-local-facultatif) actif ; en mode HTTP par défaut, utiliser le port 8080 avec `http://`. Les deux URL locales nécessitent les dépendances de développement et `APP_ENV=local`. Swagger UI charge ses ressources depuis jsDelivr (version 5.34.1 figée) ; une connexion Internet est nécessaire. La validation externe et la persistance du JWT sont désactivées.
 
 ## Conventions
 
@@ -39,11 +39,11 @@ Les PHPDoc décrivent les comportements fonctionnels en anglais ; les attributs 
 Pour exporter la spécification depuis la racine du dépôt, avec la pile locale démarrée :
 
 ```bash
-docker compose exec -T -e APP_URL=http://127.0.0.1:8080 app \
+docker compose exec -T -e APP_URL=https://127.0.0.1:8443 app \
   php artisan scramble:export --stdout --fail-on-unknown > /tmp/datashare-openapi.json
 ```
 
-L'option `--fail-on-unknown` signale les types non inférés ; elle ne remplace pas la validation des comportements réels. Les contrôles automatisés et leur environnement sont décrits dans [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md).
+En mode HTTP, adapter `APP_URL` à `http://127.0.0.1:8080`. L'option `--fail-on-unknown` signale les types non inférés ; elle ne remplace pas la validation des comportements réels. Les contrôles automatisés et leur environnement sont décrits dans [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md).
 
 ## Recette interactive
 

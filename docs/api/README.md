@@ -15,11 +15,11 @@ The REST API covers the required US01–US06 features. Its documentation is deri
 
 | Resource | Purpose |
 | --- | --- |
-| [Swagger UI](http://127.0.0.1:8080/docs/api) | Browse operations and execute requests |
-| [OpenAPI JSON](http://127.0.0.1:8080/docs/api.json) | Specification generated from Laravel |
+| [Swagger UI](https://127.0.0.1:8443/docs/api) | Browse operations and execute requests |
+| [OpenAPI JSON](https://127.0.0.1:8443/docs/api.json) | Specification generated from Laravel |
 | [OpenAPI YAML contract](openapi.yaml) | Design contract reconciled with the implementation |
 
-Both local URLs require development dependencies and `APP_ENV=local`. Swagger UI loads assets from jsDelivr (pinned version 5.34.1), so internet access is required. External validation and JWT persistence are disabled.
+The HTTPS links assume [local TLS mode](../installation.md#optional-local-https) is active; in default HTTP mode use port 8080 with `http://`. Both local URLs require development dependencies and `APP_ENV=local`. Swagger UI loads assets from jsDelivr (pinned version 5.34.1), so internet access is required. External validation and JWT persistence are disabled.
 
 ## Conventions
 
@@ -39,11 +39,11 @@ English PHPDoc describes functional behavior; PHP 8 `Group` attributes organize 
 To export the specification from the repository root with the local stack running:
 
 ```bash
-docker compose exec -T -e APP_URL=http://127.0.0.1:8080 app \
+docker compose exec -T -e APP_URL=https://127.0.0.1:8443 app \
   php artisan scramble:export --stdout --fail-on-unknown > /tmp/datashare-openapi.json
 ```
 
-`--fail-on-unknown` flags unknown inferred types; it does not replace validation of actual behavior. Automated checks and their execution environment are described in [TESTING](../en/TESTING.md).
+In HTTP mode, use `APP_URL=http://127.0.0.1:8080` instead. `--fail-on-unknown` flags unknown inferred types; it does not replace validation of actual behavior. Automated checks and their execution environment are described in [TESTING](../en/TESTING.md).
 
 ## Interactive acceptance
 
