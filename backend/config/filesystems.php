@@ -1,5 +1,19 @@
 <?php
 
+// Garage is deliberately limited to its isolated local demo database.
+// Never point existing local file metadata at a different storage backend.
+$garageDemo = env('DATASHARE_GARAGE_DEMO', false) === true;
+$garageDatabase = env('DB_DATABASE') === 'datashare_garage';
+
+if ($garageDemo !== $garageDatabase || ($garageDemo && (
+    env('APP_ENV') !== 'local'
+    || env('DB_CONNECTION') !== 'pgsql'
+    || env('DB_HOST') !== 'db'
+    || env('DB_URL')
+))) {
+    throw new RuntimeException('Garage requires the isolated local datashare_garage database.');
+}
+
 return [
 
     /*
@@ -39,7 +53,18 @@ return [
         ],
 
         // Uploaded transfer bytes are outside public/ and never served directly.
-        'transfers' => [
+        'transfers' => $garageDemo ? [
+            'driver' => 's3',
+            'key' => env('GARAGE_DEFAULT_ACCESS_KEY'),
+            'secret' => env('GARAGE_DEFAULT_SECRET_KEY'),
+            'region' => 'garage',
+            'bucket' => 'datashare-transfers',
+            'endpoint' => 'http://garage:3900',
+            'use_path_style_endpoint' => true,
+            'visibility' => 'private',
+            'stream_reads' => true,
+            'throw' => true,
+        ] : [
             'driver' => 'local',
             'root' => storage_path('app/private/transfers'),
             'visibility' => 'private',

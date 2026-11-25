@@ -1,0 +1,67 @@
+# Optional local-only S3 demonstration. Use the Makefile targets, which force
+# the separate project name and credentials file. Never combine with HTTPS.
+name: datashare-garage
+
+services:
+  db:
+    environment:
+      POSTGRES_DB: datashare_garage
+      POSTGRES_USER: datashare_garage
+    volumes:
+      - garage_postgres_data:/var/lib/postgresql
+
+  app:
+    environment: &garage_app_environment
+      APP_ENV: local
+      APP_DEBUG: 'false'
+      APP_URL: http://127.0.0.1:8081
+      APP_KEY: ${GARAGE_APP_KEY:?Run make garage-init}
+      JWT_SECRET: ${GARAGE_JWT_SECRET:?Run make garage-init}
+      DB_URL: ''
+      DB_DATABASE: datashare_garage
+      DB_USERNAME: datashare_garage
+      DATASHARE_GARAGE_DEMO: 'true'
+      GARAGE_DEFAULT_ACCESS_KEY: ${GARAGE_DEFAULT_ACCESS_KEY:?Run make garage-init}
+      GARAGE_DEFAULT_SECRET_KEY: ${GARAGE_DEFAULT_SECRET_KEY:?Run make garage-init}
+      TRANSFER_DEMO_5_MIN_ENABLED: 'true'
+    tmpfs:
+      - /workspace/backend/bootstrap/cache
+    depends_on:
+      garage:
+        condition: service_healthy
+
+  scheduler:
+    environment: *garage_app_environment
+    tmpfs:
+      - /workspace/backend/bootstrap/cache
+    depends_on:
+      garage:
+        condition: service_healthy
+
+  web:
+    ports: !override
+      - "127.0.0.1:8081:80"
+
+  garage:
+    image: dxflrs/garage:v2.5.0
+    restart: unless-stopped
+    command: ["/garage", "server", "--single-node", "--default-bucket"]
+    environment:
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET:?Run make garage-init}
+      GARAGE_DEFAULT_ACCESS_KEY: ${GARAGE_DEFAULT_ACCESS_KEY:?Run make garage-init}
+      GARAGE_DEFAULT_SECRET_KEY: ${GARAGE_DEFAULT_SECRET_KEY:?Run make garage-init}
+      GARAGE_DEFAULT_BUCKET: datashare-transfers
+    volumes:
+      - ./docker/garage/garage.toml:/etc/garage.toml:ro
+      - garage_meta:/var/lib/garage/meta
+      - garage_data:/var/lib/garage/data
+    healthcheck:
+      test: ["CMD", "/garage", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  garage_postgres_data:
+  garage_meta:
+  garage_data:
