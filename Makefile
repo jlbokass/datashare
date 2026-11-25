@@ -1,7 +1,10 @@
 # DataShare — shortcuts for an already configured local environment.
 .DEFAULT_GOAL := help
 
-.PHONY: help up down ps logs health qa qa-backend qa-frontend status dozzle-up dozzle-stop https-up https-health https-off
+# Always use a separate project and credentials for the optional S3 demo.
+GARAGE_COMPOSE := docker compose --env-file .env.garage -p datashare-garage -f compose.yaml -f compose.garage.yaml
+
+.PHONY: help up down ps logs health qa qa-backend qa-frontend status dozzle-up dozzle-stop https-up https-health https-off garage-init garage-up garage-migrate garage-status garage-stop garage-health
 
 help:
 	@printf '%s\n' 'make up          Start the local stack' \
@@ -17,7 +20,13 @@ help:
 	  'make dozzle-stop Stop the log viewer' \
 	  'make https-up    Start the local stack with HTTPS (requires local certificates)' \
 	  'make https-health Check HTTPS and verify the local CA' \
-	  'make https-off   Restore the HTTP-only local stack'
+	  'make https-off   Restore the HTTP-only local stack' \
+	  'make garage-init Generate independent local S3 demo credentials' \
+	  'make garage-up   Start isolated Garage demo (HTTPS 8444)' \
+	  'make garage-migrate Apply migrations to the isolated demo database' \
+	  'make garage-status Show demo containers and Garage status' \
+	  'make garage-health Check HTTPS with the local CA' \
+	  'make garage-stop Stop only the Garage demo; keep all volumes'
 
 up:
 	docker compose up -d
@@ -61,3 +70,24 @@ https-health:
 
 https-off:
 	docker compose -f compose.yaml up -d app web
+
+garage-init:
+	bash scripts/garage-init.sh
+
+garage-up:
+	@test -s docker/nginx/certs/datashare.pem && test -s docker/nginx/certs/datashare-key.pem || { echo 'Generate the local certificates first (see installation guide).' >&2; exit 1; }
+	@test -d backend/vendor/league/flysystem-aws-s3-v3 || { echo 'Install the Laravel Flysystem S3 adapter first.' >&2; exit 1; }
+	$(GARAGE_COMPOSE) up -d
+
+garage-migrate:
+	$(GARAGE_COMPOSE) exec app php artisan migrate
+
+garage-status:
+	$(GARAGE_COMPOSE) ps
+	$(GARAGE_COMPOSE) exec -T garage /garage status
+
+garage-stop:
+	$(GARAGE_COMPOSE) stop
+
+garage-health:
+	curl -fsS --cacert "$$(mkcert -CAROOT)/rootCA.pem" https://127.0.0.1:8444/api/health
