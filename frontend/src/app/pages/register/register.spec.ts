@@ -24,6 +24,7 @@ describe('Register', () => {
     const fixture = TestBed.createComponent(Register);
     const register = fixture.componentInstance;
     register.form.setValue({
+      name: '', first_name: '',
       email: 'person@example.com',
       password: 'short',
       passwordConfirmation: 'short',
@@ -39,6 +40,7 @@ describe('Register', () => {
     const fixture = TestBed.createComponent(Register);
     const register = fixture.componentInstance;
     register.form.setValue({
+      name: '', first_name: '',
       email: 'person@example.com',
       password: 'StrongPass123!',
       passwordConfirmation: 'DifferentPass123!',
@@ -54,6 +56,7 @@ describe('Register', () => {
     const fixture = TestBed.createComponent(Register);
     const register = fixture.componentInstance;
     register.form.setValue({
+      name: '', first_name: '',
       email: 'person@example.com',
       password: 'StrongPass123!',
       passwordConfirmation: 'StrongPass123!',
@@ -75,10 +78,31 @@ describe('Register', () => {
     expect(register.submitting()).toBe(false);
   });
 
+  it('posts optional names only when supplied and trims their values', () => {
+    const fixture = TestBed.createComponent(Register);
+    const register = fixture.componentInstance;
+    register.form.setValue({
+      email: 'person@example.com',
+      password: 'StrongPass123!',
+      passwordConfirmation: 'StrongPass123!',
+      name: ' Dupont ',
+      first_name: ' Élodie ',
+    });
+
+    register.submit();
+    const request = TestBed.inject(HttpTestingController).expectOne('/api/auth/register');
+    expect(request.request.body).toEqual({
+      email: 'person@example.com', password: 'StrongPass123!', name: 'Dupont', first_name: 'Élodie',
+    });
+    request.flush({ user: {} }, { status: 201, statusText: 'Created' });
+    expect(register.created()).toBe(true);
+  });
+
   it('shows a server-side duplicate-email error', () => {
     const fixture = TestBed.createComponent(Register);
     const register = fixture.componentInstance;
     register.form.setValue({
+      name: '', first_name: '',
       email: 'person@example.com',
       password: 'StrongPass123!',
       passwordConfirmation: 'StrongPass123!',

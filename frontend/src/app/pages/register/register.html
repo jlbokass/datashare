@@ -13,6 +13,32 @@
 
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
       <div class="field">
+        <label for="registration-first_name">Prénom (facultatif)</label>
+        <input id="registration-first_name" type="text" autocomplete="given-name"
+          formControlName="first_name" maxlength="255"
+          [attr.aria-invalid]="(form.controls.first_name.invalid && form.controls.first_name.touched) || fieldErrors()['first_name']?.length ? 'true' : null"
+          [attr.aria-describedby]="(form.controls.first_name.invalid && form.controls.first_name.touched) || fieldErrors()['first_name']?.length ? 'registration-first_name-error' : null" />
+        @if (fieldErrors()['first_name']?.length) {
+          <small id="registration-first_name-error" class="field-error">{{ fieldErrors()['first_name'][0] }}</small>
+        } @else if (form.controls.first_name.invalid && form.controls.first_name.touched) {
+          <small id="registration-first_name-error" class="field-error">255 caractères maximum.</small>
+        }
+      </div>
+
+      <div class="field">
+        <label for="registration-name">Nom (facultatif)</label>
+        <input id="registration-name" type="text" autocomplete="family-name"
+          formControlName="name" maxlength="255"
+          [attr.aria-invalid]="(form.controls.name.invalid && form.controls.name.touched) || fieldErrors()['name']?.length ? 'true' : null"
+          [attr.aria-describedby]="(form.controls.name.invalid && form.controls.name.touched) || fieldErrors()['name']?.length ? 'registration-name-error' : null" />
+        @if (fieldErrors()['name']?.length) {
+          <small id="registration-name-error" class="field-error">{{ fieldErrors()['name'][0] }}</small>
+        } @else if (form.controls.name.invalid && form.controls.name.touched) {
+          <small id="registration-name-error" class="field-error">255 caractères maximum.</small>
+        }
+      </div>
+
+      <div class="field">
         <label for="registration-email">Email</label>
         <input
           id="registration-email"

@@ -67,7 +67,7 @@
   background: rgb(255 255 255 / 38%);
 }
 
-.account-sidebar nav .sidebar-link:not(.current) {
+.account-sidebar nav .sidebar-link.upload-nav {
   display: none;
 }
 
@@ -473,7 +473,7 @@ a:not(.sidebar-brand):not(.sidebar-link):not(.upload-action):not(.share-action) 
     padding: 16px 24px;
   }
 
-  .account-sidebar nav .sidebar-link:not(.current) {
+  .account-sidebar nav .sidebar-link.upload-nav {
     display: block;
   }
 

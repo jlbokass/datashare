@@ -5,6 +5,8 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 export interface PublicUser {
   id: string;
   email: string;
+  name: string | null;
+  first_name: string | null;
   created_at: string;
 }
 
@@ -47,6 +49,24 @@ export class AuthService {
 
     return this.http.get<UserEnvelope>('/api/auth/me', {
       headers: new HttpHeaders({ Authorization: `Bearer ${accessToken}` }),
+    }).pipe(
+      tap(({ user }) => this.currentUser.set(user)),
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          this.logout();
+        }
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  updateProfile(name: string | null, firstName: string | null): Observable<UserEnvelope> {
+    if (!this.token()) {
+      return throwError(() => new Error('Aucune session en cours.'));
+    }
+
+    return this.http.patch<UserEnvelope>('/api/auth/me', { name, first_name: firstName }, {
+      headers: this.authorizationHeaders(),
     }).pipe(
       tap(({ user }) => this.currentUser.set(user)),
       catchError((error: HttpErrorResponse) => {
