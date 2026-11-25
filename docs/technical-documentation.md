@@ -17,7 +17,7 @@ lang: en
 
 [Description](architecture.md) · [Editable draw.io](diagrams/architecture.drawio)
 
-**Angular browser → Nginx → Laravel API → PostgreSQL and private file storage.** Nginx provides a single origin in development (HTTP or optional local HTTPS); Docker Compose runs the application, database and expiry scheduler. Public download links are separate from the JWT required for owner actions. Local TLS termination uses mkcert and Nginx; it is not evidence of production HTTPS.
+**Angular browser → Nginx → Laravel API → PostgreSQL and private file storage.** Nginx provides a single origin in development (HTTP or optional local HTTPS); Docker Compose runs the application, database and expiry scheduler. Public download links are separate from the JWT required for owner actions. Local TLS termination uses mkcert and Nginx; it is not evidence of production HTTPS. Garage is an alternative storage mode in a separate local instance, with a private bucket and its own database. The scheduler runs Laravel code without an HTTP call to the API.
 
 ### Repository structure
 
@@ -41,10 +41,11 @@ docs/                Technical deliverables, API and design references
 ├── /login        Login
 ├── /upload       Upload (authentication required)
 ├── /account      History and deletion (authentication required)
+├── /profile      Profile (authentication required)
 └── /share/:token Public download link
 ```
 
-Routes are defined in `frontend/src/app/app.routes.ts`. `/upload` reuses the home component and displays the upload form immediately; `/upload` and `/account` use `authGuard`. Unknown URLs redirect to `/`.
+Routes are defined in `frontend/src/app/app.routes.ts`. `/upload` reuses the home component and displays the upload form immediately; `/upload`, `/account` and `/profile` use `authGuard`. Unknown URLs redirect to `/`.
 
 ## 2. Technology choices and rationale
 
@@ -55,7 +56,7 @@ Routes are defined in `frontend/src/app/app.routes.ts`. `/upload` reuses the hom
 | Frontend | Angular 22, TypeScript | Structured components/forms and static typing |
 | Backend | PHP 8.4, Laravel 13 | Integrated API, validation, storage and scheduler |
 | Database | PostgreSQL 18 | Relations between users, transfers and files |
-| File storage | Private local filesystem | Simple MVP solution allowed by the specifications |
+| File storage | Private local disk; Garage S3 (isolated demo) | Simple permitted MVP; object storage via Laravel's abstraction without API changes |
 | Authentication | JWT HS256 | Stateless API with server-side access checks |
 | Tooling | Docker Compose, Nginx, GitHub Actions | Repeatable development and automated PR verification |
 
@@ -63,7 +64,7 @@ Routes are defined in `frontend/src/app/app.routes.ts`. `/upload` reuses the hom
 
 [UML conceptual model](data-model.md) · [Diagram](diagrams/data-model.svg)
 
-Three main entities: **User** (unique email, password hash), **Transfer** (owner, public token, expiry) and **File** (name, type, size and private storage locator). A user owns many transfers; each transfer contains one or more files. PostgreSQL migrations are versioned in `backend/database/migrations/`. Optional US08 associates zero or more private tags with each file (maximum 30 characters, per-file uniqueness, cascade deletion). PROFILE-01 adds optional family and given names; only `first_name` is added to the existing schema for this profile. US09 adds nullable `transfer_files.password_hash` per file.
+Three main entities: **User** (unique email, password hash), **Transfer** (owner, public token, expiry) and **File** (name, type, size and private storage locator). A user owns many transfers; each transfer contains one or more files. PostgreSQL migrations are versioned in `backend/database/migrations/`. Optional US08 associates zero or more private tags with each file (maximum 30 characters, per-file uniqueness, cascade deletion). PROFILE-01 adds optional family and given names; only `first_name` is added to the existing schema for this profile. US09 adds nullable `transfer_files.password_hash` per file. `users.id` and `tags.id` are internal BIGINT keys; the API exposes UUID `users.public_id`, while transfers and files use UUID keys.
 
 ## 4. REST API documentation
 
@@ -71,7 +72,7 @@ Three main entities: **User** (unique email, password hash), **Transfer** (owner
 
 Documentation is generated from Laravel: **PHPDoc** describes behavior, **PHP 8 attributes** group operations and **Scramble** generates the OpenAPI 3.1 specification. Targeted corrections supplement file schemas and responses that cannot be inferred accurately. **Swagger UI** reads the generated JSON directly for consultation and requests, without a second runtime specification. This approach reduces drift between code and documentation; the YAML retains the design contract.
 
-The local-only interface groups ten operations into Authentication, Transfers, Public sharing and System. The two support routes report API availability and demonstration capabilities. Swagger UI assets require CDN access; security rules and generation limitations are described in the API guide.
+Laravel declares 13 operations: Authentication (4), Transfers (4), Public sharing (3) and System (2). The YAML covers the 11 business operations; the local-only Scramble documentation is designed to include both support routes (`GET /api/health` and `GET /api/demo/capabilities`). Swagger UI assets require CDN access; security rules and generation limitations are described in the API guide.
 
 | Feature | Main endpoints |
 | --- | --- |
@@ -83,6 +84,7 @@ The local-only interface groups ten operations into Authentication, Transfers, P
 | US05 — owner history | `GET /api/transfers` |
 | US06 — individual file deletion | `DELETE /api/transfers/{transferId}/files/{fileId}` |
 | US08 — private tags (optional) | `PUT /api/transfers/{transferId}/files/{fileId}/tags` |
+| System — support | `GET /api/health`, `GET /api/demo/capabilities` |
 
 These routes are implemented; request/response schemas and statuses are documented in OpenAPI. Private owner actions require a JWT, whereas a valid public share is accessible anonymously.
 

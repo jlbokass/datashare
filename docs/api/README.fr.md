@@ -11,6 +11,8 @@ L'API REST couvre les fonctionnalités obligatoires US01–US06 et les extension
 
 [English version](README.md) · [Documentation technique](../technical-documentation.fr.md) · [Installation](../installation.fr.md)
 
+La release #100 comporte **13 opérations API** dans Laravel : 4 Authentication, 4 Transfers, 3 Public sharing et 2 System (`GET /health`, `GET /demo/capabilities`). Le contrat YAML contient les 11 opérations métier ; Scramble est destiné à documenter également les deux routes de support. La collection Postman comprend 18 requêtes, dont plusieurs scénarios pour une même opération. La recette historique de 10 opérations ne constitue pas une validation des 13 opérations finales.
+
 ## Consulter et utiliser l'API
 
 | Ressource | Usage |
@@ -43,7 +45,7 @@ docker compose exec -T -e APP_URL=https://127.0.0.1:8443 app \
   php artisan scramble:export --stdout --fail-on-unknown > /tmp/datashare-openapi.json
 ```
 
-En mode HTTP, adapter `APP_URL` à `http://127.0.0.1:8080`. L'option `--fail-on-unknown` signale les types non inférés ; elle ne remplace pas la validation des comportements réels. Les contrôles automatisés et leur environnement sont décrits dans [TESTING](https://github.com/jlbokass/datashare/blob/develop/TESTING.md).
+En mode HTTP, adapter `APP_URL` à `http://127.0.0.1:8080`. L'option `--fail-on-unknown` signale les types non inférés ; elle ne remplace pas la validation des comportements réels. Les contrôles automatisés et leur environnement sont décrits dans [TESTING](https://github.com/jlbokass/datashare/blob/main/TESTING.md).
 
 ## Historique paginé (#59)
 
