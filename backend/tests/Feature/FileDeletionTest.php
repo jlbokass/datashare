@@ -92,7 +92,7 @@ final class FileDeletionTest extends TestCase
         $this->assertDatabaseMissing('transfers', ['id' => $transfer->id]);
         $this->getJson('/api/shares/'.$transfer->share_token)->assertNotFound()->assertJsonPath('code', 'not_found');
         $this->getJson('/api/shares/'.$transfer->share_token.'/files/'.$transfer->files[0]->id)->assertNotFound();
-        $this->getJson('/api/transfers')->assertExactJson(['transfers' => []]);
+        $this->getJson('/api/transfers')->assertExactJson(['transfers' => [], 'pagination' => ['current_page' => 1, 'per_page' => 10, 'last_page' => 1, 'total' => 0]]);
         $this->deleteJson($this->url($transfer))->assertNotFound()->assertJsonPath('code', 'not_found');
     }
 

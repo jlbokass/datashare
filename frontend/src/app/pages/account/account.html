@@ -78,7 +78,7 @@
         } @else if (errorMessage(); as message) {
           <p class="feedback error" role="alert">{{ message }}</p>
           <button class="inline-action" type="button" (click)="loadHistory()">Réessayer</button>
-        } @else if (visibleTransfers().length === 0) {
+        } @else if (transfers().length === 0) {
           <p role="status">
             {{ historyFilter() === 'active' ? 'Aucun transfert actif dans ton historique.' :
               historyFilter() === 'expired' ? 'Aucun transfert expiré dans ton historique.' :
@@ -87,7 +87,7 @@
           <a class="upload-link" routerLink="/upload">Envoyer des fichiers</a>
         } @else {
           <ul class="transfer-list">
-            @for (transfer of visibleTransfers(); track transfer.id) {
+            @for (transfer of transfers(); track transfer.id) {
               <li class="transfer">
                 <ul class="file-list">
                   @for (file of transfer.files; track file.id) {
@@ -149,6 +149,16 @@
               </li>
             }
           </ul>
+        }
+
+        @if (pagination().last_page > 1 && !errorMessage()) {
+          <nav class="history-pagination" aria-label="Pagination des transferts">
+            <button class="inline-action" type="button" (click)="changePage(page() - 1)"
+              [disabled]="historyLoading() || deletingFileId() !== null || page() <= 1">Précédent</button>
+            <span aria-live="polite">Page {{ page() }} / {{ pagination().last_page }}</span>
+            <button class="inline-action" type="button" (click)="changePage(page() + 1)"
+              [disabled]="historyLoading() || deletingFileId() !== null || page() >= pagination().last_page">Suivant</button>
+          </nav>
         }
       }
     </section>
