@@ -24,6 +24,8 @@ class MeController extends Controller
             'user' => [
                 'id' => $user->public_id,
                 'email' => $user->email,
+                'name' => $user->name,
+                'first_name' => $user->first_name,
                 'created_at' => $user->created_at?->toIso8601String(),
             ],
         ]);

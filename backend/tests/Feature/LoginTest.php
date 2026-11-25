@@ -35,10 +35,12 @@ class LoginTest extends TestCase
             'email' => 'PERSON@EXAMPLE.COM',
             'password' => 'StrongPass123!',
         ])->assertOk()
-            ->assertJsonStructure(['access_token', 'token_type', 'user' => ['id', 'email', 'created_at']])
+            ->assertJsonStructure(['access_token', 'token_type', 'user' => ['id', 'email', 'name', 'first_name', 'created_at']])
             ->assertJsonPath('token_type', 'Bearer')
             ->assertJsonPath('user.id', $user->public_id)
             ->assertJsonPath('user.email', $user->email)
+            ->assertJsonPath('user.name', $user->name)
+            ->assertJsonPath('user.first_name', null)
             ->assertJsonMissingPath('user.password');
 
         $claims = JWT::decode($response->json('access_token'), new Key($this->testSecret, 'HS256'));
