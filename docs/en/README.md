@@ -83,9 +83,9 @@ Open [Dozzle](http://127.0.0.1:9999/) while the service is running. Local use on
 The `scheduler` service starts with the main stack and runs Laravel's scheduled cleanup. To pause cleanup temporarily for a demonstration, then resume it on the already configured main project:
 
 ```bash
-docker compose stop scheduler
-docker compose start scheduler
-docker compose ps scheduler
+make scheduler-stop    # docker compose stop scheduler
+make scheduler-start   # docker compose start scheduler
+make scheduler-status  # docker compose ps scheduler
 ```
 
 Run these commands separately as needed. Stopping the scheduler pauses physical cleanup, not the API's expiry checks. Keep it running during normal use. See [expiry and cleanup demonstration](MAINTENANCE.md).

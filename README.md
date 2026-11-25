@@ -76,9 +76,9 @@ Ouvrir [Dozzle](http://127.0.0.1:9999/) lorsque le service est actif. Usage loca
 Le service `scheduler` démarre avec la stack principale et exécute la purge planifiée de Laravel. Pour suspendre temporairement la purge lors d'une démonstration, puis la réactiver sur le projet principal déjà configuré :
 
 ```bash
-docker compose stop scheduler
-docker compose start scheduler
-docker compose ps scheduler
+make scheduler-stop    # docker compose stop scheduler
+make scheduler-start   # docker compose start scheduler
+make scheduler-status  # docker compose ps scheduler
 ```
 
 Exécuter ces commandes séparément selon le besoin. L'arrêt du scheduler suspend la purge physique, mais pas le contrôle de l'expiration par l'API. Le scheduler doit rester actif en fonctionnement normal. Voir la [procédure de démonstration de l'expiration et de la purge](MAINTENANCE.md).
