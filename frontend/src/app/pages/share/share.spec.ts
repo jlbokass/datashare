@@ -116,6 +116,45 @@ describe('Share — public file access', () => {
       .toContain(`Ces fichiers expireront dans 3 jours à ${localTime}.`);
   });
 
+  it('requires a password for protected files while leaving unprotected downloads direct', () => {
+    createPage();
+    const file = { id: 'protected', original_name: 'secret.pdf', mime_type: 'application/pdf', size_bytes: 256, uploaded_at: '2026-11-18T10:00:00Z', password_protected: true };
+    http.expectOne(`/api/shares/${token}`).flush({
+      share: { expires_at: '2026-11-26T10:00:00Z', files: [file, { ...file, id: 'public', original_name: 'public.pdf', password_protected: false }] },
+    });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('a[aria-label="Télécharger secret.pdf"]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('a[aria-label="Télécharger public.pdf"]')).not.toBeNull();
+    const input = fixture.nativeElement.querySelector('input[type="password"]') as HTMLInputElement;
+    const form = input.closest('form')!;
+    const submit = () => form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    const url = `/api/shares/${token}/files/protected`;
+    submit();
+    http.expectNone(url + '/authorize');
+
+    input.value = 'incorrect';
+    submit();
+    const invalid = http.expectOne(url + '/authorize');
+    expect(invalid.request.method).toBe('POST');
+    expect(invalid.request.body).toEqual({ password: 'incorrect' });
+    expect(invalid.request.headers.has('Authorization')).toBe(false);
+    invalid.flush({}, { status: 403, statusText: 'Forbidden' });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain('Mot de passe incorrect');
+
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    try {
+      input.value = 'secret!';
+      submit();
+      http.expectOne(url + '/authorize').flush({ download_url: url + '?expires=123&signature=abc' });
+      expect(click).toHaveBeenCalledTimes(1);
+      expect((click.mock.contexts[0] as HTMLAnchorElement).getAttribute('href')).toBe(url + '?expires=123&signature=abc');
+      expect(input.value).toBe('');
+    } finally {
+      click.mockRestore();
+    }
+  });
+
   it('shows expiration error for HTTP 410', () => {
     const component = createPage();
 

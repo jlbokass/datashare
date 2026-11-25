@@ -13,6 +13,7 @@ interface HistoryFile {
   mime_type: string;
   uploaded_at: string;
   tags: string[];
+  password_protected: boolean;
 }
 
 interface HistoryTransfer {

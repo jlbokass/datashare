@@ -112,6 +112,9 @@
                             </time>
                           </span>
                           <span>{{ formatSize(file.size_bytes) }}</span>
+                          @if (file.password_protected) {
+                            <span>Protégé par mot de passe</span>
+                          }
                           <span class="sent-date">Envoyé le
                             <time [attr.datetime]="file.uploaded_at">{{ formatDate(file.uploaded_at) }}</time>
                           </span>

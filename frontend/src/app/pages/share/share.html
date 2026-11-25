@@ -33,7 +33,7 @@
           </svg>
           <div class="file-details">
             <strong>{{ file.original_name }}</strong>
-            <small>{{ formatSize(file.size_bytes) }}</small>
+            <small>{{ formatSize(file.size_bytes) }} @if (file.password_protected) { · Protégé par mot de passe }</small>
           </div>
         </li>
       }
@@ -51,6 +51,24 @@
 
     <div class="download-actions">
       @for (file of details.files; track file.id) {
+        @if (file.password_protected) {
+          <form class="protected-download" (submit)="$event.preventDefault(); authorizeDownload(file, passwordInput)">
+            <label [attr.for]="'download-password-' + file.id">Mot de passe @if (details.files.length > 1) { — {{ file.original_name }} }</label>
+            <input #passwordInput [id]="'download-password-' + file.id" type="password" autocomplete="off"
+              [attr.aria-label]="'Mot de passe pour ' + file.original_name"
+              [readOnly]="authorizingFile() !== null" placeholder="Saisis le mot de passe" />
+            <button type="submit" class="download-link" [disabled]="authorizingFile() !== null"
+              [attr.aria-label]="'Télécharger ' + file.original_name">
+              {{ authorizingFile() === file.id ? 'Vérification...' : 'Télécharger' }}
+              @if (details.files.length > 1) { — {{ file.original_name }} }
+            </button>
+            @if (passwordError(); as failure) {
+              @if (failure.fileId === file.id) {
+                <p class="error-message" role="alert">{{ failure.message }}</p>
+              }
+            }
+          </form>
+        } @else {
         <a class="download-link" [href]="downloadUrl(file.id)"
           [attr.aria-label]="'Télécharger ' + file.original_name">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -61,6 +79,7 @@
           </svg>
           <span>Télécharger @if (details.files.length > 1) { — {{ file.original_name }} }</span>
         </a>
+        }
       }
     </div>
 

@@ -86,6 +86,39 @@ describe('Home upload', () => {
     expect(home.shareUrl()).toContain('/share/abc123');
   });
 
+  it('sends per-file passwords in multipart order and removes them with their file', () => {
+    signIn();
+    const fixture = TestBed.createComponent(Home);
+    const home = fixture.componentInstance;
+    home.setFiles([
+      new File(['one'], 'one.pdf'),
+      new File(['two'], 'two.pdf'),
+      new File(['three'], 'three.pdf'),
+    ]);
+    home.setFilePassword(0, 'secret-one');
+    home.setFilePassword(2, 'secret-three');
+    home.removeFile(0);
+    home.upload();
+    const request = http.expectOne('/api/transfers');
+    expect(request.request.body.getAll('passwords[]')).toEqual(['', 'secret-three']);
+    expect(request.request.body.getAll('files[]').map((file: File) => file.name)).toEqual(['two.pdf', 'three.pdf']);
+    request.flush({ transfer: { id: 'id', share_url: '/share/generated', expires_at: '2026-11-26T00:00:00Z', files: [] } });
+    expect(home.filePasswords()).toEqual([]);
+  });
+
+  it('rejects a short or overlong file password before upload', () => {
+    signIn();
+    const fixture = TestBed.createComponent(Home);
+    const home = fixture.componentInstance;
+    home.setFiles([new File(['PDF'], 'report.pdf')]);
+    for (const password of ['short', 'é'.repeat(37)]) {
+      home.setFilePassword(0, password);
+      home.upload();
+      http.expectNone('/api/transfers');
+      expect(home.errorMessage()).toContain('6 caractères');
+    }
+  });
+
   it('shows size validation without selecting an oversized file', () => {
     signIn();
     const fixture = TestBed.createComponent(Home);
@@ -197,6 +230,7 @@ describe('Home upload', () => {
         mime_type: 'application/pdf',
         size_bytes: 1_500_000,
         uploaded_at: '2026-11-23T10:00:00Z',
+        password_protected: false,
       }],
     });
     fixture.componentInstance.shareUrl.set('http://127.0.0.1:8080/share/generated');
