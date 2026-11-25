@@ -11,7 +11,8 @@
     </div>
     <nav aria-label="Navigation de l'espace personnel">
       <a class="sidebar-link current" routerLink="/account" aria-current="page" (click)="menuOpen.set(false)">Mes fichiers</a>
-      <a class="sidebar-link" routerLink="/upload" (click)="menuOpen.set(false)">Envoyer des fichiers</a>
+      <a class="sidebar-link" routerLink="/profile" (click)="menuOpen.set(false)">Mon profil</a>
+      <a class="sidebar-link upload-nav" routerLink="/upload" (click)="menuOpen.set(false)">Envoyer des fichiers</a>
     </nav>
     <span class="sidebar-footer">Copyright DataShare© {{ year }}</span>
   </aside>
@@ -34,7 +35,7 @@
       @if (auth.user(); as user) {
         <div class="account-identity">
           <a class="upload-action" routerLink="/upload">Ajouter des fichiers</a>
-          <span class="account-email">{{ user.email }}</span>
+          <span class="account-email">{{ user.first_name || user.email }}</span>
           <button class="logout-action" type="button" (click)="logout()">Déconnexion</button>
         </div>
       }

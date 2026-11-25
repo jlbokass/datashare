@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\ShowPublicShareController;
 use App\Http\Controllers\Api\UpdateFileTagsController;
+use App\Http\Controllers\Api\UpdateProfileController;
 use App\Http\Middleware\AuthenticateJwt;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,8 @@ Route::post('/auth/register', RegisterController::class)->middleware('throttle:1
 // US04: login returns JWT, /me requires a valid bearer token.
 Route::post('/auth/login', LoginController::class)->middleware('throttle:5,1');
 Route::get('/auth/me', MeController::class)->middleware(AuthenticateJwt::class);
+// PROFILE-01: authenticated account name and first name only.
+Route::patch('/auth/me', UpdateProfileController::class)->middleware(AuthenticateJwt::class);
 
 Route::get(
     '/demo/capabilities',

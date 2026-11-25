@@ -63,7 +63,7 @@ Les chemins sont déclarés dans `frontend/src/app/app.routes.ts`. `/upload` ré
 
 [Schéma UML/MCD](data-model.fr.md) · [Diagramme](diagrams/data-model.svg)
 
-Trois entités principales : **Utilisateur** (email unique, mot de passe hashé), **Transfert** (propriétaire, token public et expiration) et **Fichier** (nom, type, taille et chemin de stockage privé). Un utilisateur possède plusieurs transferts ; un transfert contient un ou plusieurs fichiers. Les migrations PostgreSQL se trouvent dans `backend/database/migrations/`. L'extension facultative US08 associe zéro ou plusieurs tags privés à chaque fichier (30 caractères maximum, unicité par fichier, suppression en cascade).
+Trois entités principales : **Utilisateur** (email unique, mot de passe hashé), **Transfert** (propriétaire, token public et expiration) et **Fichier** (nom, type, taille et chemin de stockage privé). Un utilisateur possède plusieurs transferts ; un transfert contient un ou plusieurs fichiers. Les migrations PostgreSQL se trouvent dans `backend/database/migrations/`. L'extension facultative US08 associe zéro ou plusieurs tags privés à chaque fichier (30 caractères maximum, unicité par fichier, suppression en cascade). PROFILE-01 complète le compte avec un nom et un prénom facultatifs ; seul `first_name` est ajouté au schéma existant.
 
 ## 4. Documentation de l'API
 
@@ -76,6 +76,7 @@ L'interface, réservée à l'environnement local, organise les dix opérations e
 | Fonctionnalité | Endpoints principaux |
 | --- | --- |
 | US03 / US04 — inscription et authentification | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me` |
+| PROFILE-01 — profil facultatif | `PATCH /api/auth/me` |
 | US01 — téléversement authentifié | `POST /api/transfers` |
 | US02 — partage et téléchargement publics | `GET /api/shares/{token}`, `GET /api/shares/{token}/files/{fileId}` |
 | US05 — historique personnel | `GET /api/transfers` |

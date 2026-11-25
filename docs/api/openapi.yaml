@@ -6,14 +6,15 @@ info:
     DESIGN-03 — Design contract for the implemented OpenClassrooms MVP (US01–US06),
     reconciled with Laravel on 24 November 2026 (DELIVERY-API #75). Scramble
     generates a complementary OpenAPI document at /docs/api.json in local only.
-    Optional US08 adds private file tags. US07, US09 and separate US10 extensions are not exposed.
+    Optional US08 adds private file tags; PROFILE-01 adds optional names and profile editing.
+    US07, US09 and separate US10 extensions are not exposed.
     See README.md for inference limitations.
 servers:
   - url: /api
     description: API path prefix on the same origin as the Angular application
 tags:
   - name: Authentication
-    description: Account registration and JWT authentication (US03, US04)
+    description: Account registration, JWT authentication and profile editing (US03, US04, PROFILE-01)
   - name: Transfers
     description: Authenticated upload, personal history and individual file deletion and tags (US01, US05, US06, US08)
   - name: Public sharing
@@ -27,7 +28,8 @@ paths:
       description: |
         Public registration (US03). Email must be unique and valid; password
         must contain at least eight characters. No administrator role and no
-        confirmation email are required for this MVP.
+        confirmation email are required for this MVP. Optional name (family name)
+        and first_name fields may be supplied, each up to 255 characters.
       operationId: registerUser
       requestBody:
         required: true
@@ -92,6 +94,34 @@ paths:
                 $ref: '#/components/schemas/UserEnvelope'
         '401':
           $ref: '#/components/responses/AuthenticationError'
+
+    patch:
+      tags: [Authentication]
+      summary: Update the authenticated user's name and first name
+      description: |
+        PROFILE-01. Requires a valid JWT. Only name and first_name are updated.
+        Omitted fields remain unchanged; null clears a name. Email, password
+        and identifiers are not modifiable through this endpoint.
+      operationId: updateCurrentUserProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Updated authenticated profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserEnvelope'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 
   /transfers:
     post:
@@ -361,7 +391,7 @@ components:
     User:
       type: object
       additionalProperties: false
-      required: [id, email, created_at]
+      required: [id, email, name, first_name, created_at]
       properties:
         id:
           type: [string, "null"]
@@ -369,6 +399,14 @@ components:
         email:
           type: string
           format: email
+        name:
+          type: [string, "null"]
+          maxLength: 255
+          description: Optional family name; null if not supplied.
+        first_name:
+          type: [string, "null"]
+          maxLength: 255
+          description: Optional given name; null if not supplied.
         created_at:
           type: [string, "null"]
           format: date-time
@@ -385,6 +423,25 @@ components:
           format: password
           minLength: 8
           writeOnly: true
+        name:
+          type: [string, "null"]
+          maxLength: 255
+          description: Optional family name; null if not supplied.
+        first_name:
+          type: [string, "null"]
+          maxLength: 255
+          description: Optional given name; null if not supplied.
+    UpdateProfileRequest:
+      type: object
+      properties:
+        name:
+          type: [string, "null"]
+          maxLength: 255
+          description: Optional family name; null if not supplied.
+        first_name:
+          type: [string, "null"]
+          maxLength: 255
+          description: Optional given name; null if not supplied.
     LoginRequest:
       type: object
       required: [email, password]

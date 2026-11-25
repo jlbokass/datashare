@@ -29,7 +29,7 @@ lang: fr
 | **TRANSFERT** | `idTransfert`, `tokenPartage` unique et non prédictible, `dateCreation`, `dateExpiration`, `/statut` calculé | US01, US02, US05 |
 | **FICHIER** | `idFichier`, `nomOriginal`, `tailleOctets`, `typeMime`, `dateEnvoi` | US01, US02, US05, US06 |
 
-`nom` / `prenom` (UTILISATEUR) et `titre` / `message` (TRANSFERT) restent des **choix facultatifs de conception**, non exigés par les US du MVP. Le préfixe UML `/statut` désigne un **attribut dérivé**, calculé à partir de l'expiration, pas un statut à enregistrer obligatoirement.
+`nom` / `prenom` (UTILISATEUR) et `titre` / `message` (TRANSFERT) sont des **choix facultatifs de conception**, non exigés par les US du MVP. PROFILE-01 met en œuvre les deux premiers via `users.name` (colonne nullable préexistante, valeurs conservées) et `users.first_name` (nouvelle colonne nullable). Le préfixe UML `/statut` désigne un **attribut dérivé**, calculé à partir de l'expiration, pas un statut à enregistrer obligatoirement.
 
 ### Associations et multiplicités UML
 

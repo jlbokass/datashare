@@ -6,7 +6,7 @@ import { AuthService } from '../../auth/auth.service';
 import { Account } from './account';
 
 describe('Account — personal history', () => {
-  const user = { id: 'owner-id', email: 'owner@example.com', created_at: '2026-11-18T10:00:00Z' };
+  const user = { id: 'owner-id', email: 'owner@example.com', name: null, first_name: null, created_at: '2026-11-18T10:00:00Z' };
   const transfer = {
     id: 'transfer-id', share_url: '/share/' + 'a'.repeat(64),
     created_at: '2026-11-18T10:00:00Z', expires_at: '2026-11-25T10:00:00Z', status: 'valid',
@@ -72,6 +72,16 @@ describe('Account — personal history', () => {
     expect(times.map((time) => time.dateTime)).toContain(transfer.expires_at);
     expect(fixture.nativeElement.querySelector('a[href="' + transfer.share_url + '"]')).not.toBeNull();
     expect(text()).not.toContain('US05');
+  });
+
+  it('displays the first name when provided and falls back to email otherwise', () => {
+    expect(fixture.nativeElement.querySelector('.account-email').textContent.trim()).toBe(user.email);
+
+    http.expectOne('/api/auth/me').flush({ user: { ...user, first_name: 'Élodie' } });
+    http.expectOne('/api/transfers').flush(historyResponse([]));
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.account-email').textContent.trim()).toBe('Élodie');
   });
 
   it('explains an empty active history and offers an upload link', () => {
