@@ -35,7 +35,7 @@
       @if (auth.user(); as user) {
         <div class="account-identity">
           <a class="upload-action" routerLink="/upload">Ajouter des fichiers</a>
-          <span class="account-email">{{ user.email }}</span>
+          <span class="account-email">{{ user.first_name || user.email }}</span>
           <button class="logout-action" type="button" (click)="logout()">Déconnexion</button>
         </div>
       }
