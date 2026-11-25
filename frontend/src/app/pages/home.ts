@@ -11,6 +11,7 @@ interface UploadedFile {
   mime_type: string;
   size_bytes: number;
   uploaded_at: string;
+  password_protected: boolean;
 }
 
 interface Transfer {
@@ -33,6 +34,7 @@ export class Home implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   readonly files = signal<File[]>([]);
+  readonly filePasswords = signal<string[]>([]);
   readonly uploadPanelOpen = signal(this.route.snapshot.routeConfig?.path === 'upload');
   readonly rejectedFiles = signal<File[]>([]);
   readonly expiresInDays = signal(7);
@@ -89,6 +91,7 @@ export class Home implements OnInit {
     this.copied.set(false);
     this.errorMessage.set(null);
     this.rejectedFiles.set([]);
+    this.filePasswords.set([]);
 
     // Keep invalid files visible in the panel so they can be replaced immediately.
     const reject = (message: string): void => {
@@ -118,6 +121,7 @@ export class Home implements OnInit {
     }
 
     this.files.set(files);
+    this.filePasswords.set(files.map(() => ''));
   }
 
   removeFile(index: number): void {
@@ -126,7 +130,13 @@ export class Home implements OnInit {
     }
 
     this.files.update((previous) => previous.filter((_, i) => i !== index));
+    this.filePasswords.update((previous) => previous.filter((_, i) => i !== index));
     this.errorMessage.set(null);
+  }
+
+  setFilePassword(index: number, password: string): void {
+    if (this.busy()) return;
+    this.filePasswords.update((previous) => previous.map((value, i) => i === index ? password : value));
   }
 
   changeExpiry(event: Event): void {
@@ -183,10 +193,23 @@ export class Home implements OnInit {
       return;
     }
 
+    const passwords = this.files().map((_, index) => this.filePasswords()[index] ?? '');
+    if (passwords.some((password) => password !== '' && (
+      !password.trim() || Array.from(password).length < 6 || new TextEncoder().encode(password).length > 72
+      || password.includes('\0')
+    ))) {
+      this.errorMessage.set('Un mot de passe doit comporter au moins 6 caractères et au maximum 72 octets UTF-8.');
+      return;
+    }
+
     const body = new FormData();
 
     for (const file of this.files()) {
       body.append('files[]', file, file.name);
+    }
+
+    if (passwords.some((password) => password !== '')) {
+      for (const password of passwords) body.append('passwords[]', password);
     }
 
     if (this.demoEnabled() && this.demoSelected()) {
@@ -209,6 +232,7 @@ export class Home implements OnInit {
         }
 
         if (event.type === HttpEventType.Response && event.body) {
+          this.filePasswords.set([]);
           this.transfer.set(event.body.transfer);
           this.shareUrl.set(window.location.origin + event.body.transfer.share_url);
           this.busy.set(false);
@@ -252,6 +276,7 @@ export class Home implements OnInit {
     }
 
     this.files.set([]);
+    this.filePasswords.set([]);
     this.rejectedFiles.set([]);
     this.uploadPanelOpen.set(this.route.snapshot.routeConfig?.path === 'upload');
     this.transfer.set(null);

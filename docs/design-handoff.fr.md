@@ -61,7 +61,7 @@ Ce document constitue la référence visuelle des écrans Angular et retrace les
 
 - Depuis **Mon espace**, « Envoyer des fichiers » ouvre directement `/upload` ; depuis l'accueil connecté, l'icône permet d'ouvrir ce formulaire. Avant connexion, l'icône reste décorative et le texte « Connecte-toi » est un lien.
 - Un transfert peut contenir **plusieurs fichiers**, même si Figma illustre généralement un seul fichier.
-- Le **mot de passe de partage (US09)** n'est pas implémenté : téléchargement direct selon la variante Figma, sans champ fictif.
+- Lors de la recette MVP, le **mot de passe de partage (US09)** était volontairement omis. L'extension US09 ajoute ensuite une saisie facultative par fichier à l'envoi et une saisie au téléchargement lorsque nécessaire ; le téléchargement direct reste inchangé pour les fichiers non protégés.
 - Les noms, dates et fichiers proviennent de l'API ; le bouton **« Copier le lien »** est conservé aussi sur mobile (plus explicite que « Téléverser » après succès). L'année du copyright est actualisée.
 
 **À distinguer de la recette UI :** avec la démo de cinq minutes, la purge planifiée supprime les fichiers expirés et leurs métadonnées. L'onglet « Expiré » peut donc être vide. La décision de maintenir la purge actuelle est enregistrée dans [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57), **sans changement de la purge dans UI-01**.

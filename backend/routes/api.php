@@ -1,6 +1,7 @@
 <?php
 
 use App\Documentation\ClosureGroup;
+use App\Http\Controllers\Api\AuthorizePublicDownloadController;
 use App\Http\Controllers\Api\CreateTransferController;
 use App\Http\Controllers\Api\DeleteTransferFileController;
 use App\Http\Controllers\Api\DownloadPublicShareFileController;
@@ -67,4 +68,8 @@ Route::put('/transfers/{transferId}/files/{fileId}/tags', UpdateFileTagsControll
 
 // US02: public share metadata and file download, authorized by share token (no JWT).
 Route::get('/shares/{token}', ShowPublicShareController::class)->middleware('throttle:60,1');
-Route::get('/shares/{token}/files/{fileId}', DownloadPublicShareFileController::class)->middleware('throttle:60,1');
+Route::get('/shares/{token}/files/{fileId}', DownloadPublicShareFileController::class)
+    ->middleware('throttle:60,1')->name('shares.download');
+// US09: password verification is separately rate limited.
+Route::post('/shares/{token}/files/{fileId}/authorize', AuthorizePublicDownloadController::class)
+    ->middleware('throttle:5,1,share-password');

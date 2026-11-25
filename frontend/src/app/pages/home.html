@@ -31,7 +31,7 @@
             </svg>
             <span class="file-info">
               <span class="file-name">{{ file.original_name }}</span>
-              <small>{{ formatSize(file.size_bytes) }}</small>
+              <small>{{ formatSize(file.size_bytes) }} @if (file.password_protected) { · Protégé par mot de passe }</small>
             </span>
           </li>
         }
@@ -76,6 +76,14 @@
               <span class="file-info">
                 <span class="file-name">{{ file.name }}</span>
                 <small [class.invalid-size]="rejectedFiles().length > 0">{{ formatSize(file.size) }}</small>
+                @if (files().length > 0) {
+                  <label class="file-password-label" [attr.for]="'file-password-' + $index">Mot de passe (facultatif)</label>
+                  <input [id]="'file-password-' + $index" class="file-password" type="password"
+                    autocomplete="new-password" placeholder="6 caractères minimum"
+                    [attr.aria-label]="'Mot de passe facultatif pour ' + file.name"
+                    [value]="filePasswords()[$index] ?? ''" [disabled]="busy()"
+                    (input)="setFilePassword($index, $any($event.target).value)" />
+                }
               </span>
               @if ($first && (files().length <= 1 && rejectedFiles().length <= 1)) {
                 <button class="change-files" type="button" (click)="selectedFilesInput.click()" [disabled]="busy()">Changer</button>

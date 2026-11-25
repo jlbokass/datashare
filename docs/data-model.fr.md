@@ -101,6 +101,6 @@ Les noms des tables et colonnes ci-dessus sont illustratifs. **Ces instructions 
 
 ## 5. Modèle physique et arbitrage sur la purge
 
-Le stockage privé, les clés, les index, les migrations et les classes ORM relèvent du modèle physique (voir `backend/database/migrations/`). Le statut est dérivé de l'expiration. L'extension US08 utilise une table `tags` liée à `transfer_files` par une clé étrangère avec suppression en cascade, et une contrainte unique (`transfer_file_id`, `name`). Les statistiques de téléchargement et la protection par mot de passe ne font pas partie de l'implémentation.
+Le stockage privé, les clés, les index, les migrations et les classes ORM relèvent du modèle physique (voir `backend/database/migrations/`). Le statut est dérivé de l'expiration. L'extension US08 utilise une table `tags` liée à `transfer_files` par une clé étrangère avec suppression en cascade, et une contrainte unique (`transfer_file_id`, `name`). US09 ajoute une colonne nullable `transfer_files.password_hash` (hash irréversible, jamais exposé) ; `null` conserve le téléchargement direct. Les statistiques de téléchargement ne font pas partie de l'implémentation.
 
 [HIST-01 #57](https://github.com/jlbokass/datashare/issues/57) confirme la conservation de la purge existante : fichiers et métadonnées sont supprimés à expiration par la tâche planifiée. L'historique peut uniquement inclure les enregistrements expirés non encore purgés. Les statistiques facultatives ci-dessus restent une hypothèse de conception, pas une politique de conservation en vigueur.

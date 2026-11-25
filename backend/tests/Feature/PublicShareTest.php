@@ -51,14 +51,16 @@ class PublicShareTest extends TestCase
         $response = $this->getJson('/api/shares/'.$transfer->share_token)
             ->assertOk()
             ->assertJsonStructure(['share' => ['expires_at', 'files' => [
-                ['id', 'original_name', 'mime_type', 'size_bytes', 'uploaded_at'],
+                ['id', 'original_name', 'mime_type', 'size_bytes', 'uploaded_at', 'password_protected'],
             ]]])
             ->assertJsonPath('share.files.0.original_name', 'report.pdf')
             ->assertJsonMissingPath('share.owner_id')
             ->assertJsonMissingPath('share.user_id')
             ->assertJsonMissingPath('share.share_token')
             ->assertJsonMissingPath('share.files.0.storage_path')
-            ->assertJsonMissingPath('share.files.0.password');
+            ->assertJsonMissingPath('share.files.0.password')
+            ->assertJsonMissingPath('share.files.0.password_hash')
+            ->assertJsonPath('share.files.0.password_protected', false);
 
         $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));
     }

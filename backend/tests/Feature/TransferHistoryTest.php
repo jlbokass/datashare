@@ -103,6 +103,7 @@ final class TransferHistoryTest extends TestCase
                     'size_bytes' => $file->size_bytes, 'mime_type' => $file->mime_type,
                     'uploaded_at' => $file->created_at->toIso8601String(),
                     'tags' => [],
+                    'password_protected' => false,
                 ])->all(),
             ]], 'pagination' => ['current_page' => 1, 'per_page' => 10, 'last_page' => 1, 'total' => 1]]);
 
